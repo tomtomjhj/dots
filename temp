@@ -1,0 +1,1 @@
+watch -n1 "lscpu | grep 'CPU MHz' | awk '{print $1}' && cat /sys/class/thermal/thermal_zone*/temp"
