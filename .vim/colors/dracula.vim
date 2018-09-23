@@ -33,23 +33,32 @@ endif
 
 let s:fg        = ['#F8F8F2', 255]
 
-let s:bglighter = ['#424450', 238]
-let s:bglight   = ['#343746', 237]
-let s:bg        = ['#282A36', 236]
-let s:bgdark    = ['#21222C', 235]
+"let s:bglighter = ['#424450', 238]
+"let s:bglight   = ['#343746', 237]
+"let s:bg        = ['#282A36', 236]
+"let s:bgdark    = ['#21222C', 235]
+"let s:bgdarker  = ['#191A21', 234]
+let s:bglighter = ['#424450', 237]
+let s:bglight   = ['#343746', 236]
+let s:bg        = ['#21222C', 235]
+let s:bgdark    = ['#191A21', 234]
 let s:bgdarker  = ['#191A21', 234]
 
 let s:subtle    = ['#424450', 238]
 
 let s:selection = ['#44475A', 239]
-let s:comment   = ['#6272A4',  61]
+"let s:comment   = ['#6272A4',  61]
+let s:comment   = ['#5f8787',  66]
 let s:cyan      = ['#8BE9FD', 117]
-let s:green     = ['#50FA7B',  84]
+"let s:green     = ['#50FA7B',  84]
+let s:green     = ['#afd75f',  149]
 let s:orange    = ['#FFB86C', 215]
 let s:pink      = ['#FF79C6', 212]
 let s:purple    = ['#BD93F9', 141]
 let s:red       = ['#FF5555', 203]
 let s:yellow    = ['#F1FA8C', 228]
+
+let s:special   = ['#ffd7d7', 224]
 
 let s:none      = ['NONE', 'NONE']
 
@@ -198,6 +207,7 @@ call s:h('DraculaDiffChange', s:none, s:none)
 call s:h('DraculaDiffText', s:bg, s:orange)
 call s:h('DraculaDiffDelete', s:red, s:bgdark)
 
+call s:h('DraculaSpecial', s:special)
 " }}}2
 
 " }}}
@@ -242,7 +252,8 @@ hi! link FoldColumn DraculaSubtle
 
 " Line Numbers
 hi! link CursorLineNr DraculaYellow
-hi! link LineNr DraculaComment
+"hi! link LineNr DraculaComment
+hi LineNr guifg=#9fafaf  ctermfg=248 
 hi! link SignColumn DraculaComment
 
 " Whitespace / Non-text
@@ -285,12 +296,13 @@ hi! link SpellRare DraculaInfoLine
 
 hi! link Constant DraculaPurple
 hi! link String DraculaYellow
-hi! link Character DraculaPink
+hi! link Character DraculaYellow
 hi! link Number Constant
 hi! link Boolean Constant
 hi! link Float Constant
 
-hi! link Identifier DraculaFg
+"hi! link Identifier DraculaFg
+hi! link Identifier DraculaSpecial
 hi! link Function DraculaGreen
 
 hi! link Statement DraculaPink
@@ -314,9 +326,11 @@ hi! link Type DraculaCyanItalic
 
 hi! link Delimiter DraculaFg
 
-hi! link Special DraculaPink
+"hi! link Special DraculaPink
+hi! link Special DraculaSpecial
 hi! link SpecialKey DraculaRed
-hi! link SpecialComment DraculaCyanItalic
+"hi! link SpecialComment DraculaCyanItalic
+hi! link SpecialComment DraculaCommentBold
 hi! link Tag DraculaCyan
 hi! link helpHyperTextJump DraculaLink
 hi! link helpCommand DraculaPurple
