@@ -1,4 +1,8 @@
 set runtimepath+=~/.vim_runtime
+if has('nvim')
+  set runtimepath+=~/.vim
+  set runtimepath+=~/.vim/after
+endif
 
 source ~/.vim_runtime/vimrcs/basic.vim
 source ~/.vim_runtime/vimrcs/filetypes.vim
