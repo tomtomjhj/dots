@@ -3,6 +3,8 @@
 	lg = log --all --decorate --oneline --graph
 	st = status
 	hist = log --all --decorate --oneline --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an\n%C(bold)%s%C(reset)\n%b'
+  df = diff
+  dt = difftool
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jerry Jaehwang Jung
@@ -10,3 +12,5 @@
 	editor = vi
 [url "git://github.com/ghc/packages-"]
 	insteadOf = git://github.com/ghc/packages/
+[diff]
+	tool = vimdiff
