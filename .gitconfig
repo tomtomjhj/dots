@@ -1,10 +1,18 @@
 [alias]
-	adog = log --all --decorate --oneline --graph
+	unstage = reset HEAD --
+	cm = commit
+	cmm = commit -m
 	lg = log --all --decorate --oneline --graph
+	lgh = log --decorate --oneline --graph HEAD
 	st = status
-	hist = log --all --decorate --oneline --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an\n%C(bold)%s%C(reset)\n%b'
-  df = diff
-  dt = difftool
+	hs = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
+	hsp = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
+	hss = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
+	hsh = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD
+	hshp = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD -p
+	hshs = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD --stat
+	df = diff
+	dt = difftool
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jerry Jaehwang Jung
