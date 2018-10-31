@@ -2,6 +2,7 @@ set runtimepath+=~/.vim_runtime
 if has('nvim')
   set runtimepath+=~/.vim
   set runtimepath+=~/.vim/after
+  set mouse=a
 endif
 
 source ~/.vim_runtime/vimrcs/basic.vim

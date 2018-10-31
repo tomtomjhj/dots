@@ -122,10 +122,15 @@ export PATH=${PATH}:${HOME}/.local/bin
 export PATH=${PATH}:${HOME}/k5/k-distribution/target/release/k/bin
 export K_HOME=${HOME}/k5
 export PATH=${PATH}:/opt/ghc/bin 
+export PATH=${PATH}:${HOME}/scratch/maude
+export PATH=${PATH}:${HOME}/.cargo/bin
 
 export PS1="\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 export PROMPT_COMMAND='echo -en "\033]0;$(whoami):~/$(pwd|cut -d "/" -f 4-100)\a"'
 #export PROMPT_COMMAND='echo -en "\033]0;$(pwd)\a"'
 export PROMPT_DIRTRIM=3
 
-export TERM=xterm-256color
+#export TERM=xterm-256color
+
+alias nv=nvim
+alias g=git
