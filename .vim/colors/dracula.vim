@@ -32,6 +32,8 @@ endif
 " Palette: {{{2
 
 let s:fg        = ['#F8F8F2', 255]
+let s:fgdarkish = ['#d0d0d0', 252]
+let s:fgdark    = ['#bcbcbc', 250]
 
 "let s:bglighter = ['#424450', 238]
 "let s:bglight   = ['#343746', 237]
@@ -53,7 +55,8 @@ let s:cyan      = ['#8BE9FD', 117]
 "let s:green     = ['#50FA7B',  84]
 let s:green     = ['#afd75f',  149]
 let s:orange    = ['#FFB86C', 215]
-let s:pink      = ['#FF79C6', 212]
+"let s:pink      = ['#FF79C5', 212]
+let s:pink      = ['#ffafd7', 218]
 let s:purple    = ['#BD93F9', 141]
 let s:red       = ['#FF5555', 203]
 let s:yellow    = ['#F1FA8C', 228]
@@ -157,6 +160,8 @@ call s:h('DraculaFg', s:fg)
 call s:h('DraculaFgUnderline', s:fg, s:none, [s:attrs.underline])
 call s:h('DraculaFgBold', s:fg, s:none, [s:attrs.bold])
 
+call s:h('DraculaFgDark', s:fgdark)
+
 call s:h('DraculaComment', s:comment)
 call s:h('DraculaCommentBold', s:comment, s:none, [s:attrs.bold])
 
@@ -199,7 +204,8 @@ call s:h('DraculaWarnLine', s:none, s:none, [s:attrs.undercurl], s:orange)
 call s:h('DraculaInfoLine', s:none, s:none, [s:attrs.undercurl], s:cyan)
 
 call s:h('DraculaTodo', s:cyan, s:none, [s:attrs.bold, s:attrs.inverse])
-call s:h('DraculaSearch', s:green, s:none, [s:attrs.inverse])
+"call s:h('DraculaSearch', s:green, s:none, [s:attrs.inverse])
+call s:h('DraculaSearch', s:fgdarkish, s:none, [s:attrs.bold, s:attrs.inverse])
 call s:h('DraculaBoundary', s:comment, s:bgdark)
 call s:h('DraculaLink', s:cyan, s:none, [s:attrs.underline])
 
@@ -324,7 +330,8 @@ hi! link Typedef DraculaPink
 
 hi! link Type DraculaCyanItalic
 
-hi! link Delimiter DraculaFg
+"hi! link Delimiter DraculaFg
+hi! link Delimiter DraculaFgDark
 
 "hi! link Special DraculaPink
 hi! link Special DraculaSpecial

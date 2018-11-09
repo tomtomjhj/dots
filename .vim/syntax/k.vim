@@ -95,7 +95,8 @@ KHiLink kStatement      Statement
 " KHiLink kCellContent    PreProc
 KHiLink kCell           Structure
 KHiLink kCellAttr       Structure
-KHiLink kMeta           PreProc
+"KHiLink kMeta           PreProc
+KHiLink kMeta           Identifier
 KHiLink kSymbol         Operator
 KHiLink kEqual          Operator
 " KHiLink kType           Type
