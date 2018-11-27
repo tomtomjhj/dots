@@ -133,4 +133,27 @@ export PROMPT_DIRTRIM=3
 #export TERM=xterm-256color
 
 alias nv=nvim
+alias vi=nvim
 alias g=git
+alias gti=git
+
+# If not running interactively, don't do anything
+# [[ $- != *i* ]] && return
+# Otherwise start tmux
+# [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
+if [ -z "$TMUX"  ]; then
+  sessions=$(tmux ls 2> /dev/null | grep "window" | wc -l)
+  attached=$(tmux ls 2> /dev/null | grep "attached" | wc -l)
+  detached=`expr $sessions - $attached`
+  if [ $detached == 0 ]; then
+    tmux new-session
+  else
+    tmux attach
+  fi
+  sessions=$(tmux ls 2> /dev/null | grep "window" | wc -l)
+  attached=$(tmux ls 2> /dev/null | grep "attached" | wc -l)
+  detached=`expr $sessions - $attached`
+  if [ $detached == 0 ]; then
+    exit
+  fi
+fi

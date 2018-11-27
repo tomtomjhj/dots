@@ -2,17 +2,23 @@
 	unstage = reset HEAD --
 	cm = commit
 	cmm = commit -m
+	co = checkout
 	lg = log --all --decorate --oneline --graph
 	lgh = log --decorate --oneline --graph HEAD
 	st = status
 	hs = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
 	hsp = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
+	hspb = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p -b
 	hss = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
 	hsh = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD
 	hshp = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD -p
+	hshpb = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD -p -b
 	hshs = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD --stat
 	df = diff
+	dfc = diff --cached
 	dt = difftool
+	rb = rebase
+	rbi = rebase -i
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jerry Jaehwang Jung
