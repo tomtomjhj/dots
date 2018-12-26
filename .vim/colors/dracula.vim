@@ -247,6 +247,7 @@ hi! link PmenuThumb DraculaSelection
 " Messages
 hi! link ErrorMsg DraculaRedInverse
 hi! link WarningMsg DraculaOrangeInverse
+hi! link ModeMsg DraculaFgBold
 hi! link MoreMsg DraculaFgBold
 hi! link Question DraculaFgBold
 hi! link Title DraculaGreenBold

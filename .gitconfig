@@ -12,6 +12,7 @@
 	hss = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
 	hsh = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD
 	hshp = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD -p
+	hscp = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
 	hshpb = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD -p -b
 	hshs = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%ar%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' HEAD --stat
 	df = diff
@@ -19,6 +20,7 @@
 	dt = difftool
 	rb = rebase
 	rbi = rebase -i
+	sm = submodule
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jerry Jaehwang Jung
