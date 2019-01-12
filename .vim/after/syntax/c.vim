@@ -259,8 +259,10 @@ hi def link cConst cIdentifier
 syn match cUserFunction "\<\h\w*\>\(\s\|\n\)*("me=e-1 contains=cType,cDelimiter,cDefine
 syn match cUserFunctionPointer "(\s*\*\s*\h\w*\s*)\(\s\|\n\)*(" contains=cDelimiter,cOperator
 
-hi def link cUserFunction cFunction
-hi def link cUserFunctionPointer cFunction
+" hi def link cUserFunction cFunction
+hi def link cUserFunction Constant
+" hi def link cUserFunctionPointer cFunction
+hi def link cUserFunctionPointer Constant
 
 " Delimiters
 syn match cDelimiter    "[();\\]"

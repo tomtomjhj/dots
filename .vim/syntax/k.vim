@@ -82,6 +82,11 @@ syn region  kComment    start="/\*" end="\*/" contains=kTodo,@Spell
 syn match   kComment    "//.*$" contains=kTodo,@Spell
 syn keyword kTodo       contained TODO FIXME XXX NOTE BUG
 
+syn match   kInternalName "#\w\+"
+syn match   kEmptyThing   "\.\u\w*"
+syn match   kOperator     "\(+\|*\|-\|/\|%\|==\|=/=\|<\|>\|<=\|>=\|\^\||\|&\)\u\w*"
+syn match   kOperator     "|->"
+syn keyword kOperator     andBool orBool notBool in
 
 KHiLink kRequire        Include
 KHiLink kRequireFile    Include
@@ -107,6 +112,10 @@ KHiLink kString         String
 KHiLink kComment        Comment
 KHiLink kTodo           Todo
 " hi def     kMisc       term=bold cterm=bold gui=bold
+"
+KHiLink kInternalName   Constant
+KHiLink kEmptyThing     Constant
+KHiLink kOperator       Operator
 
 delcommand KHiLink
   

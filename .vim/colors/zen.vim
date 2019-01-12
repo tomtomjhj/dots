@@ -22,6 +22,8 @@ let s:subtle    = ['#424450', 238]
 let s:selection = ['#44475A', 239]
 let s:comment   = ['#87af87', 108]
 let s:cyan      = ['#87d7d7', 116]
+" #afd7ff
+let s:lightcyan = ['#afd7d7', 152] 
 let s:green     = ['#afd75f', 149]
 let s:orange    = ['#FFB86C', 215]
 let s:pink      = ['#ffafd7', 218]
@@ -142,6 +144,7 @@ call s:h('ZenSubtle', s:subtle)
 
 call s:h('ZenCyan', s:cyan)
 call s:h('ZenCyanItalic', s:cyan, s:none, [s:attrs.italic])
+call s:h('ZenLightCyan', s:lightcyan)
 
 call s:h('ZenGreen', s:green)
 call s:h('ZenGreenBold', s:green, s:none, [s:attrs.bold])
@@ -277,7 +280,7 @@ hi! link SpellCap ZenInfoLine
 hi! link SpellRare ZenInfoLine
 
 " hi! link Constant ZenPurple
-hi! link Constant ZenCyan
+hi! link Constant ZenLightCyan
 hi! link String ZenRedish
 hi! link Character ZenRedish
 hi! link Number ZenPurple

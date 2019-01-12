@@ -95,7 +95,8 @@ hi def link cppNumber		Number
 if !exists('g:cpp_no_function_highlight')
     syn match   cCustomParen    transparent "(" contains=cParen contains=cCppParen
     syn match   cCustomFunc     "\w\+\s*(\@="
-    hi def link cCustomFunc  Function
+    " hi def link cCustomFunc  Function
+    hi def link cCustomFunc  Constant
 endif
 
 " Class and namespace scope
@@ -159,7 +160,8 @@ if exists('g:cpp_experimental_simple_template_highlight') && g:cpp_experimental_
     syn region  cCustomAngleBrackets matchgroup=AngleBracketContents start="\v%(<operator\_s*)@<!%(%(\_i|template\_s*)@<=\<[<=]@!|\<@<!\<[[:space:]<=]@!)" end='>' contains=@cppSTLgroup,cppStructure,cType,cCustomClass,cCustomAngleBrackets,cNumbers
     syn match   cCustomBrack    "<\|>" contains=cCustomAngleBrackets
     syn match   cCustomTemplateFunc "\w\+\s*<.*>(\@=" contains=cCustomBrack,cCustomAngleBrackets
-    hi def link cCustomTemplateFunc  Function
+    " hi def link cCustomTemplateFunc  Function
+    hi def link cCustomTemplateFunc  Constant
 
 " Template functions (alternative faster parsing).
 " More sophisticated implementation that should be faster but doesn't always
@@ -2137,7 +2139,8 @@ if version >= 508 || !exists("did_cpp_syntax_inits")
   HiLink cppSTLfunctional   Typedef
   HiLink cppSTLconstant     Special
   HiLink cppSTLnamespace    Special 
-  HiLink cppSTLtype         Typedef
+  " HiLink cppSTLtype         Typedef
+  HiLink cppSTLtype         Type
   HiLink cppSTLexception    Exception
   HiLink cppSTLiterator     Typedef
   HiLink cppSTLiterator_tag Typedef

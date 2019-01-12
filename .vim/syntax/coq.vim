@@ -304,7 +304,7 @@ if version >= 508 || !exists("did_coq_syntax_inits")
  endif
 
  " PROOFS
- HiLink coqTactic                    Keyword
+ HiLink coqTactic                    Operator
  HiLink coqLtac coqTactic
  HiLink coqProofKwd coqTactic
  HiLink coqProofPunctuation coqTactic
@@ -336,7 +336,7 @@ if version >= 508 || !exists("did_coq_syntax_inits")
  HiLink coqNotationString coqIdent
 
  " CONSTRUCTORS AND FIELDS
- HiLink coqConstructor               Keyword
+ HiLink coqConstructor               Constant
  HiLink coqField coqConstructor
 
  " NOTATION SPECIFIC ("at level", "format", etc)
