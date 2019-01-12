@@ -352,6 +352,10 @@ you should place your code here."
   (define-key evil-motion-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-motion-state-map (kbd "C-k") 'evil-window-up)
   (define-key evil-motion-state-map (kbd "C-l") 'evil-window-right)
+  (evil-define-key 'normal coq-mode-map
+    (kbd "u") 'undo-tree-undo
+    (kbd "C-r") 'undo-tree-redo
+  )
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
