@@ -333,6 +333,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
   (setq mouse-wheel-scroll-amount '(3))
   (setq mouse-wheel-progressive-speed nil)
+  (setq-default evil-cross-lines t)
   )
 
 (defun dotspacemacs/user-config ()
@@ -342,12 +343,14 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
-  (define-key evil-normal-state-map (kbd "<down>") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "<up>") 'evil-previous-visual-line)
-  (define-key evil-normal-state-map (kbd "J") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "K") 'evil-previous-visual-line)
-  (define-key evil-normal-state-map (kbd "L") 'evil-forward-char)
-  (define-key evil-normal-state-map (kbd "H") 'evil-backward-char)
+  (define-key evil-motion-state-map (kbd "<down>") 'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "<up>") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-motion-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-motion-state-map (kbd "J") 'evil-next-line)
+  (define-key evil-motion-state-map (kbd "K") 'evil-previous-line)
+  (define-key evil-motion-state-map (kbd "L") 'evil-forward-char)
+  (define-key evil-motion-state-map (kbd "H") 'evil-backward-char)
   (define-key evil-motion-state-map (kbd "C-h") 'evil-window-left)
   (define-key evil-motion-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-motion-state-map (kbd "C-k") 'evil-window-up)
@@ -356,6 +359,7 @@ you should place your code here."
     (kbd "u") 'undo-tree-undo
     (kbd "C-r") 'undo-tree-redo
   )
+  (global-visual-line-mode t)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
