@@ -360,7 +360,32 @@ you should place your code here."
     (kbd "C-r") 'undo-tree-redo
   )
   (global-visual-line-mode t)
+  ;; global font size
+  (lexical-let* ((default (face-attribute 'default :height))
+                 (size default))
+
+    (defun global-scale-default ()
+      (interactive)
+      (setq size default)
+      (global-scale-internal size))
+
+    (defun global-scale-up ()
+      (interactive)
+      (global-scale-internal (incf size 10)))
+
+    (defun global-scale-down ()
+      (interactive)
+      (global-scale-internal (decf size 10)))
+
+    (defun global-scale-internal (arg)
+      (set-face-attribute 'default (selected-frame) :height arg)))
+
+  (define-key evil-motion-state-map (kbd "C-=") 'global-scale-up)
+  (define-key evil-motion-state-map (kbd "C-+") 'global-scale-up)
+  (define-key evil-motion-state-map (kbd "C--") 'global-scale-down)
+  (define-key evil-motion-state-map (kbd "C-0") 'global-scale-default)
   )
+
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
