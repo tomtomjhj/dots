@@ -328,8 +328,9 @@ hi! link helpHyperTextJump ZenLink
 hi! link helpCommand ZenPurple
 hi! link helpExample ZenGreen
 
-call s:h('MatchParen', s:fg, s:pink, [s:attrs.underline])
-call s:h('Conceal', s:comment, s:bglight)
+call s:h('MatchParen', s:fg, s:pink, [s:attrs.bold])
+" call s:h('Conceal', s:comment, s:bglight)
+call s:h('Conceal', s:comment, s:bg)
 
 " CSS: {{{2
 
