@@ -82,7 +82,7 @@ syn region  kComment    start="/\*" end="\*/" contains=kTodo,@Spell
 syn match   kComment    "//.*$" contains=kTodo,@Spell
 syn keyword kTodo       contained TODO FIXME XXX NOTE BUG
 
-syn match   kInternalName "#\w\+"
+syn match   kInternalName "#\(\w\|-\)\+"
 syn match   kEmptyThing   "\.\u\w*"
 syn match   kOperator     "\(+\|*\|-\|/\|%\|==\|=/=\|<\|>\|<=\|>=\|\^\||\|&\)\u\w*"
 syn match   kOperator     "|->"
