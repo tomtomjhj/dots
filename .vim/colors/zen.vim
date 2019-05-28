@@ -132,6 +132,7 @@ call s:h('ZenBgDarker', s:none, s:bgdarker)
 call s:h('ZenFg', s:fg)
 call s:h('ZenFgUnderline', s:fg, s:none, [s:attrs.underline])
 call s:h('ZenFgBold', s:fg, s:none, [s:attrs.bold])
+call s:h('ZenFgItalic', s:fg, s:none, [s:attrs.italic])
 
 call s:h('ZenFgDark', s:fgdark)
 
@@ -388,7 +389,8 @@ hi! link markdownHeadingDelimiter markdownH1
 hi! link markdownHeadingRule markdownH1
 
 hi! link markdownBold ZenOrangeBold
-hi! link markdownItalic ZenYellowItalic
+" hi! link markdownItalic ZenYellowItalic
+hi! link markdownItalic ZenFgItalic
 hi! link markdownBoldItalic ZenOrangeBoldItalic
 
 hi! link markdownBlockquote ZenCyan
