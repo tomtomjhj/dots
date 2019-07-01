@@ -122,8 +122,6 @@ export PATH=${PATH}:${HOME}/.local/bin
 export PATH=${PATH}:${HOME}/k5/k-distribution/target/release/k/bin
 export K_HOME=${HOME}/k5
 export PATH=${PATH}:/opt/ghc/bin 
-export PATH=${PATH}:${HOME}/scratch/maude
-export PATH=${PATH}:${HOME}/.cargo/bin
 
 export PS1="\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 export PROMPT_COMMAND='echo -en "\033]0;$(whoami):~/$(pwd|cut -d "/" -f 4-100)\a"'
@@ -136,6 +134,10 @@ alias nv=nvim
 alias vi=nvim
 alias g=git
 alias gti=git
+alias py=python3
+alias pyi="python3 -i"
+alias pip=pip3
+alias rgi="rg -i"
 
 # If not running interactively, don't do anything
 # [[ $- != *i* ]] && return

@@ -26,4 +26,6 @@ fi
 if [ -e /home/jhjerry/.nix-profile/etc/profile.d/nix.sh ]; then . /home/jhjerry/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 export PATH="$HOME/.cargo/bin:$PATH"
+source $HOME/.ghcup/env
 export PYTHONSTARTUP="$HOME/.pythonrc"
+export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
