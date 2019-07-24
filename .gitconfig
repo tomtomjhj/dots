@@ -25,12 +25,17 @@
 	sm = submodule
 [user]
 	email = tomtomjhj@gmail.com
-	name = Jerry Jaehwang Jung
+	name = Jaehwang Jerry Jung
 [core]
-	editor = vi
-[url "git://github.com/ghc/packages-"]
-	insteadOf = git://github.com/ghc/packages/
+	editor = nvim
 [diff]
-	tool = vimdiff
+	tool = vimdiff3
 [credential]
 	helper = store
+[merge]
+	tool = vimdiff3
+	conflictstyle = diff3
+[difftool "vimdiff3"]
+	path = nvim
+[mergetool "vimdiff3"]
+	path = nvim
