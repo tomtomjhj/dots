@@ -39,3 +39,5 @@
 	path = nvim
 [mergetool "vimdiff3"]
 	path = nvim
+[mergetool]
+	keepBackup = false
