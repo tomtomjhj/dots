@@ -1,6 +1,6 @@
 [alias]
 	unstage = reset HEAD --
-	cm = commit
+	cm = commit -v
 	cmm = commit -m
 	co = checkout
 	lg = log --all --decorate --oneline --graph
@@ -21,7 +21,6 @@
 	dfc = diff --cached
 	dt = difftool
 	rb = rebase
-	rbi = rebase -i
 	sm = submodule
 [user]
 	email = tomtomjhj@gmail.com
