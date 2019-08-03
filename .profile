@@ -29,3 +29,4 @@ export PATH="$HOME/.cargo/bin:$PATH"
 source $HOME/.ghcup/env
 export PYTHONSTARTUP="$HOME/.pythonrc"
 export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
+source $(rustc --print sysroot)/etc/bash_completion.d/cargo
