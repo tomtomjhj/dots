@@ -184,7 +184,7 @@ call s:h('ZenInfoLine', s:none, s:none, [s:attrs.undercurl], s:cyan)
 "call s:h('ZenTodo', s:cyan, s:none, [s:attrs.bold, s:attrs.inverse])
 call s:h('ZenTodo', s:pink, s:none, [s:attrs.bold, s:attrs.inverse])
 "call s:h('ZenSearch', s:green, s:none, [s:attrs.inverse])
-call s:h('ZenSearch', s:fgdarkish, s:none, [s:attrs.bold, s:attrs.inverse])
+call s:h('ZenSearch', s:fgdarkish, s:none, [s:attrs.bold, s:attrs.inverse, s:attrs.underline])
 call s:h('ZenBoundary', s:comment, s:bgdark)
 call s:h('ZenLink', s:cyan, s:none, [s:attrs.underline])
 
