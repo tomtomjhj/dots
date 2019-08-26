@@ -50,8 +50,6 @@ values."
      ;; syntax-checking
      ;; version-control
      coq
-     ;; (haskell :variables
-     ;;          haskell-completion-backend 'intero)
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -343,6 +341,12 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  (setq undo-tree-auto-save-history t)
+  (modify-syntax-entry ?_ "w") ; `_` isn't word char in emacs
+  ; TODO: this doesn't work
+  (evil-select-search-module 'evil-search-module 'evil-search)
+  ; TODO: star without moving cursor
+  ; TODO: persistent undo
   (define-key evil-motion-state-map (kbd "<down>") 'evil-next-visual-line)
   (define-key evil-motion-state-map (kbd "<up>") 'evil-previous-visual-line)
   (define-key evil-motion-state-map (kbd "j") 'evil-next-visual-line)
@@ -355,6 +359,12 @@ you should place your code here."
   (define-key evil-motion-state-map (kbd "C-j") 'evil-window-down)
   (define-key evil-motion-state-map (kbd "C-k") 'evil-window-up)
   (define-key evil-motion-state-map (kbd "C-l") 'evil-window-right)
+  ; this is ridiculous https://github.com/syl20bnr/spacemacs/issues/11896
+  ; and yet this doesn't work too.
+  (spacemacs|use-package-add-hook evil-surround
+    :post-config
+    (evil-define-key 'visual evil-surround-mode-map "s" 'evil-substitute)
+    (evil-define-key 'visual evil-surround-mode-map "S" 'evil-surround-region))
   (evil-define-key 'normal coq-mode-map
     (kbd "u") 'undo-tree-undo
     (kbd "C-r") 'undo-tree-redo
