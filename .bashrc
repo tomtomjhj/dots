@@ -275,6 +275,10 @@ alias pyi="python3 -i"
 alias pip=pip3
 alias rgi="rg -i"
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
 if [ -z "$TMUX"  ]; then
   sessions=$(tmux ls 2> /dev/null | grep "window" | wc -l)

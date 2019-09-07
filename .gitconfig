@@ -22,7 +22,8 @@
 	dt = difftool
 	rb = rebase
 	sm = submodule
-	smu = submodule update --init --recursive
+	smu = submodule update --init
+	fa = fetch --all
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jaehwang Jerry Jung

@@ -949,6 +949,7 @@ if has("conceal") && &enc == 'utf-8'
   call s:Greek('texGreek','\\eta\>'		,'η')
   call s:Greek('texGreek','\\theta\>'		,'θ')
   call s:Greek('texGreek','\\vartheta\>'	,'ϑ')
+  call s:Greek('texGreek','\\iota\>'		,'ι')
   call s:Greek('texGreek','\\kappa\>'		,'κ')
   call s:Greek('texGreek','\\lambda\>'		,'λ')
   call s:Greek('texGreek','\\mu\>'		,'μ')
