@@ -1047,6 +1047,7 @@ if has("conceal") && &enc == 'utf-8'
   call s:SuperSub('texSuperscript','\^','P','ᴾ')
   call s:SuperSub('texSuperscript','\^','R','ᴿ')
   call s:SuperSub('texSuperscript','\^','T','ᵀ')
+  call s:SuperSub('texSuperscript','\^','\\top\>','ᵀ')
   call s:SuperSub('texSuperscript','\^','U','ᵁ')
   call s:SuperSub('texSuperscript','\^','W','ᵂ')
   call s:SuperSub('texSuperscript','\^',',','︐')
