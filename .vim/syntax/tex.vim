@@ -486,11 +486,13 @@ if !exists("g:tex_no_math")
      \ ['\\backslash'  , '\'] ,
      \ ['\\downarrow'  , '↓'] ,
      \ ['\\Downarrow'  , '⇓'] ,
+     \ ['\\langle'     , '⟨'] ,
      \ ['\\lbrace'     , '['] ,
      \ ['\\lceil'      , '⌈'] ,
      \ ['\\lfloor'     , '⌊'] ,
      \ ['\\lgroup'     , '⌊'] ,
      \ ['\\lmoustache' , '⎛'] ,
+     \ ['\\rangle'     , '⟩'] ,
      \ ['\\rbrace'     , ']'] ,
      \ ['\\rceil'      , '⌉'] ,
      \ ['\\rfloor'     , '⌋'] ,
@@ -500,15 +502,6 @@ if !exists("g:tex_no_math")
      \ ['\\Uparrow'    , '↑'] ,
      \ ['\\updownarrow', '↕'] ,
      \ ['\\Updownarrow', '⇕']]
-  if &ambw == "double" || exists("g:tex_usedblwidth")
-    let s:texMathDelimList= s:texMathDelimList + [
-     \ ['\\langle'     , '〈'] ,
-     \ ['\\rangle'     , '〉']]
-  else
-    let s:texMathDelimList= s:texMathDelimList + [
-     \ ['\\langle'     , '<'] ,
-     \ ['\\rangle'     , '>']]
-  endif
   syn match texMathDelim	'\\[bB]igg\=[lr]' contained nextgroup=texMathDelimBad
   for texmath in s:texMathDelimList
    exe "syn match texMathDelim	'\\\\[bB]igg\\=[lr]\\=".texmath[0]."'	contained conceal cchar=".texmath[1]
@@ -746,14 +739,19 @@ if has("conceal") && &enc == 'utf-8'
     \ ['left('		, '('],
     \ ['left\['		, '['],
     \ ['left\\{'	, '{'],
+    \ ['langle'	        , '⟨'],
+    \ ['left\\langle'	, '⟨'],
     \ ['leftarrow'	, '←'],
+    \ ['leftsquigarrow', '⇜'],
     \ ['Leftarrow'	, '⇐'],
+    \ ['Lleftarrow'	, '⇚'],
+    \ ['lightning'	, '☇'],
     \ ['impliedby'	, '⇐'],
     \ ['leftharpoondown', '↽'],
     \ ['leftharpoonup'	, '↼'],
     \ ['leftrightarrow'	, '↔'],
+    \ ['leftrightsquigarrow', '↭'],
     \ ['Leftrightarrow'	, '⇔'],
-    \ ['leq'		, '≤'],
     \ ['leq'		, '≤'],
     \ ['lfloor'		, '⌊'],
     \ ['ll'		, '≪'],
@@ -770,6 +768,7 @@ if has("conceal") && &enc == 'utf-8'
     \ ['nearrow'	, '↗'],
     \ ['neg'		, '¬'],
     \ ['neq'		, '≠'],
+    \ ['nequiv'		, '≢'],
     \ ['ni'		, '∋'],
     \ ['notin'		, '∉'],
     \ ['nwarrow'	, '↖'],
@@ -796,9 +795,14 @@ if has("conceal") && &enc == 'utf-8'
     \ ['right)'		, ')'],
     \ ['right]'		, ']'],
     \ ['right\\}'	, '}'],
+    \ ['rangle'	        , '⟩'],
+    \ ['right\\rangle'	, '⟩'],
     \ ['rightarrow'	, '→'],
-    \ ['ra'	, '→'],
+    \ ['rightharpoondown', '⇁'],
+    \ ['rightharpoonup'	, '⇀'],
+    \ ['rightsquigarrow', '⇝'],
     \ ['Rightarrow'	, '⇒'],
+    \ ['Rrightarrow'	, '⇛'],
     \ ['implies'	, '⇒'],
     \ ['rightleftharpoons', '⇌'],
     \ ['rmoustache'     , '╮'],
@@ -834,6 +838,7 @@ if has("conceal") && &enc == 'utf-8'
     \ ['triangle'	, '∆'],
     \ ['triangleleft'	, '⊲'],
     \ ['triangleright'	, '⊳'],
+    \ ['triangleq'	, '≜'],
     \ ['uparrow'	, '↑'],
     \ ['Uparrow'	, '⇑'],
     \ ['updownarrow'	, '↕'],
@@ -844,15 +849,6 @@ if has("conceal") && &enc == 'utf-8'
     \ ['wedge'		, '∧'],
     \ ['wp'		, '℘'],
     \ ['wr'		, '≀']]
-  if &ambw == "double" || exists("g:tex_usedblwidth")
-    let s:texMathList= s:texMathList + [
-    \ ['right\\rangle'	, '〉'],
-    \ ['left\\langle'	, '〈']]
-  else
-    let s:texMathList= s:texMathList + [
-    \ ['right\\rangle'	, '>'],
-    \ ['left\\langle'	, '<']]
-  endif
   for texmath in s:texMathList
    if texmath[0] =~# '\w$'
     exe "syn match texMathSymbol '\\\\".texmath[0]."\\>' contained conceal cchar=".texmath[1]
