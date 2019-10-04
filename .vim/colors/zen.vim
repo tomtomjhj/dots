@@ -8,6 +8,7 @@ endif
 
 " Palette: {{{2
 
+let s:white     = ['#FFFFFF', 15]
 let s:fg        = ['#F8F8F2', 255]
 let s:fgdarkish = ['#d0d0d0', 252]
 let s:fgdark    = ['#bcbcbc', 250]
@@ -16,6 +17,7 @@ let s:bglight   = ['#343746', 235]
 let s:bg        = ['#1c1c1c', 234]
 let s:bgdark    = ['#121212', 233]
 let s:bgdarker  = ['#121212', 233]
+let s:black     = ['#000000', 0]
 
 let s:subtle    = ['#424450', 238]
 
@@ -329,7 +331,7 @@ hi! link helpHyperTextJump ZenLink
 hi! link helpCommand ZenPurple
 hi! link helpExample ZenGreen
 
-call s:h('MatchParen', s:fg, s:pink, [s:attrs.bold])
+call s:h('MatchParen', s:white, s:black, [s:attrs.bold, s:attrs.underline])
 call s:h('Conceal', s:special, s:bg)
 
 " CSS: {{{2
