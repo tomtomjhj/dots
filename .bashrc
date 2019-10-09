@@ -265,6 +265,7 @@ export PROMPT_COMMAND='echo -en "\033]0;$(whoami):~/$(pwd|cut -d "/" -f 4-100)\a
 export PROMPT_DIRTRIM=3
 
 alias vi=nvim
+vil() { nvim "$@" --cmd 'set background=light'; }
 alias vimdiff="nvim -d"
 alias g=git
 alias gti=git
