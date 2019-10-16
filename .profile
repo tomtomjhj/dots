@@ -23,10 +23,7 @@ fi
 
 # OPAM configuration
 . /home/jhjerry/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
-if [ -e /home/jhjerry/.nix-profile/etc/profile.d/nix.sh ]; then . /home/jhjerry/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 
 export PATH="$HOME/.cargo/bin:$PATH"
 source $HOME/.ghcup/env
 export PYTHONSTARTUP="$HOME/.pythonrc"
-export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
-source $(rustc --print sysroot)/etc/bash_completion.d/cargo

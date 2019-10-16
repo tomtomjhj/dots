@@ -1,6 +1,7 @@
 [alias]
 	unstage = reset HEAD --
 	cm = commit -v
+	cma = commit -v --amend
 	cmm = commit -m
 	co = checkout
 	lg = log --all --decorate --oneline --graph
