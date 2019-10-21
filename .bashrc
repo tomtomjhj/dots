@@ -277,6 +277,7 @@ alias rgi="rg -i"
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
+alias ssh='TERM=xterm-256color ssh'
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
