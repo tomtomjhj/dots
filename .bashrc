@@ -97,12 +97,12 @@ unset use_color safe_term match_lhs sh
 alias cp="cp -i"                          # confirm before overwriting something
 alias df='df -h'                          # human-readable sizes
 alias free='free -m'                      # show sizes in MB
-alias np='nano -w PKGBUILD'
 alias more=less
 
 xhost +local:root > /dev/null 2>&1
 
-complete -cf sudo
+# https://stackoverflow.com/a/53655744
+# complete -cf sudo
 
 # Bash won't get SIGWINCH if another process is in the foreground.
 # Enable checkwinsize so that bash will check the terminal size when
@@ -267,6 +267,7 @@ export PROMPT_DIRTRIM=3
 alias vi=nvim
 vil() { nvim "$@" --cmd 'set background=light'; }
 alias vimdiff="nvim -d"
+alias e=emacs
 alias g=git
 alias gti=git
 alias qgit=git
@@ -274,14 +275,17 @@ alias py=python3
 alias pyi="python3 -i"
 alias pip=pip3
 alias rgi="rg -i"
+alias rgv="rg -g '*.v'"
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias ssh='TERM=xterm-256color ssh'
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+if [ -x "$(command -v fd)" ]; then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
 
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
 if [ -z "$TMUX"  ]; then
