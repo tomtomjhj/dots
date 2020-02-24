@@ -287,6 +287,8 @@ if [ -x "$(command -v fd)" ]; then
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 fi
 
+stty -ixon
+
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
 if [ -z "$TMUX"  ]; then
   sessions=$(tmux ls 2> /dev/null | grep "window" | wc -l)
