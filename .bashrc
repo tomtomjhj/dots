@@ -267,7 +267,7 @@ export PROMPT_DIRTRIM=3
 alias vi=nvim
 vil() { nvim "$@" --cmd 'set background=light'; }
 alias vimdiff="nvim -d"
-alias e=emacs
+alias e="emacs -nw"
 alias g=git
 alias gti=git
 alias qgit=git
@@ -282,10 +282,8 @@ alias ....='cd ../../..'
 alias ssh='TERM=xterm-256color ssh'
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-if [ -x "$(command -v fd)" ]; then
-  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-fi
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 stty -ixon
 
