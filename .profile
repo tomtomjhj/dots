@@ -21,9 +21,24 @@ if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
-# OPAM configuration
-. /home/jhjerry/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+if [ -d "$HOME/.local/lib" ] ; then
+    export LD_LIBRARY_PATH=$HOME/.local/lib:$LD_LIBRARY_PATH
+fi
+if [ -d "$HOME/.local/include" ] ; then
+    export C_INCLUDE_PATH=$HOME/.local/include:$C_INCLUDE_PATH
+    export CPLUS_INCLUDE_PATH=$HOME/.local/include:$CPLUS_INCLUDE_PATH
+fi
+
+if [ -x "$(command -v nvim)" ]; then
+    export EDITOR='nvim'
+else
+    export EDITOR='vim'
+fi
+
+export PYTHONSTARTUP="$HOME/.pythonrc"
 
 export PATH="$HOME/.cargo/bin:$PATH"
-source $HOME/.ghcup/env
-export PYTHONSTARTUP="$HOME/.pythonrc"
