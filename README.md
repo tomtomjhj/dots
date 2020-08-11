@@ -26,3 +26,4 @@
 
 # Note
 * `.profile` vs `.bash_profile`
+* `ubuntu-drivers`
