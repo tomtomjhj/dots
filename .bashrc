@@ -280,6 +280,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias ssh='TERM=xterm-256color ssh'
+man () { /usr/bin/man "$@" | nvim +Man!; }
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'

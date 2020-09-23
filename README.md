@@ -16,6 +16,9 @@
     ```
     * `--separate-git-dir`
 * automate [efficient git submoduling](https://jokester.io/post/2017-04/update-git-submodule-minimal-traffic/)
+* use other (git) diff algorithm? ICSE2020
+* git `--follow`?
+* bash history with timestamp https://www.linuxuprising.com/2019/07/bash-history-how-to-show-timestamp-when.html
 
 # stuff
 * https://github.com/skywind3000/z.lua
