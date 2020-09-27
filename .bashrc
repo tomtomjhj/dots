@@ -258,7 +258,8 @@ fi
 
 # my stuff -------------------------------------------
 
-export PATH=${PATH}:${HOME}/.local/bin
+HISTTIMEFORMAT="%F %T "
+HISTIGNORE="?:??:git ??"
 
 export PS1="\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 export PROMPT_COMMAND='echo -en "\033]0;$(whoami):~/$(pwd|cut -d "/" -f 4-100)\a"'
