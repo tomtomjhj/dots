@@ -31,6 +31,8 @@ else
     export EDITOR='vim'
 fi
 
+export MANOPT='--nh --nj'
+
 export PYTHONSTARTUP="$HOME/.pythonrc"
 
 export PATH="$HOME/.cargo/bin:$PATH"
