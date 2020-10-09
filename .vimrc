@@ -312,7 +312,7 @@ nnoremap <M-i> <C-i>
 " Languages {{{
 " Rust {{{
 let g:cargo_shell_command_runner = 'AsyncRun -post=CW'
-command! -nargs=* Cclippy call cargo#cmd("clippy " . <q-args>)
+command! -nargs=* Cclippy call cargo#cmd("+nightly clippy -Zunstable-options " . <q-args>)
 " }}}
 "
 " Markdown {{{
@@ -631,8 +631,8 @@ nmap <silent><leader>nf :NERDTreeFind<cr>
 
 command! -nargs=? -complete=dir Sexplore split | silent Dirvish <args>
 command! -nargs=? -complete=dir Vexplore vsplit | silent Dirvish <args>
-nmap <silent><C-w>es :Sexplore<CR>
-nmap <silent><C-w>ev :Vexplore<CR>
+nmap <silent><C-w>es :Sexplore %<CR>
+nmap <silent><C-w>ev :Vexplore %<CR>
 nmap <leader>D <Plug>(dirvish_up)
 hi! link DirvishSuffix Special
 " }}}
@@ -670,14 +670,12 @@ nnoremap <C-k> <C-W>k
 nnoremap <C-h> <C-W>h
 nnoremap <C-l> <C-W>l
 
-map <leader>q :<C-u>q<CR>
-map q, :<C-u>q<CR>
-nmap <leader>w :<C-u>w!<cr>
+noremap <leader>q :<C-u>q<CR>
+noremap q, :<C-u>q<CR>
+nnoremap <leader>w :<C-u>w!<CR>
+noremap ZAQ :<C-u>qa!<CR>
 command! -bang W   w<bang>
 command! -bang Q   q<bang>
-command! -bang Wq  wq<bang>
-command! -bang Wqa wqa<bang>
-command! -bang Qa  qa<bang>
 
 nmap <leader>cx :tabclose<cr>
 nmap <leader>td :tab split<CR>
