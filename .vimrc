@@ -401,7 +401,7 @@ augroup fzf | au!
     endif
 augroup END
 
-command! -nargs=* -bang Grep  call GGrep(<q-args>)
+command! -nargs=* -bang Grep call Grep(<q-args>)
 command! -bang -nargs=? -complete=dir Files call Files(<q-args>)
 " allow search on the full tag info, excluding the appended tagfile name
 command! -bang -nargs=* Tags call fzf#vim#tags(<q-args>, { 'options': ['-d', '\t', '--nth', '..-2'] })
@@ -430,8 +430,9 @@ func! RgInput(raw)
         return substitute(a:raw[2:], '\v\\([~/])', '\1', 'g')
     endif
 endfunc
-func! GGrep(query)
-    let cmd = 'git grep --color --line-number -- ' . shellescape(a:query)
+func! Grep(query)
+    " let cmd = 'git grep --color --line-number -- ' . shellescape(a:query)
+    let cmd = 'egrep --color=always --exclude-dir=.git -nrI ' . shellescape(a:query)
     let spec = FzfOpts(v:count, {'options': ['--info=inline']})
     call fzf#vim#grep(cmd, 0, spec)
 endfunc
