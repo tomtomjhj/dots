@@ -1,4 +1,5 @@
 #!/bin/sh
+# https://github.com/adobe-fonts/source-code-pro/issues/17#issuecomment-102803992
 # Userland mode (~$USER/), (~/).
 
 # ~/.fonts is now deprecated and that
