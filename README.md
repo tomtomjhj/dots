@@ -17,6 +17,7 @@
 * use other (git) diff algorithm? ICSE2020
 * git `--follow`?
 * Opam configuration should be run in `.bash_profile`, not in `.profile`. Why?
+* download pandoc from github release? https://stackoverflow.com/a/29360657
 
 # Things to run (20.04)
 * `ubuntu-drivers install`
