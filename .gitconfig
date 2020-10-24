@@ -46,3 +46,5 @@
 	keepBackup = false
 [submodule]
 	fetchJobs = 0
+[pull]
+	ff = only
