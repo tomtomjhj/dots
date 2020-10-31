@@ -14,10 +14,12 @@
     cfg config --local status.showUntrackedFiles no
     ```
     * `--separate-git-dir`
-* use other (git) diff algorithm? ICSE2020
 * git `--follow`?
 * Opam configuration should be run in `.bash_profile`, not in `.profile`. Why?
-* download pandoc from github release? https://stackoverflow.com/a/29360657
+    * https://wiki.archlinux.org/index.php/tmux#Start_a_non-login_shell
+    * https://superuser.com/a/789465
+* automate direct binary download https://stackoverflow.com/a/29360657
+* checkinstall?
 
 # Things to run (20.04)
 * `ubuntu-drivers install`
@@ -77,3 +79,15 @@ fc-cache -fv
     * https://superuser.com/questions/580228/prevent-white-screen-before-loading-page-in-chromium
     * https://stackoverflow.com/questions/21207474/custom-css-has-stopped-working-in-32-0-1700-76-m-google-chrome-update
     * https://github.com/hbtlabs/chromium-white-flash-fix
+
+## firefox
+* plugins can't override reserved keymap
+    * https://github.com/glacambre/firefox-patches/issues/1
+* ctrl-f is broken
+    * sometimes skips a match
+    * sometimes doesn't match at all; refreshing doesn't work
+* can't decouple language from date format, spell check, ...
+    * setting the lang to en-uk *breaks* english spell check
+    * multi-lang spell check is completely broken
+* pdf.js
+    * copy-pasting removes the spaces in the text
