@@ -192,6 +192,7 @@ set exrc secure
 let &pumheight = min([&window/4, 20])
 augroup BasicSetup | au!
     au BufWinEnter * if empty(&buftype) && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
+    au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     au FileType help nnoremap <silent><buffer> <M-.> :h <C-r><C-w><CR>
     au VimResized * let &pumheight = min([&window/4, 20])
 augroup END
@@ -314,8 +315,10 @@ nnoremap <M-i> <C-i>
 let g:cargo_shell_command_runner = 'AsyncRun -post=CW'
 command! -nargs=* Cclippy call cargo#cmd("+nightly clippy -Zunstable-options " . <q-args>)
 " }}}
-"
-" Markdown {{{
+
+" Markdown, Pandoc, Tex {{{
+let g:tex_flavor = "latex"
+let g:tex_noindent_env = '\v\w+.?'
 let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_folding_level = 6
 let g:vim_markdown_folding_style_pythonic = 1
@@ -327,7 +330,7 @@ function! s:NotCodeBlock(lnum) abort
     return !InSynStack('^mkd\%(Code\|Snippet\)', synstack(a:lnum, 1))
 endfunction
 
-function! MarkdownFoldExpr() abort
+function! MyMarkdownFoldExpr() abort
     let line = getline(v:lnum)
     let hashes = matchstr(line, '^\s\{,3}\zs#\+')
     if !empty(hashes) && s:NotCodeBlock(v:lnum)
@@ -343,7 +346,7 @@ function! MarkdownFoldExpr() abort
     return "="
 endfunction
 
-function! MarkdownFoldText()
+function! MyMarkdownFoldText()
     let line = getline(v:foldstart)
     let has_numbers = &number || &relativenumber
     let nucolwidth = &fdc + has_numbers * &numberwidth
@@ -356,9 +359,9 @@ function! MarkdownFoldText()
 endfunction
 augroup MarkdownFold | au!
     au FileType markdown 
-                \ setlocal foldexpr=MarkdownFoldExpr() |
+                \ setlocal foldexpr=MyMarkdownFoldExpr() |
                 \ setlocal foldmethod=expr |
-                \ setlocal foldtext=MarkdownFoldText()
+                \ setlocal foldtext=MyMarkdownFoldText()
 " }}}
 " }}}
 
@@ -624,7 +627,6 @@ nmap gx <Plug>NetrwBrowseX
 vmap gx <Plug>NetrwBrowseXVis
 
 let NERDTreeHijackNetrw = 0
-let g:NERDTreeWinPos = "right"
 let g:NERDTreeIgnore=['\~$', '\.glob$', '\v\.vo[sk]?$', '\.v\.d$', '\.o$']
 let g:NERDTreeStatusline = -1
 nmap <silent><leader>nn :NERDTreeToggle<cr>
@@ -673,7 +675,7 @@ nnoremap <C-l> <C-W>l
 
 noremap <leader>q :<C-u>q<CR>
 noremap q, :<C-u>q<CR>
-nnoremap <leader>w :<C-u>w!<CR>
+nnoremap <leader>w :<C-u>up<CR>
 noremap ZAQ :<C-u>qa!<CR>
 command! -bang W   w<bang>
 command! -bang Q   q<bang>
@@ -704,8 +706,13 @@ func! IsVimWide()
     return &columns > 170
 endfunc
 
-command! -nargs=* -complete=command Execute
-            \ new | let s:res = execute(<q-args>) | put=s:res | unlet s:res | set nomodified
+func! Execute(cmd) abort
+    let output = execute(a:cmd)
+    tabnew
+    setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
+    call setline(1, split(output, "\n"))
+endfunc
+command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
 
 " }}}
 
