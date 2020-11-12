@@ -2,6 +2,7 @@
 * sync ssh xclip and client xclip
 * automate installation
     * <https://github.com/junegunn/dotfiles/>
+    *  <https://github.com/jaagr/dots>
     * use make, stow, ...
         * https://github.com/masasam/dotfiles/blob/master/Makefile
         * https://polothy.github.io/post/2018-10-09-makefile-dotfiles/
@@ -19,10 +20,16 @@
     * https://wiki.archlinux.org/index.php/tmux#Start_a_non-login_shell
     * https://superuser.com/a/789465
 * automate direct binary download https://stackoverflow.com/a/29360657
-* checkinstall?
+* https://help.ubuntu.com/community/CheckInstall
+* vscoq + opam local switch
+    * .profile issue
+    * launch coqtop with `opam config exec --`?
 
 # Things to run (20.04)
 * `ubuntu-drivers install`
+* nimf
+    * libhangul → shortcuts from Korean to system keyboard (for vim)
+    * https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
 
 ## font
 ```
@@ -73,7 +80,7 @@ fc-cache -fv
     # .bashrc
     eval "$(lua ~/dots/ext/z.lua/z.lua --init bash enhanced once fzf)"
     ```
-
+* `git apply --reject --whitespace=fix`
 * failed to suppress chrome white screen stun grenade
     * `chrome://version` → profile path → `path/User SytleSheets/Custom.css`
     * https://superuser.com/questions/580228/prevent-white-screen-before-loading-page-in-chromium
@@ -91,3 +98,4 @@ fc-cache -fv
     * multi-lang spell check is completely broken
 * pdf.js
     * copy-pasting removes the spaces in the text
+* firefox pdf dark mode https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375
