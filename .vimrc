@@ -94,7 +94,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'tomtomjhj/zenbruh.vim'
 " editing
 Plug 'lifepillar/vim-mucomplete'
-Plug 'justinmk/vim-sneak'
+Plug 'tomtomjhj/vim-sneak'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'tomtomjhj/pear-tree'
@@ -103,6 +103,7 @@ Plug 'wellle/targets.vim' " multi (e.g. ib, iq), separator, argument
 Plug 'kana/vim-textobj-user' | Plug 'glts/vim-textobj-comment' | Plug 'michaeljsmith/vim-indent-object'
 Plug 'preservim/nerdcommenter', { 'on': '<Plug>NERDCommenter' }
 Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
+Plug 'AndrewRadev/splitjoin.vim'
 " etc
 Plug 'tpope/vim-fugitive'
 Plug 'rhysd/git-messenger.vim'
@@ -140,6 +141,7 @@ set autoindent " smartindent is unnecessary
 " set indentkeys+=!<M-i> " doesn't work, maybe i_META? just use i_CTRL-F
 set formatoptions+=n " this may interfere with 'comment'?
 set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
+set nojoinspaces
 
 " indent the wrapped line, w/ `> ` at the start
 set wrap linebreak breakindent showbreak=>\ 
@@ -147,7 +149,7 @@ set backspace=eol,start,indent
 set whichwrap+=<,>,[,],h,l
 
 let mapleader = ","
-set timeoutlen=567
+set timeoutlen=987
 set updatetime=1234
 
 let $LANG='en'
@@ -205,7 +207,7 @@ endif
 
 " Themes {{{
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
+      \ 'colorscheme': 'powerline',
       \ 'active': {
       \   'left': [ ['mode', 'paste'],
       \             ['readonly', 'speicialbuf', 'shortrelpath', 'modified'],
@@ -215,7 +217,8 @@ let g:lightline = {
       \ },
       \ 'inactive': {
       \   'left': [ ['speicialbuf', 'shortrelpath'] ],
-      \   'right': [ ['lineinfo'], ['percent'] ]
+      \   'right': [ ['lineinfo'],
+      \              ['percent'] ]
       \ },
       \ 'component': {
       \   'readonly': '%{&readonly && &filetype !=# "help" ? "🔒" : ""}',
@@ -243,7 +246,7 @@ let g:lightline = {
       \     "\<C-v>": 'VB',
       \     'c' : 'C ',
       \     's' : 'S ',
-      \     'S' : 'SL ',
+      \     'S' : 'SL',
       \     "\<C-s>": 'SB',
       \     't': 'T ',
       \ }
@@ -291,8 +294,6 @@ let g:ale_fixers = {
             \ 'c': ['clang-format'],
             \ 'cpp': ['clang-format'],
             \ 'python': ['yapf'],
-            \ 'haskell': ['stylish-haskell'],
-            \ 'rust': ['rustfmt'],
             \ 'ocaml': ['ocamlformat'],
             \ 'go': ['gofmt'],
             \ '*': ['trim_whitespace']
@@ -312,8 +313,10 @@ nnoremap <M-i> <C-i>
 
 " Languages {{{
 " Rust {{{
+" let g:termdebugger = 'rust-gdb'
 let g:cargo_shell_command_runner = 'AsyncRun -post=CW'
 command! -nargs=* Cclippy call cargo#cmd("+nightly clippy -Zunstable-options " . <q-args>)
+command! -range=% PrettifyRustSymbol <line1>,<line2>SubstituteDict { '$SP$': '@', '$BP$': '*', '$RF$': '&', '$LT$': '<', '$GT$': '>', '$LP$': '(', '$RP$': ')', '$C$' : ',',  '$u20$': ' ', '$u7b$': '{', '$u7d$': '}', }
 " }}}
 
 " Markdown, Pandoc, Tex {{{
@@ -371,14 +374,21 @@ nnoremap <silent>g* :call Star(1)\|set hlsearch<CR>
 vnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
 vnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
 func! Star(g)
-    let g:search_mode = 'n'
     let @c = expand('<cword>')
-    let @/ = a:g ? @c : '\<' . @c . '\>'
+    " <cword> can be non-keyword
+    if match(@c, '\k') == -1
+        let g:search_mode = 'v'
+        let @/ = escape(@c, '\.*$^~[]')
+    else
+        let g:search_mode = 'n'
+        let @/ = a:g ? @c : '\<' . @c . '\>'
+    endif
 endfunc
 func! VisualStar(g)
     let g:search_mode = 'v'
     let l:reg_save = @"
-    exec "norm! gvy"
+    " don't trigger TextYankPost
+    noau exec "norm! gvy"
     let @c = @"
     let l:pattern = escape(@", '\.*$^~[]')
     let @/ = a:g ? '\<' . l:pattern . '\>' : l:pattern " reversed
@@ -541,6 +551,30 @@ noremap + <C-a>
 vnoremap + g<C-a>
 noremap - <C-x>
 vnoremap - g<C-x>
+
+" <C-b> <C-e>
+cnoremap <C-j> <S-Right>
+cnoremap <C-k> <S-Left>
+
+nnoremap <C-j> <C-W>j
+nnoremap <C-k> <C-W>k
+nnoremap <C-h> <C-W>h
+nnoremap <C-l> <C-W>l
+
+noremap <leader>q :<C-u>q<CR>
+noremap q, :<C-u>q<CR>
+nnoremap <leader>w :<C-u>up<CR>
+noremap ZAQ :<C-u>qa!<CR>
+command! -bang W   w<bang>
+command! -bang Q   q<bang>
+
+nmap <leader>cx :tabclose<cr>
+nmap <leader>td :tab split<CR>
+nmap <leader>tt :tabedit<CR>
+nmap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
+nmap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
+nmap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
+nmap <leader>fe :e!<CR>
 " }}}
 
 " etc plugin settings {{{
@@ -551,7 +585,7 @@ let g:pear_tree_smart_backspace = 1
 let g:pear_tree_timeout = 23
 let g:pear_tree_repeatable_expand = 0
 " assumes nosmartindent
-imap <CR> <C-G>u<Plug>(PearTreeExpand)
+imap <expr> <CR> match(getline('.'), '\w') >= 0 ? "\<C-G>u\<Plug>(PearTreeExpand)" : "\<Plug>(PearTreeExpand)"
 imap <BS> <Plug>(PearTreeBackspace)
 
 " 'a'ny block from matchup
@@ -650,43 +684,25 @@ call textobj#user#plugin('path', { 'path': { 'pattern': '\f\+', 'select': ['aP',
 " comments
 let g:NERDCreateDefaultMappings = 0
 imap <M-/> <Plug>NERDCommenterInsert
+imap <M-/> <C-G>u<Plug>NERDCommenterInsert
 map <M-/> <Plug>NERDCommenterComment
 xmap <leader>c<Space> <Plug>NERDCommenterToggle
 nmap <leader>c<Space> <Plug>NERDCommenterToggle
 xmap <leader>cs <Plug>NERDCommenterSexy
 nmap <leader>cs <Plug>NERDCommenterSexy
+xmap <leader>cm <Plug>NERDCommenterMinimal
+nmap <leader>cm <Plug>NERDCommenterMinimal
 let g:NERDSpaceDelims = 1
 let g:NERDCustomDelimiters = {
             \ 'python' : { 'left': '#', 'leftAlt': '#' },
             \ 'c': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+            \ 'coq': { 'left': '(*', 'right': '*)', 'nested': 1 },
             \}
 let g:NERDDefaultAlign = 'left'
 
 " undotree
 let g:undotree_WindowLayout = 4
 nnoremap U :UndotreeToggle<CR>
-" }}}
-
-" Tabs, windows, buffers {{{
-nnoremap <C-j> <C-W>j
-nnoremap <C-k> <C-W>k
-nnoremap <C-h> <C-W>h
-nnoremap <C-l> <C-W>l
-
-noremap <leader>q :<C-u>q<CR>
-noremap q, :<C-u>q<CR>
-nnoremap <leader>w :<C-u>up<CR>
-noremap ZAQ :<C-u>qa!<CR>
-command! -bang W   w<bang>
-command! -bang Q   q<bang>
-
-nmap <leader>cx :tabclose<cr>
-nmap <leader>td :tab split<CR>
-nmap <leader>tt :tabedit<CR>
-nmap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
-nmap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
-nmap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
-nmap <leader>fe :e!<CR>
 " }}}
 
 " etc util {{{
@@ -714,6 +730,13 @@ func! Execute(cmd) abort
 endfunc
 command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
 
+" :substitute using a dict, where key == submatch (like VisualStar)
+function! SubstituteDict(dict) range
+    exe a:firstline . ',' . a:lastline . 'substitute'
+                \ . '/\C\%(' . join(map(keys(a:dict), 'escape(v:val, ''\.*$^~[]'')'), '\|'). '\)'
+                \ . '/\=' . string(a:dict) . '[submatch(0)]/ge'
+endfunction
+command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<args>)
 " }}}
 
 " git status line {{{

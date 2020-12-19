@@ -16,6 +16,8 @@
     ```
     * `--separate-git-dir`
 * git `--follow`?
+    * `-D, --irreversible-delete`
+    * `-M[<n>], --find-renames[=<n>]`
 * Opam configuration should be run in `.bash_profile`, not in `.profile`. Why?
     * https://wiki.archlinux.org/index.php/tmux#Start_a_non-login_shell
     * https://superuser.com/a/789465
@@ -86,6 +88,7 @@ fc-cache -fv
     * https://superuser.com/questions/580228/prevent-white-screen-before-loading-page-in-chromium
     * https://stackoverflow.com/questions/21207474/custom-css-has-stopped-working-in-32-0-1700-76-m-google-chrome-update
     * https://github.com/hbtlabs/chromium-white-flash-fix
+* https://github.com/cyrus-and/gdb-dashboard
 
 ## firefox
 * plugins can't override reserved keymap
