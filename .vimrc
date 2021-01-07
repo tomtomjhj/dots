@@ -9,7 +9,7 @@ if !has('nvim') && !has('gui_running')
     set ttymouse=sgr
     " fix <M- mappings {{{
     " NOTE: :h 'termcap' (e.g. arrows). Map only necessary stuff.
-    for c in [',', '.', '/', '0', '\', ']', 'i', 'j', 'k', 'l', 'n', 'o', 'p', 'y', '\|']
+    for c in ['+', ',', '-', '.', '/', '0', '\', ']', 'i', 'j', 'k', 'l', 'n', 'o', 'p', 'q', 'w', 'y', '\|']
         exec 'map  <ESC>'.c '<M-'.c.'>'
         exec 'map! <ESC>'.c '<M-'.c.'>'
     endfor
@@ -92,6 +92,7 @@ endif
 Plug 'itchyny/lightline.vim'
 Plug 'tomtomjhj/zenbruh.vim'
 " editing
+" TODO: Plug 'https://github.com/prabirshrestha/asyncomplete.vim' " |timer| is only 7.4.1578! (< ubuntu16.04)
 Plug 'lifepillar/vim-mucomplete'
 Plug 'tomtomjhj/vim-sneak'
 Plug 'tpope/vim-surround'
@@ -99,26 +100,22 @@ Plug 'tpope/vim-repeat'
 Plug 'tomtomjhj/pear-tree'
 Plug 'andymass/vim-matchup' " i%, a%, ]%, z%, g%
 Plug 'wellle/targets.vim' " multi (e.g. ib, iq), separator, argument
-Plug 'kana/vim-textobj-user' | Plug 'glts/vim-textobj-comment' | Plug 'michaeljsmith/vim-indent-object'
+Plug 'kana/vim-textobj-user' | Plug 'glts/vim-textobj-comment'
 Plug 'preservim/nerdcommenter', { 'on': '<Plug>NERDCommenter' }
 Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
-Plug 'AndrewRadev/splitjoin.vim'
 " etc
 Plug 'tpope/vim-fugitive'
-Plug 'rhysd/git-messenger.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': has('unix') ? './install --all' : { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'fszymanski/fzf-quickfix', { 'on': 'Quickfix' }
 Plug 'Konfekt/FastFold' " only useful for non-manual folds
 Plug 'romainl/vim-qf'
 Plug 'markonm/traces.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
-Plug 'wellle/visual-split.vim' " <C-w>g gr/gss/gsa/gsb
 Plug 'andymass/vim-tradewinds' " <C-w>g h/j/k/l
 Plug 'justinmk/vim-dirvish'
-Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] } " use menu!
+Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 " lanauges
 Plug 'dense-analysis/ale', { 'on': ['<Plug>(ale_', 'ALEEnable'] } ")
 Plug 'plasticboy/vim-markdown'
@@ -158,7 +155,7 @@ set encoding=utf8
 set spelllang=en,cjk
 
 set wildmenu wildmode=longest:full,full
-set wildignore=*.o,*~,*.pyc,*.pdf,*.v.d,*.vo,*.vos,*.vok,*.glob
+set wildignore=*.o,*~,*.pyc,*.pdf,*.v.d,*.vo,*.vos,*.vok,*.glob,*.aux
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 
 set magic
@@ -187,14 +184,14 @@ set switchbuf=useopen,usetab
 set hidden
 set lazyredraw
 
-set modeline
+set modeline " debian unsets this
 set exrc secure
 
-let &pumheight = min([&window/4, 20])
 augroup BasicSetup | au!
     au BufWinEnter * if empty(&buftype) && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     au FileType help nnoremap <silent><buffer> <M-.> :h <C-r><C-w><CR>
+    let &pumheight = min([&window/4, 20])
     au VimResized * let &pumheight = min([&window/4, 20])
 augroup END
 
@@ -528,10 +525,13 @@ noremap! <C-M-q> <C-q>
 cnoremap <M-p> <Up>
 cnoremap <M-n> <Down>
 
-" c_CTRL-F: editable cmd/search history, gQ: enter ex mode, Q instead of q for macros
+" disable annoying q and Q (use c_CTRL-F and gQ) and streamline record/execute
+" TODO: q quits hit-enter and *starts recording* unlike q of more-prompt → open a vim issue
 noremap q: :
 noremap q <nop>
-noremap Q q
+noremap <M-q> q
+noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
+noremap Q @q
 
 " delete without clearing regs
 noremap x "_x
@@ -546,10 +546,11 @@ onoremap <silent> ge :execute "normal! " . v:count1 . "ge<space>"<cr>
 nnoremap <silent> & :&&<cr>
 xnoremap <silent> & :&&<cr>
 
-noremap + <C-a>
-vnoremap + g<C-a>
-noremap - <C-x>
-vnoremap - g<C-x>
+" set nrformats+=alpha
+noremap  <M-+> <C-a>
+vnoremap <M-+> g<C-a>
+noremap  <M--> <C-x>
+vnoremap <M--> g<C-x>
 
 " <C-b> <C-e>
 cnoremap <C-j> <S-Right>
@@ -675,14 +676,14 @@ hi! link DirvishSuffix Special
 
 let g:EditorConfig_exclude_patterns = ['.*[.]git/.*', 'fugitive://.*', 'scp://.*']
 
-" textobj
-let s:url_regex = '\c\<\(\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{0,3}[.]\|[a-z0-9.\-]\+[.][a-z]\{2,4}\/\)\%([^ \t()<>]\+\|(\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\)\+\%((\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\|[^ \t`!()[\]{};:'."'".'".,<>?«»“”‘’]\)\)'
-call textobj#user#plugin('url', { 'url': { 'pattern': s:url_regex, 'select': ['au', 'iu'] } })
-call textobj#user#plugin('path', { 'path': { 'pattern': '\f\+', 'select': ['aP', 'iP'] } })
+" textobj {{{
+let s:url_or_filename_regex = '\c\(\<\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{0,3}[.]\|[a-z0-9.\-]\+[.][a-z]\{2,4}\/\)\%([^ \t()<>]\+\|(\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\)\+\%((\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\|[^ \t`!()[\]{};:'."'".'".,<>?«»“”‘’]\)\|\f\+\)'
+call textobj#user#plugin('urlorfilename', { '-': { 'pattern': s:url_or_filename_regex, 'select': ['au', 'iu'] } })
+" }}}
 
-" comments
+" comments {{{
 let g:NERDCreateDefaultMappings = 0
-imap <M-/> <Plug>NERDCommenterInsert
+" NOTE: indentation is incorrect sometimes. Use i_CTRL-f
 imap <M-/> <C-G>u<Plug>NERDCommenterInsert
 map <M-/> <Plug>NERDCommenterComment
 xmap <leader>c<Space> <Plug>NERDCommenterToggle
@@ -698,6 +699,7 @@ let g:NERDCustomDelimiters = {
             \ 'coq': { 'left': '(*', 'right': '*)', 'nested': 1 },
             \}
 let g:NERDDefaultAlign = 'left'
+" }}}
 
 " undotree
 let g:undotree_WindowLayout = 4
@@ -729,11 +731,16 @@ func! Execute(cmd) abort
 endfunc
 command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
 
+command! -range=% Unpdf
+            \ keeppatterns <line1>,<line2>substitute/[“”]/"/ge |
+            \ keeppatterns <line1>,<line2>substitute/[‘’]/'/ge |
+            \ keeppatterns <line1>,<line2>substitute/\w\zs-\n//ge
+
 " :substitute using a dict, where key == submatch (like VisualStar)
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
                 \ . '/\C\%(' . join(map(keys(a:dict), 'escape(v:val, ''\.*$^~[]'')'), '\|'). '\)'
-                \ . '/\=' . string(a:dict) . '[submatch(0)]/ge'
+                \ . '/\=a:dict[submatch(0)]/ge'
 endfunction
 command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<args>)
 " }}}
