@@ -265,6 +265,8 @@ export PS1="\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 export PROMPT_COMMAND='echo -en "\033]0;$(whoami):~/$(pwd|cut -d "/" -f 4-100)\a"'
 export PROMPT_DIRTRIM=3
 
+export LC_ALL=C.UTF-8
+
 alias vi=nvim
 vil() { nvim "$@" --cmd 'set background=light'; }
 alias vimdiff="nvim -d"

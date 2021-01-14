@@ -76,6 +76,9 @@ fc-cache -fv
        ```
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
 
+## tex
+* `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
+
 # stuff
 * https://github.com/skywind3000/z.lua
     ```sh
@@ -92,6 +95,7 @@ fc-cache -fv
 
 ## firefox
 * plugins can't override reserved keymap
+    * https://shallowsky.com/blog/tech/web/firefox-quantum-fixing-ctrl-w.html
     * https://github.com/glacambre/firefox-patches/issues/1
 * ctrl-f is broken
     * sometimes skips a match
@@ -102,3 +106,7 @@ fc-cache -fv
 * pdf.js
     * copy-pasting removes the spaces in the text
 * firefox pdf dark mode https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375
+
+# Tips
+* To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
+* `git pull --autostash`
