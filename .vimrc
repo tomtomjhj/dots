@@ -138,6 +138,7 @@ set autoindent " smartindent is unnecessary
 set formatoptions+=n " this may interfere with 'comment'?
 set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
 set nojoinspaces
+set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 " indent the wrapped line, w/ `> ` at the start
 set wrap linebreak breakindent showbreak=>\ 
@@ -156,14 +157,14 @@ set spelllang=en,cjk
 
 set wildmenu wildmode=longest:full,full
 set wildignore=*.o,*~,*.pyc,*.pdf,*.v.d,*.vo,*.vos,*.vok,*.glob,*.aux
-set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store,*/__pycache__/
 
 set magic
 set ignorecase smartcase
 set hlsearch incsearch
 
 set noerrorbells novisualbell t_vb=
-set shortmess+=c
+set shortmess+=Ic
 set belloff=all
 
 set noswapfile " set directory=~/.vim/swap//
@@ -289,7 +290,7 @@ let g:ale_linters = {}
 let g:ale_fixers = {
             \ 'c': ['clang-format'],
             \ 'cpp': ['clang-format'],
-            \ 'python': ['yapf'],
+            \ 'python': ['black'],
             \ 'ocaml': ['ocamlformat'],
             \ 'go': ['gofmt'],
             \ '*': ['trim_whitespace']
@@ -456,7 +457,6 @@ func! Files(query)
     endif
     call fzf#vim#files(l:query, fzf#vim#with_preview(spec, 'right'))
 endfunc
-
 " }}}
 
 " Motion, insert mode, ... {{{
@@ -533,6 +533,9 @@ noremap <M-q> q
 noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
 noremap Q @q
 
+" v_u mistake is  hard to notice. Use gu instead (works for visual mode too).
+xnoremap u <nop>
+
 " delete without clearing regs
 noremap x "_x
 
@@ -598,20 +601,7 @@ augroup MyTargets | au!
     " - a'r'guments, any 'q'uote, any 'b'lock, separators + 'n'ext,'l'ast
     " - Leave a for matchup any-block.
     autocmd User targets#mappings#user call targets#mappings#extend({
-    \ '(': {},
-    \ ')': {},
-    \ '{': {},
-    \ '}': {},
-    \ 'B': {},
-    \ '[': {},
-    \ ']': {},
-    \ '<': {},
-    \ '>': {},
-    \ '"': {},
-    \ "'": {},
-    \ '`': {},
-    \ 't': {},
-    \ 'a': {},
+    \ '(': {}, ')': {}, '{': {}, '}': {}, 'B': {}, '[': {}, ']': {}, '<': {}, '>': {}, '"': {}, "'": {}, '`': {}, 't': {}, 'a': {},
     \ 'r': {'argument': [{'o': '[([]', 'c': '[])]', 's': ','}]},
     \ })
 augroup END
@@ -692,6 +682,8 @@ xmap <leader>cs <Plug>NERDCommenterSexy
 nmap <leader>cs <Plug>NERDCommenterSexy
 xmap <leader>cm <Plug>NERDCommenterMinimal
 nmap <leader>cm <Plug>NERDCommenterMinimal
+xmap <leader>cu <Plug>NERDCommenterUncomment
+nmap <leader>cu <Plug>NERDCommenterUncomment
 let g:NERDSpaceDelims = 1
 let g:NERDCustomDelimiters = {
             \ 'python' : { 'left': '#', 'leftAlt': '#' },
@@ -732,7 +724,7 @@ endfunc
 command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
 
 command! -range=% Unpdf
-            \ keeppatterns <line1>,<line2>substitute/[“”]/"/ge |
+            \ keeppatterns <line1>,<line2>substitute/[“”ł]/"/ge |
             \ keeppatterns <line1>,<line2>substitute/[‘’]/'/ge |
             \ keeppatterns <line1>,<line2>substitute/\w\zs-\n//ge
 
