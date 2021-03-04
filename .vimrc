@@ -113,7 +113,6 @@ Plug 'Konfekt/FastFold' " only useful for non-manual folds
 Plug 'romainl/vim-qf'
 Plug 'markonm/traces.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
-Plug 'andymass/vim-tradewinds' " <C-w>g h/j/k/l
 Plug 'justinmk/vim-dirvish'
 Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 " lanauges
@@ -207,19 +206,19 @@ let g:lightline = {
       \ 'colorscheme': 'powerline',
       \ 'active': {
       \   'left': [ ['mode', 'paste'],
-      \             ['readonly', 'speicialbuf', 'shortrelpath', 'modified'],
+      \             ['readonly', 'specialbuf', 'shortrelpath', 'modified'],
       \             ['git'] ],
       \   'right': [ ['lineinfo'], ['percent'],
       \              ['asyncrun'] ]
       \ },
       \ 'inactive': {
-      \   'left': [ ['speicialbuf', 'shortrelpath'] ],
-      \   'right': [ ['lineinfo'],
-      \              ['percent'] ]
+      \   'left': [ ['specialbuf', 'shortrelpath'],
+      \             ['winnr'] ],
+      \   'right': [ ['lineinfo'], ['percent'] ]
       \ },
       \ 'component': {
       \   'readonly': '%{&readonly && &filetype !=# "help" ? "🔒" : ""}',
-      \   'speicialbuf': '%q%w',
+      \   'specialbuf': '%q%w',
       \   'modified': '%{&filetype==#"help"?"":&modified?"+":&modifiable?"":"-"}',
       \   'asyncrun': '%{g:asyncrun_status[:3]}',
       \ },
@@ -230,10 +229,8 @@ let g:lightline = {
       \ 'component_visible_condition': {
       \   'readonly': '(&filetype!=#"help"&& &readonly)',
       \   'modified': '(&filetype!=#"help"&&(&modified||!&modifiable))',
-      \   'speicialbuf': '&pvw||&buftype==#"quickfix"',
+      \   'specialbuf': '&pvw||&buftype==#"quickfix"',
       \ },
-      \ 'separator': { 'left': ' ', 'right': ' ' },
-      \ 'subseparator': { 'left': '|', 'right': '|' },
       \ 'mode_map': {
       \     'n' : 'N ',
       \     'i' : 'I ',
@@ -300,8 +297,8 @@ let g:ale_linters_explicit = 1
 
 nmap <leader>fm <Plug>(ale_fix)
 nmap <M-,> <Plug>(ale_detail)<C-W>p
-nmap ]a <Plug>(ale_next_wrap)
-nmap [a <Plug>(ale_previous_wrap)
+nmap ]d <Plug>(ale_next_wrap)
+nmap [d <Plug>(ale_previous_wrap)
 noremap  <M-.> K
 noremap  <M-]> <C-]>
 nnoremap <M-o> <C-o>
@@ -414,7 +411,7 @@ augroup END
 command! -nargs=* -bang Grep call Grep(<q-args>)
 command! -bang -nargs=? -complete=dir Files call Files(<q-args>)
 " allow search on the full tag info, excluding the appended tagfile name
-command! -bang -nargs=* Tags call fzf#vim#tags(<q-args>, { 'options': ['-d', '\t', '--nth', '..-2'] })
+command! -bang -nargs=* Tags call fzf#vim#tags(<q-args>, fzf#vim#with_preview({ "placeholder": "--tag {2}:{-1}:{3}", 'options': ['-d', '\t', '--nth', '..-2'] }))
 
 func! FzfOpts(arg, spec)
     let l:opts = string(a:arg)
@@ -443,7 +440,7 @@ endfunc
 func! Grep(query)
     " let cmd = 'git grep --color --line-number -- ' . shellescape(a:query)
     let cmd = 'egrep --color=always --exclude-dir=.git -nrI ' . shellescape(a:query)
-    let spec = FzfOpts(v:count, {'options': ['--info=inline']})
+    let spec = FzfOpts(v:count, {'options': ['--info=inline', '--layout=reverse-list']})
     call fzf#vim#grep(cmd, 0, spec)
 endfunc
 func! Files(query)
@@ -564,6 +561,8 @@ nnoremap <C-k> <C-W>k
 nnoremap <C-h> <C-W>h
 nnoremap <C-l> <C-W>l
 
+command! -count Wfh set winfixheight | if <count> | exe "normal! z".<count>."\<CR>" | endif
+
 noremap <leader>q :<C-u>q<CR>
 noremap q, :<C-u>q<CR>
 nnoremap <leader>w :<C-u>up<CR>
@@ -609,9 +608,11 @@ augroup END
 
 " asyncrun
 map <leader>R :AsyncRun<space>
-map <leader>S :AsyncStop<CR>
+map <leader>ST :AsyncStop\|let g:asyncrun_status = ''<CR>
 command! -bang -nargs=* -complete=file Make AsyncRun -program=make @ <args>
 map <leader>M :Make<space>
+command! -bang -bar -nargs=* -complete=customlist,fugitive#PushComplete Gpush  execute 'AsyncRun<bang> -cwd=' . fnameescape(FugitiveGitDir()) 'git push' <q-args>
+command! -bang -bar -nargs=* -complete=customlist,fugitive#FetchComplete Gfetch execute 'AsyncRun<bang> -cwd=' . fnameescape(FugitiveGitDir()) 'git fetch' <q-args>
 
 " quickfix, loclist, ... {{{
 let g:qf_window_bottom = 0
