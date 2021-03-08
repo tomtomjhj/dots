@@ -26,6 +26,9 @@
 * vscoq + opam local switch
     * .profile issue
     * launch coqtop with `opam config exec --`?
+* map caps lock to both ctrl and esc
+    * https://github.com/ItayGarin/ktrl
+    * https://askubuntu.com/a/228379
 
 # Things to run (20.04)
 * `ubuntu-drivers install`
@@ -75,6 +78,7 @@ fc-cache -fv
        use-theme-transparency=false
        ```
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
+* disable `ctrl-alt-d` https://askubuntu.com/a/177994 TODO dconf-editor
 
 ## tex
 * `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
@@ -92,6 +96,7 @@ fc-cache -fv
     * https://stackoverflow.com/questions/21207474/custom-css-has-stopped-working-in-32-0-1700-76-m-google-chrome-update
     * https://github.com/hbtlabs/chromium-white-flash-fix
 * https://github.com/cyrus-and/gdb-dashboard
+* https://mug896.github.io/awk-script/index.html https://mug896.github.io/bash-shell/quotes.html
 
 ## firefox
 * plugins can't override reserved keymap
@@ -108,5 +113,10 @@ fc-cache -fv
 * firefox pdf dark mode https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375
 
 # Tips
+* gnome shell `alt-F2`
+
+## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
 * `git pull --autostash`
+* https://github.com/mhagger/git-imerge
+* git reflog
