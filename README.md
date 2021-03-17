@@ -26,6 +26,7 @@
 * vscoq + opam local switch
     * .profile issue
     * launch coqtop with `opam config exec --`?
+* https://help.ubuntu.com/community/CheckInstall
 * map caps lock to both ctrl and esc
     * https://github.com/ItayGarin/ktrl
     * https://askubuntu.com/a/228379
@@ -35,6 +36,7 @@
 * nimf
     * libhangul → shortcuts from Korean to system keyboard (for vim)
     * https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
+    * ESC -> to En
 
 ## font
 ```
