@@ -186,23 +186,20 @@ endfunc
 
 function! StatuslineGit()
     let l:branchname = system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-    return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+    return strlen(l:branchname) > 0? ' ['.l:branchname.']':''
 endfunction
 
 set statusline=
-set statusline+=%#PmenuSel#
+set statusline+=%#TabLine#
 set statusline+=\ %{ShortRelPath()}\ 
-set statusline+=%#LineNr#
+set statusline+=%#TabLineFill#
 set statusline+=%{StatuslineGit()}
-set statusline+=%m\ 
+set statusline+=%m%r%w
 set statusline+=%=
-set statusline+=%#LineNr#
-set statusline+=\ %y
-set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
-set statusline+=\ %{&fileformat}
-set statusline+=\ %p%%\ 
-set statusline+=%#PmenuSel#
-set statusline+=\ %l:%c
+set statusline+=%#TabLineFill#
+set statusline+=\ %3p%%\ 
+set statusline+=%#TabLine#
+set statusline+=\ %3l:%-2c
 set statusline+=\ 
 " }}}
 
