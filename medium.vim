@@ -141,7 +141,7 @@ set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 " indent the wrapped line, w/ `> ` at the start
 set wrap linebreak breakindent showbreak=>\ 
-set backspace=eol,start,indent
+let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
 set whichwrap+=<,>,[,],h,l
 
 let mapleader = ","
@@ -166,17 +166,11 @@ set noerrorbells novisualbell t_vb=
 set shortmess+=Ic
 set belloff=all
 
-set noswapfile " set directory=~/.vim/swap//
-if !isdirectory($HOME."/.vim/backup")
-    call mkdir($HOME."/.vim/backup", "", 0700)
-endif
-if !isdirectory($HOME."/.vim/undo")
-    call mkdir($HOME."/.vim/undo", "", 0700)
-endif
-set backup backupdir=~/.vim/backup//
-set undofile undodir=~/.vim/undo//
+set noswapfile
+set backup
+set undofile
 set history=500
-if has('nvim') | set shada=!,'150,<50,s30,h | endif
+set viminfo=!,'150,<50,s30,h
 
 set autoread
 set splitright splitbelow
@@ -188,7 +182,7 @@ set modeline " debian unsets this
 set exrc secure
 
 augroup BasicSetup | au!
-    au BufWinEnter * if empty(&buftype) && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
+    au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     au FileType help nnoremap <silent><buffer> <M-.> :h <C-r><C-w><CR>
     let &pumheight = min([&window/4, 20])
@@ -398,16 +392,6 @@ nnoremap <C-f>      :<C-u>Files<CR>
 nnoremap <leader>hh :<C-u>History<CR>
 nnoremap <leader><C-t> :Tags ^<C-r><C-w>\  <CR>
 
-augroup fzf | au!
-    if has('nvim')
-        " `au TermOpen tnoremap` and `au FileType fzf tunmap` breaks coc-fzf
-        tnoremap <expr> <Esc> (&filetype == 'fzf') ? '<Esc>' : '<c-\><c-n>'
-        tnoremap <expr> <C-q> (&filetype == 'fzf') ? '<C-q>' : '<c-\><c-n>'
-    else
-        tnoremap <C-q> <Esc>
-    endif
-augroup END
-
 command! -nargs=* -bang Grep call Grep(<q-args>)
 command! -bang -nargs=? -complete=dir Files call Files(<q-args>)
 " allow search on the full tag info, excluding the appended tagfile name
@@ -487,21 +471,20 @@ map t <Plug>Sneak_t
 map T <Plug>Sneak_T
 hi! Sneak guifg=black guibg=#afff00 gui=bold ctermfg=black ctermbg=154 cterm=bold
 
-inoremap <C-w> <C-\><C-o><ESC><C-w>
-inoremap <C-u> <C-\><C-o><ESC><C-g>u<C-u>
+inoremap <C-u> <C-g>u<C-u>
 " }}}
 
 " etc mappings {{{
-map <silent><leader><CR> :noh<CR>
-map <leader>ss :setlocal spell!\|setlocal spell?<cr>
-map <leader>sc :if &spc == "" \| setl spc< \| else \| setl spc= \| endif \| setl spc?<CR>
-map <leader>sp :setlocal paste!\|setlocal paste?<cr>
-map <leader>sw :set wrap!\|set wrap?<CR>
-map <leader>ic :set ignorecase! smartcase!\|set ignorecase?<CR>
-map <leader>sf :syn sync fromstart<CR>
+nnoremap <silent><leader><CR> :nohlsearch\|diffupdate<CR><C-L>
+nnoremap <leader>ss :setlocal spell!\|setlocal spell?<cr>
+nnoremap <leader>sc :if &spc == "" \| setl spc< \| else \| setl spc= \| endif \| setl spc?<CR>
+nnoremap <leader>sp :setlocal paste!\|setlocal paste?<cr>
+nnoremap <leader>sw :set wrap!\|set wrap?<CR>
+nnoremap <leader>ic :set ignorecase! smartcase!\|set ignorecase?<CR>
+nnoremap <leader>sf :syn sync fromstart<CR>
 
-map <leader>dp :diffput<CR>
-map <leader>do :diffget<CR>
+noremap <leader>dp :diffput<CR>
+noremap <leader>do :diffget<CR>
 
 " clipboard.
 inoremap <C-v> <C-g>u<C-\><C-o>:set paste<CR><C-r>+<C-\><C-o>:set nopaste<CR>
@@ -518,6 +501,9 @@ inoremap <C-q> <Esc>
 vnoremap <C-q> <Esc>
 onoremap <C-q> <Esc>
 noremap! <C-M-q> <C-q>
+if has('nvim')
+    tnoremap <M-[> <C-\><C-n>
+endif
 
 cnoremap <M-p> <Up>
 cnoremap <M-n> <Down>
@@ -552,10 +538,6 @@ vnoremap <M-+> g<C-a>
 noremap  <M--> <C-x>
 vnoremap <M--> g<C-x>
 
-" <C-b> <C-e>
-cnoremap <C-j> <S-Right>
-cnoremap <C-k> <S-Left>
-
 nnoremap <C-j> <C-W>j
 nnoremap <C-k> <C-W>k
 nnoremap <C-h> <C-W>h
@@ -571,13 +553,12 @@ command! -bang W   w<bang>
 command! -bang Q   q<bang>
 
 nmap <leader>cx :tabclose<cr>
-nmap <leader>td :tab split<CR>
-nmap <leader>tt :tabedit<CR>
-nmap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
-nmap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
-nmap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
-nmap <leader>fe :e!<CR>
-" }}}
+nnoremap <leader>td :tab split<CR>
+nnoremap <leader>tt :tabedit<CR>
+nnoremap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
+nnoremap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
+nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
+nnoremap <leader>fe :e!<CR>
 
 " etc plugin settings {{{
 " pairs {{{
@@ -716,13 +697,13 @@ func! IsVimWide()
     return &columns > 170
 endfunc
 
-func! Execute(cmd) abort
+func! Execute(cmd, mods) abort
     let output = execute(a:cmd)
-    tabnew
+    exe a:mods 'new'
     setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
     call setline(1, split(output, "\n"))
 endfunc
-command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
+command! -nargs=* -complete=command Execute silent call Execute(<q-args>, '<mods>')
 
 command! -range=% Unpdf
             \ keeppatterns <line1>,<line2>substitute/[“”ł]/"/ge |
@@ -770,4 +751,4 @@ function! GitStatusline() abort
 endfunction
 " }}}
 
-" vim: set foldmethod=marker foldlevel=0 nomodeline:
+" vim: set fdm=marker et sw=4:
