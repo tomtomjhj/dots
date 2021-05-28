@@ -36,7 +36,7 @@ endif
 " settings {{{
 set mouse=a
 set number ruler
-set foldcolumn=1
+set foldcolumn=1 foldnestmax=5
 set scrolloff=2 sidescrolloff=2
 set showtabline=1
 set laststatus=2
@@ -47,7 +47,7 @@ set autoindent
 set formatoptions+=jn
 set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
 set nojoinspaces
-set list listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
+set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=>\ 
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
@@ -72,17 +72,32 @@ set noerrorbells novisualbell t_vb=
 set shortmess+=Ic
 set belloff=all
 
-set updatetime=1234
-set noswapfile
-set backup
-set undofile
 set viminfo=!,'150,<50,s30,h
+set updatetime=1234
+set backup undofile noswapfile
+if has('nvim')
+    let s:backupdir = stdpath('data') . '/backup'
+    let s:undodir = stdpath("data") . '/undo'
+else
+    let s:backupdir = $HOME . '/.vim/backup'
+    let s:undodir = $HOME . '/.vim/undo'
+endif
+if !isdirectory(s:backupdir) || !isdirectory(s:backupdir)
+    call mkdir(s:backupdir, "p", 0700)
+    call mkdir(s:undodir, "p", 0700)
+endif
+let &backupdir = s:backupdir . '//'
+let &undodir = s:undodir . '//'
+unlet s:backupdir s:undodir
 
 set autoread
 set splitright splitbelow
 set switchbuf=useopen,usetab
 set hidden
 set lazyredraw
+
+set modeline " debian unsets this
+set exrc secure
 
 augroup BasicSetup | au!
     au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
@@ -268,6 +283,23 @@ nnoremap <c-space> <C-u>
 
 noremap <M-0> ^w
 
+let g:sword = '\v(\k+|([^[:alnum:]_[:blank:](){}[\]<>$])\2*|[(){}[\]<>$]|\s+)'
+inoremap <silent><C-j> <C-r>=SwordJumpRight()<CR><Right>
+inoremap <silent><C-k> <C-r>=SwordJumpLeft()<CR>
+func! SwordJumpRight()
+    if col('.') !=  col('$')
+        call search(g:sword, 'ceW')
+    endif
+    return ''
+endfunc
+func! SwordJumpLeft()
+    call search(col('.') != 1 ? g:sword : '\v$', 'bW')
+    return ''
+endfunc
+cnoremap <C-j> <S-Right>
+cnoremap <C-k> <S-Left>
+noremap! <C-space> <C-k>
+
 inoremap <C-u> <C-g>u<C-u>
 
 nnoremap <silent><leader><CR> :nohlsearch\|diffupdate<CR><C-L>
@@ -305,6 +337,7 @@ noremap <M-q> q
 noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
 noremap Q @q
 
+nnoremap U <nop>
 xnoremap u <nop>
 
 noremap x "_x
@@ -322,10 +355,6 @@ noremap  <M-+> <C-a>
 vnoremap <M-+> g<C-a>
 noremap  <M--> <C-x>
 vnoremap <M--> g<C-x>
-
-noremap! <C-j> <S-Right>
-noremap! <C-k> <S-Left>
-noremap! <C-space> <C-k>
 
 nnoremap <C-j> <C-W>j
 nnoremap <C-k> <C-W>k

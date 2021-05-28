@@ -126,7 +126,7 @@ call plug#end()
 set mouse=a
 set number ruler " cursorline
 set foldcolumn=1 foldnestmax=5
-set scrolloff=2 " sidescrolloff
+set scrolloff=2 sidescrolloff=2
 set showtabline=1
 set laststatus=2
 
@@ -134,7 +134,7 @@ set tabstop=4 shiftwidth=4
 set expandtab smarttab
 set autoindent " smartindent is unnecessary
 " set indentkeys+=!<M-i> " doesn't work, maybe i_META? just use i_CTRL-F
-set formatoptions+=n " this may interfere with 'comment'?
+set formatoptions+=jn
 set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
 set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
@@ -150,7 +150,7 @@ set updatetime=1234
 
 let $LANG='en'
 set langmenu=en
-set encoding=utf8
+set encoding=utf-8
 " set spellfile=~/.vim/spell/en.utf-8.add
 set spelllang=en,cjk
 
@@ -166,11 +166,23 @@ set noerrorbells novisualbell t_vb=
 set shortmess+=Ic
 set belloff=all
 
-set noswapfile
-set backup
-set undofile
 set history=500
 set viminfo=!,'150,<50,s30,h
+set backup undofile noswapfile
+if has('nvim')
+    let s:backupdir = stdpath('data') . '/backup'
+    let s:undodir = stdpath("data") . '/undo'
+else
+    let s:backupdir = $HOME . '/.vim/backup'
+    let s:undodir = $HOME . '/.vim/undo'
+endif
+if !isdirectory(s:backupdir) || !isdirectory(s:backupdir)
+    call mkdir(s:backupdir, "p", 0700)
+    call mkdir(s:undodir, "p", 0700)
+endif
+let &backupdir = s:backupdir . '//'
+let &undodir = s:undodir . '//'
+unlet s:backupdir s:undodir
 
 set autoread
 set splitright splitbelow
