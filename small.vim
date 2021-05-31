@@ -189,6 +189,11 @@ endif
 " }}}
 
 " statusline {{{
+let s:mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
+function! StatuslineMode()
+    return s:mode_map[mode()]
+endfunction
+
 func! ShortRelPath()
     let name = expand('%')
     if empty(name)
@@ -199,16 +204,25 @@ func! ShortRelPath()
     return pathshorten(fnamemodify(name, ":~:."))
 endfunc
 
-function! StatuslineGit()
-    let l:branchname = system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-    return strlen(l:branchname) > 0? ' ['.l:branchname.']':''
+function! UpdateGitStatus()
+  if &modifiable && empty(&buftype)
+      let rev_parse = system('git -C '.expand('%:p:h').' rev-parse --abbrev-ref HEAD')
+      if !v:shell_error
+          let b:git_status =' ['.substitute(l:rev_parse, '\n', '', 'g').']'
+      endif
+  endif
 endfunction
 
+augroup Statusine | au!
+    au VimEnter,WinEnter,BufEnter * call UpdateGitStatus()
+augroup END
+
 set statusline=
+set statusline+=\ %{StatuslineMode()}\ 
 set statusline+=%#TabLine#
 set statusline+=\ %{ShortRelPath()}\ 
 set statusline+=%#TabLineFill#
-set statusline+=%{StatuslineGit()}
+set statusline+=%{get(b:,'git_status','')}
 set statusline+=%m%r%w
 set statusline+=%=
 set statusline+=%#TabLineFill#
@@ -643,7 +657,7 @@ set background=dark
 " Required as some plugins will overwrite
 call s:h('Normal', s:fg, s:bg)
 call s:h('NormalFloat', s:none, s:bglighter)
-call s:h('StatusLine', s:none, s:bglighter, ['bold'])
+call s:h('StatusLine', s:none, s:bglighter, ['bold', 'inverse'])
 call s:h('StatusLineNC', s:none, s:bglight)
 call s:h('StatusLineTerm', s:none, s:bglighter, ['bold'])
 call s:h('StatusLineTermNC', s:none, s:bglight)
