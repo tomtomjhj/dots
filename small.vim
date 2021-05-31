@@ -522,6 +522,135 @@ nmap cgc <Plug>ChangeCommentary
 nmap gcu <Plug>Commentary<Plug>Commentary
 " }}}
 
+" netrw & vinegar {{{
+let g:netrw_fastbrowse = 0
+nnoremap <silent><C-w>es :Hexplore<CR>
+nnoremap <silent><C-w>ev :Vexplore!<CR>
+
+" https://github.com/tpope/vim-vinegar/blob/b245f3ab4580eba27616a5ce06a56d5f791e67bd/plugin/vinegar.vim
+let s:vinegar_dotfiles = '\(^\|\s\s\)\zs\.\S\+'
+
+let s:vinegar_escape = 'substitute(escape(v:val, ".$~"), "*", ".*", "g")'
+let g:netrw_list_hide =
+      \ join(map(split(&wildignore, ','), '"^".' . s:vinegar_escape . '. "/\\=$"'), ',') . ',^\.\.\=/\=$' .
+      \ (get(g:, 'netrw_list_hide', '')[-strlen(s:vinegar_dotfiles)-1:-1] ==# s:vinegar_dotfiles ? ','.s:vinegar_dotfiles : '')
+if !exists("g:netrw_banner")
+  let g:netrw_banner = 0
+endif
+unlet! s:vinegar_netrw_up
+
+nnoremap <silent> <Plug>VinegarUp :call <SID>vinegar_opendir('edit')<CR>
+if empty(maparg('-', 'n')) && !hasmapto('<Plug>VinegarUp')
+  nmap - <Plug>VinegarUp
+endif
+
+nnoremap <silent> <Plug>VinegarTabUp :call <SID>vinegar_opendir('tabedit')<CR>
+nnoremap <silent> <Plug>VinegarSplitUp :call <SID>vinegar_opendir('split')<CR>
+nnoremap <silent> <Plug>VinegarVerticalSplitUp :call <SID>vinegar_opendir('vsplit')<CR>
+
+function! s:vinegar_sort_sequence(suffixes) abort
+  return '[\/]$,*' . (empty(a:suffixes) ? '' : ',\%(' .
+        \ join(map(split(a:suffixes, ','), 'escape(v:val, ".*$~")'), '\|') . '\)[*@]\=$')
+endfunction
+let g:netrw_sort_sequence = s:vinegar_sort_sequence(&suffixes)
+
+function! s:vinegar_opendir(cmd) abort
+  let df = ','.s:vinegar_dotfiles
+  if expand('%:t')[0] ==# '.' && g:netrw_list_hide[-strlen(df):-1] ==# df
+    let g:netrw_list_hide = g:netrw_list_hide[0 : -strlen(df)-1]
+  endif
+  if &filetype ==# 'netrw' && len(s:vinegar_netrw_up)
+    let basename = fnamemodify(b:netrw_curdir, ':t')
+    execute s:vinegar_netrw_up
+    call s:vinegar_seek(basename)
+  elseif expand('%') =~# '^$\|^term:[\/][\/]'
+    execute a:cmd '.'
+  else
+    execute a:cmd '%:h' . s:vinegar_slash()
+    call s:vinegar_seek(expand('#:t'))
+  endif
+endfunction
+
+function! s:vinegar_seek(file) abort
+  if get(b:, 'netrw_liststyle') == 2
+    let pattern = '\%(^\|\s\+\)\zs'.escape(a:file, '.*[]~\').'[/*|@=]\=\%($\|\s\+\)'
+  else
+    let pattern = '^\%(| \)*'.escape(a:file, '.*[]~\').'[/*|@=]\=\%($\|\t\)'
+  endif
+  call search(pattern, 'wc')
+  return pattern
+endfunction
+
+augroup vinegar
+  autocmd!
+  autocmd FileType netrw call s:vinegar_setup_vinegar()
+  if exists('##OptionSet')
+    autocmd OptionSet suffixes
+          \ if s:vinegar_sort_sequence(v:option_old) ==# get(g:, 'netrw_sort_sequence') |
+          \   let g:netrw_sort_sequence = s:vinegar_sort_sequence(v:option_new) |
+          \ endif
+  endif
+augroup END
+
+function! s:vinegar_slash() abort
+  return !exists("+shellslash") || &shellslash ? '/' : '\'
+endfunction
+
+function! s:vinegar_absolutes(first, ...) abort
+  let files = getline(a:first, a:0 ? a:1 : a:first)
+  call filter(files, 'v:val !~# "^\" "')
+  call map(files, "substitute(v:val, '^\\(| \\)*', '', '')")
+  call map(files, 'b:netrw_curdir . s:vinegar_slash() . substitute(v:val, "[/*|@=]\\=\\%(\\t.*\\)\\=$", "", "")')
+  return files
+endfunction
+
+function! s:vinegar_relatives(first, ...) abort
+  let files = s:vinegar_absolutes(a:first, a:0 ? a:1 : a:first)
+  call filter(files, 'v:val !~# "^\" "')
+  for i in range(len(files))
+    let relative = fnamemodify(files[i], ':.')
+    if relative !=# files[i]
+      let files[i] = '.' . s:vinegar_slash() . relative
+    endif
+  endfor
+  return files
+endfunction
+
+function! s:vinegar_escaped(first, last) abort
+  let files = s:vinegar_relatives(a:first, a:last)
+  return join(map(files, 'fnameescape(v:val)'), ' ')
+endfunction
+
+function! s:vinegar_setup_vinegar() abort
+  if !exists('s:vinegar_netrw_up')
+    let orig = maparg('-', 'n')
+    if orig =~? '^<plug>'
+      let s:vinegar_netrw_up = 'execute "normal \'.substitute(orig, ' *$', '', '').'"'
+    elseif orig =~# '^:'
+      " :exe "norm! 0"|call netrw#LocalBrowseCheck(<SNR>123_NetrwBrowseChgDir(1,'../'))<CR>
+      let s:vinegar_netrw_up = substitute(orig, '\c^:\%(<c-u>\)\=\|<cr>$', '', 'g')
+    else
+      let s:vinegar_netrw_up = ''
+    endif
+  endif
+  nmap <buffer> - <Plug>VinegarUp
+  cnoremap <buffer><expr> <Plug><cfile> get(<SID>vinegar_relatives('.'),0,"\022\006")
+  if empty(maparg('<C-R><C-F>', 'c'))
+    cmap <buffer> <C-R><C-F> <Plug><cfile>
+  endif
+  nnoremap <buffer> ~ :edit ~/<CR>
+  nnoremap <buffer> . :<C-U> <C-R>=<SID>vinegar_escaped(line('.'), line('.') - 1 + v:count1)<CR><Home>
+  xnoremap <buffer> . <Esc>: <C-R>=<SID>vinegar_escaped(line("'<"), line("'>"))<CR><Home>
+  if empty(mapcheck('y.', 'n'))
+    nnoremap <silent><buffer> y. :<C-U>call setreg(v:register, join(<SID>vinegar_absolutes(line('.'), line('.') - 1 + v:count1), "\n")."\n")<CR>
+  endif
+  nmap <buffer> ! .!
+  xmap <buffer> ! .!
+  exe 'syn match netrwSuffixes =\%(\S\+ \)*\S\+\%('.join(map(split(&suffixes, ','), s:vinegar_escape), '\|') . '\)[*@]\=\S\@!='
+  hi def link netrwSuffixes SpecialKey
+endfunction
+" }}}
+"
 " color {{{
 let g:colors_name = 'zenbruh'
 
