@@ -650,8 +650,8 @@ function! s:vinegar_setup_vinegar() abort
   hi def link netrwSuffixes SpecialKey
 endfunction
 " }}}
-"
-" color {{{
+
+" syntax and color {{{
 let g:colors_name = 'zenbruh'
 
 " Palette:
@@ -889,6 +889,30 @@ hi! link helpHyperTextJump ZenbruhLink
 hi! link helpCommand ZenbruhPurple
 hi! link helpExample ZenbruhGreen
 hi! link helpBacktick Special
+
+" Etc:
+hi! link markdownCode Special
+
+augroup SyntaxAndColor | au!
+    " NOTE: 'syntax-loading'
+    au FileType markdown call s:FixMarkdown()
+    au Filetype pandoc setlocal filetype=markdown
+augroup END
+
+function s:FixMarkdown() abort
+    set formatlistpat<
+    " conservative markdown highlight
+    if hlID('markdownError')
+        syn clear markdownError markdownItalic markdownBold markdownBoldItalic
+    endif
+    let concealends = ''
+    if has('conceal') && get(g:, 'markdown_syntax_conceal', 1) == 1
+        let concealends = ' concealends'
+    endif
+    exe 'syn region markdownItalic matchgroup=markdownItalicDelimiter start="\*\S\@=" end="\S\@<=\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
+    exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\*\*\S\@=" end="\S\@<=\*\*" skip="\\\*" contains=markdownLineStart,markdownItalic,@Spell' . concealends
+    exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\*\*\*\S\@=" end="\S\@<=\*\*\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
+endfunction
 " }}}
 
 " vim: set fdm=marker et sw=4:
