@@ -1,3 +1,87 @@
+set nocompatible
+
+" settings {{{
+set mouse=a
+set number ruler
+set foldcolumn=1 foldnestmax=5
+set scrolloff=2 sidescrolloff=2
+set showtabline=1
+set laststatus=2
+
+set tabstop=4 shiftwidth=4
+set expandtab smarttab
+set autoindent
+set formatoptions+=jn
+set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
+set nojoinspaces
+set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
+
+set wrap linebreak breakindent showbreak=>\ 
+let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
+set whichwrap+=<,>,[,],h,l
+set cpoptions-=_
+
+let mapleader = ","
+set timeoutlen=987
+
+let $LANG='en'
+set langmenu=en
+set encoding=utf-8
+set spelllang=en,cjk
+
+set wildmenu wildmode=longest:full,full
+set wildignore=*.o,*~,*.pyc,*.pdf,*.v.d,*.vo,*.vos,*.vok,*.glob,*.aux
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store,*/__pycache__/
+
+set ignorecase smartcase
+set hlsearch incsearch
+
+set noerrorbells novisualbell t_vb=
+set shortmess+=Ic
+set belloff=all
+
+set history=1000
+set viminfo=!,'150,<50,s30,h
+set updatetime=1234
+set backup undofile noswapfile
+if has('nvim')
+    let s:backupdir = stdpath('data') . '/backup'
+    let s:undodir = stdpath("data") . '/undo'
+else
+    let s:backupdir = $HOME . '/.vim/backup'
+    let s:undodir = $HOME . '/.vim/undo'
+endif
+if !isdirectory(s:backupdir) || !isdirectory(s:backupdir)
+    call mkdir(s:backupdir, "p", 0700)
+    call mkdir(s:undodir, "p", 0700)
+endif
+let &backupdir = s:backupdir . '//'
+let &undodir = s:undodir . '//'
+unlet s:backupdir s:undodir
+
+set autoread
+set splitright splitbelow
+set switchbuf=useopen,usetab
+set hidden
+set lazyredraw
+
+set modeline " debian unsets this
+set exrc secure
+
+augroup BasicSetup | au!
+    au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
+    au VimEnter * exec 'tabdo windo clearjumps' | tabnext
+    au FileType help nnoremap <silent><buffer> <M-.> :h <C-r><C-w><CR>
+    let &pumheight = min([&window/4, 20])
+    au VimResized * let &pumheight = min([&window/4, 20])
+augroup END
+
+if has('unix')
+    let g:python_host_prog  = '/usr/bin/python2'
+    let g:python3_host_prog = '/usr/bin/python3'
+endif
+" }}}
+
 " platform/terminal/gui stuff {{{
 if has('nvim') || has('win32')
     set runtimepath^=~/.vim
@@ -122,91 +206,6 @@ Plug 'tomtomjhj/vim-rust-syntax-ext'| Plug 'rust-lang/rust.vim'
 call plug#end()
 " }}}
 
-" Basic {{{
-set mouse=a
-set number ruler " cursorline
-set foldcolumn=1 foldnestmax=5
-set scrolloff=2 sidescrolloff=2
-set showtabline=1
-set laststatus=2
-
-set tabstop=4 shiftwidth=4
-set expandtab smarttab
-set autoindent " smartindent is unnecessary
-" set indentkeys+=!<M-i> " doesn't work, maybe i_META? just use i_CTRL-F
-set formatoptions+=jn
-set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
-set nojoinspaces
-set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
-
-" indent the wrapped line, w/ `> ` at the start
-set wrap linebreak breakindent showbreak=>\ 
-let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
-set whichwrap+=<,>,[,],h,l
-
-let mapleader = ","
-set timeoutlen=987
-set updatetime=1234
-
-let $LANG='en'
-set langmenu=en
-set encoding=utf-8
-" set spellfile=~/.vim/spell/en.utf-8.add
-set spelllang=en,cjk
-
-set wildmenu wildmode=longest:full,full
-set wildignore=*.o,*~,*.pyc,*.pdf,*.v.d,*.vo,*.vos,*.vok,*.glob,*.aux
-set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store,*/__pycache__/
-
-set magic
-set ignorecase smartcase
-set hlsearch incsearch
-
-set noerrorbells novisualbell t_vb=
-set shortmess+=Ic
-set belloff=all
-
-set history=500
-set viminfo=!,'150,<50,s30,h
-set backup undofile noswapfile
-if has('nvim')
-    let s:backupdir = stdpath('data') . '/backup'
-    let s:undodir = stdpath("data") . '/undo'
-else
-    let s:backupdir = $HOME . '/.vim/backup'
-    let s:undodir = $HOME . '/.vim/undo'
-endif
-if !isdirectory(s:backupdir) || !isdirectory(s:backupdir)
-    call mkdir(s:backupdir, "p", 0700)
-    call mkdir(s:undodir, "p", 0700)
-endif
-let &backupdir = s:backupdir . '//'
-let &undodir = s:undodir . '//'
-unlet s:backupdir s:undodir
-
-set autoread
-set splitright splitbelow
-set switchbuf=useopen,usetab
-set hidden
-set lazyredraw
-
-set modeline " debian unsets this
-set exrc secure
-
-augroup BasicSetup | au!
-    au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
-    au VimEnter * exec 'tabdo windo clearjumps' | tabnext
-    au FileType help nnoremap <silent><buffer> <M-.> :h <C-r><C-w><CR>
-    let &pumheight = min([&window/4, 20])
-    au VimResized * let &pumheight = min([&window/4, 20])
-augroup END
-
-if has('unix')
-    let g:python_host_prog  = '/usr/bin/python2'
-    let g:python3_host_prog = '/usr/bin/python3'
-endif
-" }}}
-
 " Themes {{{
 let g:lightline = {
       \ 'colorscheme': 'powerline',
@@ -271,7 +270,7 @@ endif
 " > Note: The keys that are valid in CTRL-X mode are not mapped.  This allows for
 " > ":map ^F ^X^F" to work (where ^F is CTRL-F and ^X is CTRL-X).
 set completeopt=menuone,noinsert,noselect
-set complete-=b,u
+set complete-=i,b,u
 let g:mucomplete#enable_auto_at_startup = 1
 let g:mucomplete#chains = {
     \ 'default': ['path', 'omni', 'c-p'],
@@ -407,7 +406,7 @@ nnoremap <leader><C-t> :Tags ^<C-r><C-w>\  <CR>
 command! -nargs=* -bang Grep call Grep(<q-args>)
 command! -bang -nargs=? -complete=dir Files call Files(<q-args>)
 " allow search on the full tag info, excluding the appended tagfile name
-command! -bang -nargs=* Tags call fzf#vim#tags(<q-args>, fzf#vim#with_preview({ "placeholder": "--tag {2}:{-1}:{3}", 'options': ['-d', '\t', '--nth', '..-2'] }))
+command! -bang -nargs=* Tags call fzf#vim#tags(<q-args>, fzf#vim#with_preview({ "placeholder": "--tag {2}:{-1}:{3..}", 'options': ['-d', '\t', '--nth', '..-2'] }))
 
 func! FzfOpts(arg, spec)
     let l:opts = string(a:arg)
@@ -487,13 +486,13 @@ inoremap <C-u> <C-g>u<C-u>
 " }}}
 
 " etc mappings {{{
-nnoremap <silent><leader><CR> :nohlsearch\|diffupdate<CR><C-L>
-nnoremap <leader>ss :setlocal spell!\|setlocal spell?<cr>
-nnoremap <leader>sc :if &spc == "" \| setl spc< \| else \| setl spc= \| endif \| setl spc?<CR>
-nnoremap <leader>sp :setlocal paste!\|setlocal paste?<cr>
-nnoremap <leader>sw :set wrap!\|set wrap?<CR>
-nnoremap <leader>ic :set ignorecase! smartcase!\|set ignorecase?<CR>
-nnoremap <leader>sf :syn sync fromstart<CR>
+nnoremap <silent><leader><CR> :nohlsearch<CR>
+nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
+nnoremap <leader>ss :setlocal spell! spell?<CR>
+nnoremap <leader>sc :if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
+nnoremap <leader>sp :setlocal paste! paste?<CR>
+nnoremap <leader>sw :set wrap! wrap?<CR>
+nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
 
 noremap <leader>dp :diffput<CR>
 noremap <leader>do :diffget<CR>
@@ -564,7 +563,7 @@ noremap ZAQ :<C-u>qa!<CR>
 command! -bang W   w<bang>
 command! -bang Q   q<bang>
 
-nmap <leader>cx :tabclose<cr>
+nnoremap <leader>cx :tabclose<CR>
 nnoremap <leader>td :tab split<CR>
 nnoremap <leader>tt :tabedit<CR>
 nnoremap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
