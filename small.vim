@@ -273,8 +273,10 @@ endfunction
 nnoremap <C-g>      :<C-u>copen\|vimgrep //j <C-r>=GrepFiles()<CR><C-Left><C-Left><Right>
 nnoremap <leader>g/ :<C-u>copen\|vimgrep /<C-r>//j <C-r>=GrepFiles()<CR>
 nnoremap <leader>gw :<C-u>copen\|vimgrep /\<<C-r><C-w>\>/j <C-r>=GrepFiles()<CR>
-" TODO: something similar for <C-f> like :browse `$GIT_FILES_CMD`
-nnoremap <leader>hh :browse oldfiles<CR>
+" TODO: combine 'path' 'file-searching' ':find' with $GIT_FILES_CMD
+set path=.,**
+nnoremap <C-f>      :<C-u>find<space>
+nnoremap <leader>hh :filter // browse oldfiles<C-Left><C-Left><C-Left><Right>
 
 nnoremap <expr> j                     v:count ? 'j' : 'gj'
 nnoremap <expr> k                     v:count ? 'k' : 'gk'
