@@ -390,6 +390,11 @@ nnoremap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>fe :e!<CR>
 
+inoremap <expr> <CR> match(getline('.'), '\w') >= 0 ? "\<C-G>u\<CR>" : "\<CR>"
+
+xmap aa a%
+xmap ia i%
+
 nnoremap <leader>fm :let _p=getpos(".") <Bar> :let _s=@/ <Bar> :%s/\s\+$//e <Bar> :let @/=_s <Bar> :nohl <Bar> :unlet _s <Bar> call setpos('.', _p) <Bar> :unlet _p <CR>
 
 nnoremap <silent><leader>x  :pc\|ccl\|lcl<CR>
@@ -397,6 +402,8 @@ nnoremap <silent>]q :cnext<CR>
 nnoremap <silent>[q :cprevious<CR>
 nnoremap <silent>]l :lnext<CR>
 nnoremap <silent>[l :lprevious<CR>
+
+nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
 
 func! Execute(cmd, mods) abort
     redir => output
@@ -407,6 +414,11 @@ func! Execute(cmd, mods) abort
     call setline(1, split(output, "\n"))
 endfunction
 command! -nargs=* -complete=command Execute silent call Execute(<q-args>, '<mods>')
+
+command! -range=% Unpdf
+            \ keeppatterns <line1>,<line2>substitute/[“”łž]/"/ge |
+            \ keeppatterns <line1>,<line2>substitute/[‘’]/'/ge |
+            \ keeppatterns <line1>,<line2>substitute/\w\zs-\n//ge
 
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
