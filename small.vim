@@ -52,6 +52,7 @@ set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 set wrap linebreak breakindent showbreak=>\ 
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
 set whichwrap+=<,>,[,],h,l
+set cpoptions-=_
 
 let mapleader = ","
 noremap <M-;> ,
@@ -318,11 +319,11 @@ noremap! <C-space> <C-k>
 
 inoremap <C-u> <C-g>u<C-u>
 
-nnoremap <silent><leader><CR> :nohlsearch\|diffupdate<CR><C-L>
-nnoremap <leader>ss :setlocal spell!\|setlocal spell?<cr>
-nnoremap <leader>sp :setlocal paste!\|setlocal paste?<cr>
-nnoremap <leader>sw :set wrap!\|set wrap?<CR>
-nnoremap <leader>sf :syn sync fromstart<CR>
+nnoremap <silent><leader><CR> :nohlsearch<CR>
+nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
+nnoremap <leader>ss :setlocal spell! spell?<CR>
+nnoremap <leader>sp :setlocal paste! paste?<CR>
+nnoremap <leader>sw :set wrap! wrap?<CR>
 
 noremap <leader>dp :diffput<CR>
 noremap <leader>do :diffget<CR>
@@ -384,7 +385,7 @@ noremap ZAQ :<C-u>qa!<CR>
 command! -bang W   w<bang>
 command! -bang Q   q<bang>
 
-nmap <leader>cx :tabclose<cr>
+nnoremap <leader>cx :tabclose<CR>
 nnoremap <leader>td :tab split<CR>
 nnoremap <leader>tt :tabedit<CR>
 nnoremap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
