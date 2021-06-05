@@ -6,7 +6,6 @@ filetype plugin indent on
 if !exists('g:syntax_on')
   syntax enable
 endif
-set complete-=i
 set nrformats-=octal
 if !has('nvim') && &ttimeoutlen == -1
   set ttimeout
@@ -63,14 +62,16 @@ set encoding=utf-8
 set spelllang=en,cjk
 
 set wildmenu wildmode=longest:full,full
-set wildignore=*.o,*~,*.pyc,*.pdf,*.v.d,*.vo,*.vos,*.vok,*.glob,*.aux
-set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store,*/__pycache__/
+set wildignore=*~,%*,*.o,*.pyc,*.pdf,*.v.d,*.vo*,*.glob,*.cm*,*.aux
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/__pycache__/*,*/target/*
+set complete-=i complete-=u completeopt=menuone,preview
+set path=.,**
 
 set ignorecase smartcase
 set hlsearch incsearch
 
 set noerrorbells novisualbell t_vb=
-set shortmess+=Ic
+set shortmess+=Ic shortmess-=S
 set belloff=all
 
 set viminfo=!,'150,<50,s30,h
@@ -93,12 +94,15 @@ unlet s:backupdir s:undodir
 
 set autoread
 set splitright splitbelow
-set switchbuf=useopen,usetab
+let &switchbuf = (has('patch-8.1.2315') || has('nvim-0.5')) ? 'useopen,uselast' : 'useopen'
 set hidden
 set lazyredraw
 
 set modeline " debian unsets this
 set exrc secure
+if has('nvim-0.3.2') || has("patch-8.1.0360")
+    set diffopt+=algorithm:histogram,indent-heuristic
+endif
 
 augroup BasicSetup | au!
     au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
@@ -123,17 +127,23 @@ elseif !has('nvim') " terminal vim
     silent! !stty -ixon > /dev/null 2>/dev/null
     set ttymouse=sgr
     " fix <M- mappings {{{
-    " NOTE: this should be run after set encoding=utf-8
-    for c in ['+', '-', '0', ';', 'P', 'n', 'p', 'q', 'y']
-        exec 'map  <ESC>'.c '<M-'.c.'>'
-        exec 'map! <ESC>'.c '<M-'.c.'>'
-    endfor
-    cnoremap <ESC><ESC> <C-c>
-    map  <Nul> <C-space>
-    map! <Nul> <C-space>
-
+    " NOTE: <M- keys can be affected by 'encoding'.
+    " NOTE: Run after VimEnter to avoid messing up terminal stuff.
+    function! s:InitESCMaps() abort
+        for c in ['+', '-', '/', '0', ';', 'P', 'n', 'p', 'q', 'y']
+            exec 'map  <ESC>'.c '<M-'.c.'>'
+            exec 'map! <ESC>'.c '<M-'.c.'>'
+        endfor
+        cnoremap <ESC><ESC> <C-c>
+        map  <Nul> <C-space>
+        map! <Nul> <C-space>
+    endfunction
     " A hack to bypass <ESC> prefix map timeout stuff.
     function! s:ESCHack(mode)
+        if mode(1) ==# 'niI'
+            call feedkeys("\<ESC>", 'n')
+            return
+        endif
         exec a:mode . 'unmap <buffer><ESC>'
         let extra = ''
         while 1
@@ -179,10 +189,11 @@ elseif !has('nvim') " terminal vim
         omap <silent><buffer><nowait><ESC> :<C-u>call <SID>ESCHack('o')<CR>
     endfunction
     augroup TerminalVimSetup | au!
+        au VimEnter * call s:InitESCMaps()
         au BufEnter * call ESCimap() | call ESCnmap() | call ESCvmap() | call ESComap()
-        if exists('#CmdlineEnter')
+        if exists('##CmdlineEnter')
             au CmdlineEnter * set timeoutlen=23
-            au CmdlineLeave * set timeoutlen=432
+            au CmdlineLeave * set timeoutlen&vim
         endif
     augroup END
     " }}}
@@ -192,7 +203,7 @@ endif
 " statusline {{{
 let s:mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
 function! StatuslineMode()
-    return s:mode_map[mode()]
+    return get(s:mode_map, mode(), '')
 endfunction
 
 func! ShortRelPath()
@@ -223,8 +234,8 @@ set statusline+=\ %{StatuslineMode()}\
 set statusline+=%#TabLine#
 set statusline+=\ %{ShortRelPath()}\ 
 set statusline+=%#TabLineFill#
-set statusline+=%{get(b:,'git_status','')}
 set statusline+=%m%r%w
+set statusline+=%{get(b:,'git_status','')}
 set statusline+=%=
 set statusline+=%#TabLineFill#
 set statusline+=\ %3p%%\ 
@@ -233,7 +244,7 @@ set statusline+=\ %3l:%-2c
 set statusline+=\ 
 " }}}
 
-" excerpt from configs.vim with some modifications {{{
+" search & files {{{
 nnoremap <silent>* :call Star(0)\|set hlsearch<CR>
 nnoremap <silent>g* :call Star(1)\|set hlsearch<CR>
 vnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
@@ -278,7 +289,9 @@ nnoremap <leader>gw :<C-u>copen\|vimgrep /\<<C-r><C-w>\>/j <C-r>=GrepFiles()<CR>
 set path=.,**
 nnoremap <C-f>      :<C-u>find<space>
 nnoremap <leader>hh :filter // browse oldfiles<C-Left><C-Left><C-Left><Right>
+" }}}
 
+" Motion, insert mode, ... {{{
 nnoremap <expr> j                     v:count ? 'j' : 'gj'
 nnoremap <expr> k                     v:count ? 'k' : 'gk'
 nnoremap <expr> J                     v:count ? 'j' : 'gj'
@@ -300,6 +313,9 @@ nnoremap <c-space> <C-u>
 
 noremap <M-0> ^w
 
+noremap s f
+noremap S F
+
 let g:sword = '\v(\k+|([^[:alnum:]_[:blank:](){}[\]<>$])\2*|[(){}[\]<>$]|\s+)'
 inoremap <silent><C-j> <C-r>=SwordJumpRight()<CR><Right>
 inoremap <silent><C-k> <C-r>=SwordJumpLeft()<CR>
@@ -318,7 +334,9 @@ cnoremap <C-k> <S-Left>
 noremap! <C-space> <C-k>
 
 inoremap <C-u> <C-g>u<C-u>
+" }}}
 
+" etc mappings {{{
 nnoremap <silent><leader><CR> :nohlsearch<CR>
 nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
 nnoremap <leader>ss :setlocal spell! spell?<CR>
@@ -378,6 +396,8 @@ nnoremap <C-k> <C-W>k
 nnoremap <C-h> <C-W>h
 nnoremap <C-l> <C-W>l
 
+command! -count Wfh set winfixheight | if <count> | exe "normal! z".<count>."\<CR>" | endif
+
 noremap <leader>q :<C-u>q<CR>
 noremap q, :<C-u>q<CR>
 nnoremap <leader>w :<C-u>up<CR>
@@ -392,36 +412,57 @@ nnoremap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>fe :e!<CR>
+" }}}
 
+" pairs {{{
 inoremap <expr> <CR> match(getline('.'), '\w') >= 0 ? "\<C-G>u\<CR>" : "\<CR>"
 
 xmap aa a%
 xmap ia i%
+" }}}
 
-nnoremap <leader>fm :let _p=getpos(".") <Bar> :let _s=@/ <Bar> :%s/\s\+$//e <Bar> :let @/=_s <Bar> :nohl <Bar> :unlet _s <Bar> call setpos('.', _p) <Bar> :unlet _p <CR>
-
+" quickfix, loclist, ... {{{
+packadd cfilter
 nnoremap <silent><leader>x  :pc\|ccl\|lcl<CR>
 nnoremap <silent>]q :cnext<CR>
 nnoremap <silent>[q :cprevious<CR>
 nnoremap <silent>]l :lnext<CR>
 nnoremap <silent>[l :lprevious<CR>
+" }}}
 
+" etc util {{{
 nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
 
+if exists('*execute')
+    function! s:execute(cmd) abort
+        return execute(a:cmd)
+    endfunction
+else
+    function! s:execute(cmd) abort
+        redir => output
+        execute a:cmd
+        redir END
+        return output
+    endfunction
+endif
 func! Execute(cmd, mods) abort
-    redir => output
-    silent execute a:cmd
-    redir END
+    let output = s:execute(a:cmd)
     execute a:mods 'new'
     setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
     call setline(1, split(output, "\n"))
-endfunction
+endfunc
 command! -nargs=* -complete=command Execute silent call Execute(<q-args>, '<mods>')
 
+command! -range=% TrimWhitespace
+            \ let _view = winsaveview() |
+            \ keeppatterns keepjumps <line1>,<line2>substitute/\s\+$//e |
+            \ call winrestview(_view) |
+            \ unlet _view
+noremap <leader>fm :TrimWhitespace<CR>
 command! -range=% Unpdf
-            \ keeppatterns <line1>,<line2>substitute/[“”łž]/"/ge |
-            \ keeppatterns <line1>,<line2>substitute/[‘’]/'/ge |
-            \ keeppatterns <line1>,<line2>substitute/\w\zs-\n//ge
+            \ keeppatterns keepjumps <line1>,<line2>substitute/[“”łž]/"/ge |
+            \ keeppatterns keepjumps <line1>,<line2>substitute/[‘’]/'/ge |
+            \ keeppatterns keepjumps <line1>,<line2>substitute/\w\zs-\n//ge
 
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
@@ -431,7 +472,8 @@ endfunction
 command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<args>)
 " }}}
 
-" commentary {{{
+" comments {{{
+" Commentary: {{{2
 " https://github.com/tpope/vim-commentary/blob/349340debb34f6302931f0eb7139b2c11dfdf427/plugin/commentary.vim
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
@@ -535,7 +577,14 @@ omap gc  <Plug>Commentary
 nmap gcc <Plug>CommentaryLine
 nmap cgc <Plug>ChangeCommentary
 nmap gcu <Plug>Commentary<Plug>Commentary
-" }}}
+" }}}2
+" Etc: {{{2
+function s:commentary_insert()
+  let [l, r] = s:commentary_surroundings()
+  call feedkeys(l . r . repeat("\<Left>", strchars(r)), 'ni')
+endfunction
+inoremap <silent> <M-/> <C-G>u<C-\><C-o>:call <SID>commentary_insert()<CR>
+" }}} }}}
 
 " netrw & vinegar {{{
 let g:netrw_fastbrowse = 0
@@ -1276,7 +1325,7 @@ if !exists("g:surround_no_mappings") || ! g:surround_no_mappings
 endif
 " }}}
 
-" syntax and color {{{
+" colorscheme {{{
 let g:colors_name = 'zenbruh'
 
 " Palette:
@@ -1517,8 +1566,10 @@ hi! link helpBacktick Special
 
 " Etc:
 hi! link markdownCode Special
+" }}}
 
-augroup SyntaxAndColor | au!
+" filetypes {{{
+augroup FileTypes | au!
     " NOTE: 'syntax-loading'
     au FileType markdown call s:FixMarkdown()
     au Filetype pandoc setlocal filetype=markdown
