@@ -270,25 +270,86 @@ func! VisualStar(g)
 endfunc
 nnoremap / :let g:search_mode='/'<CR>/
 
-" NOTE: --others doesn't enumerate the individual files
-let $GIT_FILES_CMD = 'git ls-files --exclude-standard -co'
-function! GrepFiles()
-    call system('git rev-parse --is-inside-work-tree')
-    " NOTE: non-atomic chars like "\<C-Left>" can't be used with <C-r>
-    if v:shell_error == 0 && v:count
-        return "`$GIT_FILES_CMD`"
-    else
-        return "**"
+" NOTE: :cex [] | bufdo vimgrepadd /pat/j %
+" NOTE: :Grep pat `git\ ls-files\ dir`
+nnoremap <C-g>      :<C-u>Grep<space>
+nnoremap <leader>g/ :<C-u>Grep <C-r>=GrepInput(@/,0)<CR>
+nnoremap <leader>gw :<C-u>Grep <C-R>=GrepInput(expand('<cword>'),1)<CR>
+nnoremap <C-f>      :<C-u>Files<space>
+nnoremap <leader>hh :<C-u>History<space>
+
+command! -nargs=* -bang -complete=dir Grep call Grep(empty(<q-mods>) ? 'belowright' : <q-mods>, <f-args>)
+command! -nargs=? -bang History call History(<bang>0, empty(<q-mods>) ? 'belowright' : <q-mods>, <f-args>)
+command! -nargs=? -bang Files call Files(empty(<q-mods>) ? 'belowright' : <q-mods>, <f-args>)
+
+" NOTE: add  -co to include untracked files (n.b. may not enumerate each file)
+let $GIT_FILES_CMD = 'git ls-files --exclude-standard'
+if executable('rg')
+    " --vimgrep is like vimgrep /pat/g
+    let &grepprg = 'rg --column --line-number --no-heading'
+    set grepformat^=%f:%l:%c:%m
+elseif executable('egrep')
+    "                              this doesn't ignore directories properly..
+    let &grepprg = 'egrep -nrI ' . join(map(split(&wildignore,','), '"--exclude=".shellescape(v:val)'), ' ') . ' $* /dev/null'
+else
+    set grepprg=internal
+endif
+function! Grep(mods, query, ...) abort
+    " NOTE: escape the space ('\ ') to include space in query
+    let opts = string(v:count)
+    let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : escape(shellescape(a:query), '#%')
+    echom query
+    let files = '.'
+    if a:0
+        let files = a:1
+    elseif opts =~ '3'
+        let files = '`$GIT_FILES_CMD`'
+    elseif &grepprg ==# 'internal'
+        let files = '**'
     endif
+    exe 'grep!' query files
+    exe a:mods 'cwindow'
 endfunction
-" NOTE: :bufdo vimgrepadd
-nnoremap <C-g>      :<C-u>copen\|vimgrep //j <C-r>=GrepFiles()<CR><C-Left><C-Left><Right>
-nnoremap <leader>g/ :<C-u>copen\|vimgrep /<C-r>//j <C-r>=GrepFiles()<CR>
-nnoremap <leader>gw :<C-u>copen\|vimgrep /\<<C-r><C-w>\>/j <C-r>=GrepFiles()<CR>
-" TODO: combine 'path' 'file-searching' ':find' with $GIT_FILES_CMD
-set path=.,**
-nnoremap <C-f>      :<C-u>find<space>
-nnoremap <leader>hh :filter // browse oldfiles<C-Left><C-Left><C-Left><Right>
+func! GrepInput(raw, word)
+    let query = a:raw
+    if &grepprg ==# 'internal' " assumes magic
+        let query = escape(query, '/ \')
+        return a:word ? '\<'.query.'\>' : query
+    endif
+    if a:word
+        let query = '\b'.query.'\b'
+    elseif g:search_mode == 'n'
+        let query = substitute(query, '\v\\[<>]','','g')
+    elseif g:search_mode == 'v'
+        let query = escape(query, '+|?-(){}')
+    elseif query[0:1] != '\v'
+        let query = substitute(query, '\v\\[<>]','','g')
+    else
+        let query = substitute(query[2:], '\v\\([~/])', '\1', 'g')
+    endif
+    return escape(query, ' \') " for <f-args>
+endfunc
+function! History(bang, mods, ...) abort
+    silent doautocmd QuickFixCmdPre History
+    let pat = a:0 ? a:1 : '//'
+    let cmd = 'filter' . (a:bang ? '! ' : ' ') . pat . ' oldfiles'
+    let oldfiles = map(split(s:execute(cmd), '\n'), 'expand(matchstr(v:val, ''^\d\+: \zs\S*''))')
+    call filter(oldfiles, 'filereadable(v:val)')
+    call setqflist([], ' ', {'lines': oldfiles, 'efm': '%f', 'title': ':History'})
+    silent doautocmd QuickFixCmdPost History
+    exe a:mods 'cwindow'
+endfunction
+function! Files(mods, ...) abort
+    silent doautocmd QuickFixCmdPre Files
+    let cmd = (&grepprg =~# '^rg') ? 'rg --files' : $GIT_FILES_CMD
+    let files = split(system(cmd), '\n')
+    if a:0
+        call filter(files, 'match(v:val, a:1) >= 0')
+    endif
+    call setqflist([], ' ', {'lines': files, 'efm': '%f', 'title': ':Files'})
+    silent doautocmd QuickFixCmdPost Files
+    exe a:mods 'cwindow'
+endfunction
 " }}}
 
 " Motion, insert mode, ... {{{
@@ -428,6 +489,35 @@ nnoremap <silent>]q :cnext<CR>
 nnoremap <silent>[q :cprevious<CR>
 nnoremap <silent>]l :lnext<CR>
 nnoremap <silent>[l :lprevious<CR>
+
+" Like CTRL-W_<CR>, but with preview window and without messing up buffer list
+" NOTE: :chistory
+augroup Qf | au! * <buffer>
+    au Filetype qf nnoremap <buffer> p :<C-u>call <SID>PreviewQf(line('.'))<CR>
+augroup END
+
+function! s:GetQfEntry(linenr) abort
+    if &filetype !=# 'qf' | return {} | endif
+    let l:qflist = getqflist()
+    if !l:qflist[a:linenr-1].valid | return {} | endif
+    if !filereadable(bufname(l:qflist[a:linenr-1].bufnr)) | return {} | endif
+    return l:qflist[a:linenr-1]
+endfunction
+function! s:PreviewQf(linenr) abort
+    let l:entry = s:GetQfEntry(a:linenr)
+    if empty(l:entry) | return | endif
+    let l:listed = buflisted(l:entry.bufnr)
+    execute 'keepjumps pedit +'.l:entry.lnum bufname(l:entry.bufnr)
+    set eventignore+=all
+    keepjumps wincmd P
+    normal! zz
+    setlocal cursorline nofoldenable
+    if !l:listed
+        setlocal nobuflisted bufhidden=delete noswapfile
+    endif
+    keepjumps wincmd p
+    set eventignore-=all
+endfunction
 " }}}
 
 " etc util {{{
