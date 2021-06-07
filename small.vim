@@ -2,7 +2,6 @@ set nocompatible
 
 " stuff from sensible that are not in my settings {{{
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
-filetype plugin indent on
 if !exists('g:syntax_on')
   syntax enable
 endif
@@ -53,19 +52,19 @@ let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
 
-let mapleader = ","
-noremap <M-;> ,
-
 let $LANG='en'
 set langmenu=en
 set encoding=utf-8
 set spelllang=en,cjk
 
+let mapleader = ","
+noremap <M-;> ,
+
 set wildmenu wildmode=longest:full,full
 set wildignore=*~,%*,*.o,*.pyc,*.pdf,*.v.d,*.vo*,*.glob,*.cm*,*.aux
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/__pycache__/*,*/target/*
 set complete-=i complete-=u completeopt=menuone,preview
-set path=.,**
+set path=.,./*,./..,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
 
 set ignorecase smartcase
 set hlsearch incsearch
@@ -78,11 +77,14 @@ set viminfo=!,'150,<50,s30,h
 set updatetime=1234
 set backup undofile noswapfile
 if has('nvim')
-    let s:backupdir = stdpath('data') . '/backup'
-    let s:undodir = stdpath("data") . '/undo'
+    set backupdir-=.
+    let s:backupdir = &backupdir
+    let s:undodir = &undodir
 else
-    let s:backupdir = $HOME . '/.vim/backup'
-    let s:undodir = $HOME . '/.vim/undo'
+    let s:dotvim = has('win32') ? 'vimfiles' : '.vim'
+    let s:backupdir = $HOME . '/' . s:dotvim . '/backup'
+    let s:undodir = $HOME . '/' . s:dotvim . '/undo'
+    unlet s:dotvim
 endif
 if !isdirectory(s:backupdir) || !isdirectory(s:backupdir)
     call mkdir(s:backupdir, "p", 0700)
@@ -218,9 +220,9 @@ endfunc
 
 function! UpdateGitStatus()
   if &modifiable && empty(&buftype)
-      let rev_parse = system('git -C '.expand('%:p:h').' rev-parse --abbrev-ref HEAD')
+      let rev_parse = s:system('git -C '.expand('%:p:h').' rev-parse --abbrev-ref HEAD')[0]
       if !v:shell_error
-          let b:git_status =' ['.substitute(l:rev_parse, '\n', '', 'g').']'
+          let b:git_status =' [' . rev_parse . ']'
       endif
   endif
 endfunction
@@ -253,22 +255,25 @@ func! Star(g)
     let @c = expand('<cword>')
     if match(@c, '\k') == -1
         let g:search_mode = 'v'
-        let @/ = escape(@c, '\.*$^~[]')
+        let @/ = Text2Magic(@c)
     else
         let g:search_mode = 'n'
         let @/ = a:g ? @c : '\<' . @c . '\>'
     endif
+    call histadd('/', @/)
 endfunc
 func! VisualStar(g)
     let g:search_mode = 'v'
     let l:reg_save = @"
     noau exec "norm! gvy"
     let @c = @"
-    let l:pattern = escape(@", '\.*$^~[]')
+    let l:pattern = Text2Magic(@")
     let @/ = a:g ? '\<' . l:pattern . '\>' : l:pattern " reversed
+    call histadd('/', @/)
     let @" = l:reg_save
 endfunc
 nnoremap / :let g:search_mode='/'<CR>/
+nnoremap ? :let g:search_mode='/'<CR>?
 
 " NOTE: :cex [] | bufdo vimgrepadd /pat/j %
 " NOTE: :Grep pat `git\ ls-files\ dir`
@@ -278,37 +283,34 @@ nnoremap <leader>gw :<C-u>Grep <C-R>=GrepInput(expand('<cword>'),1)<CR>
 nnoremap <C-f>      :<C-u>Files<space>
 nnoremap <leader>hh :<C-u>History<space>
 
-command! -nargs=* -bang -complete=dir Grep call Grep(empty(<q-mods>) ? 'belowright' : <q-mods>, <f-args>)
-command! -nargs=? -bang History call History(<bang>0, empty(<q-mods>) ? 'belowright' : <q-mods>, <f-args>)
-command! -nargs=? -bang Files call Files(empty(<q-mods>) ? 'belowright' : <q-mods>, <f-args>)
+command! -nargs=* -complete=dir Grep call Grep(<f-args>)
+command! -nargs=? History call History(<f-args>)
+command! -nargs=? Files call Files(<f-args>)
 
-" NOTE: add  -co to include untracked files (n.b. may not enumerate each file)
-let $GIT_FILES_CMD = 'git ls-files --exclude-standard'
 if executable('rg')
     " --vimgrep is like vimgrep /pat/g
     let &grepprg = 'rg --column --line-number --no-heading'
     set grepformat^=%f:%l:%c:%m
 elseif executable('egrep')
     "                              this doesn't ignore directories properly..
-    let &grepprg = 'egrep -nrI ' . join(map(split(&wildignore,','), '"--exclude=".shellescape(v:val)'), ' ') . ' $* /dev/null'
+    let &grepprg = 'egrep -nrI ' . join(map(split(&wildignore,','), '"--exclude=".escape(shellescape(v:val), ''#%'')'), ' ') . ' $* /dev/null'
 else
     set grepprg=internal
 endif
-function! Grep(mods, query, ...) abort
+function! Grep(query, ...) abort
     " NOTE: escape the space ('\ ') to include space in query
     let opts = string(v:count)
     let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : escape(shellescape(a:query), '#%')
-    echom query
     let files = '.'
     if a:0
         let files = a:1
     elseif opts =~ '3'
-        let files = '`$GIT_FILES_CMD`'
+        let files = '`'. s:git_files_cmd() .'`'
     elseif &grepprg ==# 'internal'
         let files = '**'
     endif
     exe 'grep!' query files
-    exe a:mods 'cwindow'
+    belowright cwindow
 endfunction
 func! GrepInput(raw, word)
     let query = a:raw
@@ -329,26 +331,26 @@ func! GrepInput(raw, word)
     endif
     return escape(query, ' \') " for <f-args>
 endfunc
-function! History(bang, mods, ...) abort
+function! History(...) abort
     silent doautocmd QuickFixCmdPre History
-    let pat = a:0 ? a:1 : '//'
-    let cmd = 'filter' . (a:bang ? '! ' : ' ') . pat . ' oldfiles'
-    let oldfiles = map(split(s:execute(cmd), '\n'), 'expand(matchstr(v:val, ''^\d\+: \zs\S*''))')
-    call filter(oldfiles, 'filereadable(v:val)')
-    call setqflist([], ' ', {'lines': oldfiles, 'efm': '%f', 'title': ':History'})
+    let files = copy(v:oldfiles)
+    call map(files, 'expand(v:val)')
+    call filter(files, 'filereadable(v:val)' . (a:0 ? ' && match(v:val, a:1) >= 0' : ''))
+    call s:setqflist_files(files, ':History')
     silent doautocmd QuickFixCmdPost History
-    exe a:mods 'cwindow'
+    belowright cwindow
 endfunction
-function! Files(mods, ...) abort
+function! Files(...) abort
     silent doautocmd QuickFixCmdPre Files
-    let cmd = (&grepprg =~# '^rg') ? 'rg --files' : $GIT_FILES_CMD
-    let files = split(system(cmd), '\n')
+    let opts = string(v:count)
+    let cmd = (opts =~ '3') ? s:git_files_cmd() : (&grepprg =~# '^rg') ? 'rg --files' : 'find . -type f'
+    let files = s:system(cmd)
     if a:0
         call filter(files, 'match(v:val, a:1) >= 0')
     endif
-    call setqflist([], ' ', {'lines': files, 'efm': '%f', 'title': ':Files'})
+    call s:setqflist_files(files, ':Files')
     silent doautocmd QuickFixCmdPost Files
-    exe a:mods 'cwindow'
+    belowright cwindow
 endfunction
 " }}}
 
@@ -398,7 +400,7 @@ inoremap <C-u> <C-g>u<C-u>
 " }}}
 
 " etc mappings {{{
-nnoremap <silent><leader><CR> :nohlsearch<CR>
+nnoremap <silent><leader><CR> :let v:searchforward=1\|nohlsearch<CR>
 nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
 nnoremap <leader>ss :setlocal spell! spell?<CR>
 nnoremap <leader>sp :setlocal paste! paste?<CR>
@@ -430,7 +432,9 @@ cnoremap <M-n> <Down>
 noremap q: :
 noremap q <nop>
 noremap <M-q> q
-noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
+if exists('*reg_recording')
+    noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
+endif
 noremap Q @q
 
 nnoremap U <nop>
@@ -483,7 +487,9 @@ xmap ia i%
 " }}}
 
 " quickfix, loclist, ... {{{
-packadd cfilter
+if has('patch-8.1.0311') || has('nvim-0.3.2')
+    packadd cfilter
+endif
 nnoremap <silent><leader>x  :pc\|ccl\|lcl<CR>
 nnoremap <silent>]q :cnext<CR>
 nnoremap <silent>[q :cprevious<CR>
@@ -493,7 +499,8 @@ nnoremap <silent>[l :lprevious<CR>
 " Like CTRL-W_<CR>, but with preview window and without messing up buffer list
 " NOTE: :chistory
 augroup Qf | au! * <buffer>
-    au Filetype qf nnoremap <buffer> p :<C-u>call <SID>PreviewQf(line('.'))<CR>
+    au Filetype qf nnoremap <buffer><silent> p :<C-u>call <SID>PreviewQf(line('.'))<CR>
+    au Filetype qf nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>
 augroup END
 
 function! s:GetQfEntry(linenr) abort
@@ -521,8 +528,7 @@ endfunction
 " }}}
 
 " etc util {{{
-nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
-
+" helpers {{{
 if exists('*execute')
     function! s:execute(cmd) abort
         return execute(a:cmd)
@@ -535,13 +541,36 @@ else
         return output
     endfunction
 endif
-func! Execute(cmd, mods) abort
+function! s:git_files_cmd() abort
+    " NOTE: add  -co to include untracked files (n.b. may not enumerate each file)
+    return 'git ls-files --exclude-standard ' . s:system('git rev-parse --show-toplevel')[0]
+endfunction
+if has('patch-8.0.1040') || has('nvim-0.3.2')
+    function! s:setqflist_files(files, title) abort
+        return setqflist([], ' ', {'lines': a:files, 'title': a:title, 'efm': '%f'})
+    endfunction
+else
+    function! s:setqflist_files(files, title) abort
+        return setqflist(map(a:files, '{"filename": v:val, "lnum": 1}')) " can't go to last cursor pos in these versions
+    endfunction
+endif
+function! s:system(cmd) abort
+    return split(system(a:cmd), '\n', 0)
+endfunction
+function! Text2Magic(text)
+    return escape(a:text, '\.*$^~[]')
+endfunction
+" }}}
+
+nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
+
+function! Execute(cmd) abort
     let output = s:execute(a:cmd)
-    execute a:mods 'new'
+    new
     setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
     call setline(1, split(output, "\n"))
-endfunc
-command! -nargs=* -complete=command Execute silent call Execute(<q-args>, '<mods>')
+endfunction
+command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview() |
@@ -556,7 +585,7 @@ command! -range=% Unpdf
 
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
-                \ . '/\C\%(' . join(map(keys(a:dict), 'escape(v:val, ''\.*$^~[]'')'), '\|'). '\)'
+                \ . '/\C\%(' . join(map(keys(a:dict), 'Text2Magic(v:val)'), '\|'). '\)'
                 \ . '/\=a:dict[submatch(0)]/ge'
 endfunction
 command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<args>)
@@ -1802,4 +1831,9 @@ function s:FixMarkdown() abort
 endfunction
 " }}}
 
+" plugins {{{
+" }}}
+
+" NOTE: reset ftdetect after modifying runtimepath
+filetype off | filetype plugin indent on
 " vim: set fdm=marker et sw=4:
