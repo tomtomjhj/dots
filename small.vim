@@ -1272,9 +1272,9 @@ function! s:surround_dosurround(...) " {{{2
   let s:surround_lastdel = removed
   let &clipboard = cb_save
   if newchar == ""
-    silent! call repeat#set("\<Plug>Dsurround".char,scount)
+    silent! call s:repeat_set("\<Plug>Dsurround".char,scount)
   else
-    silent! call repeat#set("\<Plug>C".(a:0 > 2 && a:3 ? "S" : "s")."urround".char.newchar.s:surround_input,scount)
+    silent! call s:repeat_set("\<Plug>C".(a:0 > 2 && a:3 ? "S" : "s")."urround".char.newchar.s:surround_input,scount)
   endif
 endfunction " }}}2
 
@@ -1351,9 +1351,9 @@ function! s:surround_opfunc(type, ...) abort " {{{2
   let &selection = sel_save
   let &clipboard = cb_save
   if a:type =~ '^\d\+$'
-    silent! call repeat#set("\<Plug>Y".(a:0 && a:1 ? "S" : "s")."surround".char.s:surround_input,a:type)
+    silent! call s:repeat_set("\<Plug>Y".(a:0 && a:1 ? "S" : "s")."surround".char.s:surround_input,a:type)
   else
-    silent! call repeat#set("\<Plug>SurroundRepeat".char.s:surround_input)
+    silent! call s:repeat_set("\<Plug>SurroundRepeat".char.s:surround_input)
   endif
 endfunction
 
@@ -1413,6 +1413,127 @@ if !exists("g:surround_no_mappings") || ! g:surround_no_mappings
     imap      <C-G>S <Plug>ISurround
   endif
 endif
+" }}}
+
+" repeat {{{
+" https://github.com/tpope/vim-repeat/blob/24afe922e6a05891756ecf331f39a1f6743d3d5a/autoload/repeat.vim
+let g:repeat_tick = -1
+let g:repeat_reg = ['', '']
+
+" Special function to avoid spurious repeats in a related, naturally repeating
+" mapping when your repeatable mapping doesn't increase b:changedtick.
+function! s:repeat_invalidate()
+    autocmd! repeat_custom_motion
+    let g:repeat_tick = -1
+endfunction
+
+function! s:repeat_set(sequence,...)
+    let g:repeat_sequence = a:sequence
+    let g:repeat_count = a:0 ? a:1 : v:count
+    let g:repeat_tick = b:changedtick
+    augroup repeat_custom_motion
+        autocmd!
+        autocmd CursorMoved <buffer> let g:repeat_tick = b:changedtick | autocmd! repeat_custom_motion
+    augroup END
+endfunction
+
+function! s:repeat_setreg(sequence,register)
+    let g:repeat_reg = [a:sequence, a:register]
+endfunction
+
+
+function! s:default_register()
+    let values = split(&clipboard, ',')
+    if index(values, 'unnamedplus') != -1
+        return '+'
+    elseif index(values, 'unnamed') != -1
+        return '*'
+    else
+        return '"'
+    endif
+endfunction
+
+function! s:repeat_run(count)
+    let s:repeat_errmsg_ = ''
+    try
+        if g:repeat_tick == b:changedtick
+            let r = ''
+            if g:repeat_reg[0] ==# g:repeat_sequence && !empty(g:repeat_reg[1])
+                " Take the original register, unless another (non-default, we
+                " unfortunately cannot detect no vs. a given default register)
+                " register has been supplied to the repeat command (as an
+                " explicit override).
+                let regname = v:register ==# s:default_register() ? g:repeat_reg[1] : v:register
+                if regname ==# '='
+                    " This causes a re-evaluation of the expression on repeat, which
+                    " is what we want.
+                    let r = '"=' . getreg('=', 1) . "\<CR>"
+                else
+                    let r = '"' . regname
+                endif
+            endif
+
+            let c = g:repeat_count
+            let s = g:repeat_sequence
+            let cnt = c == -1 ? "" : (a:count ? a:count : (c ? c : ''))
+            if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
+                exe 'norm ' . r . cnt . s
+            elseif v:version <= 703
+                call feedkeys(r . cnt, 'n')
+                call feedkeys(s, '')
+            else
+                call feedkeys(s, 'i')
+                call feedkeys(r . cnt, 'ni')
+            endif
+        else
+            if ((v:version == 703 && has('patch100')) || (v:version == 704 && !has('patch601')))
+                exe 'norm! '.(a:count ? a:count : '') . '.'
+            else
+                call feedkeys((a:count ? a:count : '') . '.', 'ni')
+            endif
+        endif
+    catch /^Vim(normal):/
+        let s:repeat_errmsg_ = v:errmsg
+        return 0
+    endtry
+    return 1
+endfunction
+function! s:repeat_errmsg()
+    return s:repeat_errmsg_
+endfunction
+
+function! s:repeat_wrap(command,count)
+    let preserve = (g:repeat_tick == b:changedtick)
+    call feedkeys((a:count ? a:count : '').a:command, 'n')
+    exe (&foldopen =~# 'undo\|all' ? 'norm! zv' : '')
+    if preserve
+        let g:repeat_tick = b:changedtick
+    endif
+endfunction
+
+nnoremap <silent> <Plug>(RepeatDot)      :<C-U>if !<SID>repeat_run(v:count)<Bar>echoerr <SID>repeat_errmsg()<Bar>endif<CR>
+nnoremap <silent> <Plug>(RepeatUndo)     :<C-U>call <SID>repeat_wrap('u',v:count)<CR>
+nnoremap <silent> <Plug>(RepeatUndoLine) :<C-U>call <SID>repeat_wrap('U',v:count)<CR>
+nnoremap <silent> <Plug>(RepeatRedo)     :<C-U>call <SID>repeat_wrap("\<Lt>C-R>",v:count)<CR>
+
+if !hasmapto('<Plug>(RepeatDot)', 'n')
+    nmap . <Plug>(RepeatDot)
+endif
+if !hasmapto('<Plug>(RepeatUndo)', 'n')
+    nmap u <Plug>(RepeatUndo)
+endif
+if maparg('U','n') ==# '' && !hasmapto('<Plug>(RepeatUndoLine)', 'n')
+    nmap U <Plug>(RepeatUndoLine)
+endif
+if !hasmapto('<Plug>(RepeatRedo)', 'n')
+    nmap <C-R> <Plug>(RepeatRedo)
+endif
+
+augroup repeatPlugin
+    autocmd!
+    autocmd BufLeave,BufWritePre,BufReadPre * let g:repeat_tick = (g:repeat_tick == b:changedtick || g:repeat_tick == 0) ? 0 : -1
+    autocmd BufEnter,BufWritePost * if g:repeat_tick == 0|let g:repeat_tick = b:changedtick|endif
+augroup END
 " }}}
 
 " colorscheme {{{
