@@ -61,8 +61,8 @@ let mapleader = ","
 noremap <M-;> ,
 
 set wildmenu wildmode=longest:full,full
-set wildignore=*~,%*,*.o,*.pyc,*.pdf,*.v.d,*.vo*,*.glob,*.cm*,*.aux
-set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/__pycache__/*,*/target/*
+let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo*', '*.glob', '*.cm*', '*.aux']
+let s:wildignore_dirs = ['.git', '__pycache__', 'target']
 set complete-=i complete-=u completeopt=menuone,preview
 set path=.,./*,./..,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
 
@@ -292,15 +292,15 @@ if executable('rg')
     let &grepprg = 'rg --column --line-number --no-heading'
     set grepformat^=%f:%l:%c:%m
 elseif executable('egrep')
-    "                              this doesn't ignore directories properly..
-    let &grepprg = 'egrep -nrI ' . join(map(split(&wildignore,','), '"--exclude=".escape(shellescape(v:val), ''#%'')'), ' ') . ' $* /dev/null'
+    let &grepprg = 'egrep -nrI $* /dev/null'
 else
     set grepprg=internal
 endif
 function! Grep(query, ...) abort
     " NOTE: escape the space ('\ ') to include space in query
     let opts = string(v:count)
-    let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : escape(shellescape(a:query), '#%')
+    let options = (&grepprg =~# '^egrep') ? Wildignore2exclude() : ''
+    let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : s:cmdshellescape(a:query)
     let files = '.'
     if a:0
         let files = a:1
@@ -309,7 +309,7 @@ function! Grep(query, ...) abort
     elseif &grepprg ==# 'internal'
         let files = '**'
     endif
-    exe 'grep!' query files
+    exe 'grep!' options query files
     belowright cwindow
 endfunction
 func! GrepInput(raw, word)
@@ -557,8 +557,19 @@ endif
 function! s:system(cmd) abort
     return split(system(a:cmd), '\n', 0)
 endfunction
+" escape cmdline-special and shell stuff for commands that run shell command
+function! s:cmdshellescape(text) abort
+    return escape(shellescape(a:text), '#%')
+endfunction
 function! Text2Magic(text)
     return escape(a:text, '\.*$^~[]')
+endfunction
+function! Wildignore2exclude() abort
+    let exclude = copy(g:wildignore_files)
+    let exclude_dir = copy(g:wildignore_dirs)
+    call map(exclude, 's:cmdshellescape(v:val)')
+    call map(exclude_dir, 's:cmdshellescape(v:val)')
+    return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
 " }}}
 
@@ -589,6 +600,23 @@ function! SubstituteDict(dict) range
                 \ . '/\=a:dict[submatch(0)]/ge'
 endfunction
 command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<args>)
+
+command! -nargs=+ -bang AddWildignore call AddWildignore([<f-args>], <bang>0)
+function! AddWildignore(wigs, is_dir) abort
+    if a:is_dir
+        call add(g:wildignore_dirs, a:wigs)
+        let globs = map(a:wigs, 'v:val.",".v:val."/,**/".v:val."/*"')
+    else
+        call add(g:wildignore_files, a:wigs)
+        let globs = a:wigs
+    endif
+    exe 'set wildignore+='.join(globs, ',')
+endfunction
+if !exists('g:wildignore_files')
+    let [g:wildignore_files, g:wildignore_dirs] = [[], []]
+    execute 'AddWildignore' join(s:wildignore_files)
+    execute 'AddWildignore!' join(s:wildignore_dirs)
+endif
 " }}}
 
 " comments {{{
@@ -698,7 +726,7 @@ nmap cgc <Plug>ChangeCommentary
 nmap gcu <Plug>Commentary<Plug>Commentary
 " }}}2
 " Etc: {{{2
-function s:commentary_insert()
+function! s:commentary_insert()
   let [l, r] = s:commentary_surroundings()
   call feedkeys(l . r . repeat("\<Left>", strchars(r)), 'ni')
 endfunction
@@ -1809,13 +1837,17 @@ hi! link markdownCode Special
 " }}}
 
 " filetypes {{{
+let g:pyindent_open_paren = '&shiftwidth'
+let g:pyindent_continue = '&shiftwidth'
+
 augroup FileTypes | au!
     " NOTE: 'syntax-loading'
     au FileType markdown call s:FixMarkdown()
     au Filetype pandoc setlocal filetype=markdown
+    au FileType vim setlocal formatoptions-=t
 augroup END
 
-function s:FixMarkdown() abort
+function! s:FixMarkdown() abort
     set formatlistpat<
     " conservative markdown highlight
     if hlID('markdownError')
