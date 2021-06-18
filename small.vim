@@ -1834,6 +1834,9 @@ hi! link helpBacktick Special
 
 " Etc:
 hi! link markdownCode Special
+
+hi! link pythonBuiltin Constant
+hi! link pythonExceptions Type
 " }}}
 
 " filetypes {{{
@@ -1848,7 +1851,10 @@ augroup FileTypes | au!
 augroup END
 
 function! s:FixMarkdown() abort
-    set formatlistpat<
+    setlocal formatoptions< formatlistpat<
+    setlocal commentstring=<!--%s-->
+    setlocal comments=s:<!--,m:\ \ \ \ ,e:-->,:\|,n:>
+
     " conservative markdown highlight
     if hlID('markdownError')
         syn clear markdownError markdownItalic markdownBold markdownBoldItalic
