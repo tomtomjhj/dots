@@ -1,4 +1,4 @@
-set nocompatible
+if &compatible | set nocompatible | endif
 
 " stuff from sensible that are not in my settings {{{
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
@@ -17,7 +17,6 @@ endif
 if &shell =~# 'fish$' && (v:version < 704 || v:version == 704 && !has('patch276'))
   set shell=/usr/bin/env\ bash
 endif
-set history=1000
 set tabpagemax=50
 set sessionoptions-=options
 set viewoptions-=options
@@ -33,9 +32,9 @@ endif
 
 " settings {{{
 set mouse=a
-set number ruler
+set number ruler showcmd
 set foldcolumn=1 foldnestmax=5
-set scrolloff=2 sidescrolloff=2
+set scrolloff=2 sidescrolloff=2 sidescroll=1 nostartofline
 set showtabline=1
 set laststatus=2
 
@@ -73,6 +72,7 @@ set noerrorbells novisualbell t_vb=
 set shortmess+=Ic shortmess-=S
 set belloff=all
 
+set history=1000
 set viminfo=!,'150,<50,s30,h
 set updatetime=1234
 set backup undofile noswapfile
@@ -329,7 +329,7 @@ func! GrepInput(raw, word)
     else
         let query = substitute(query[2:], '\v\\([~/])', '\1', 'g')
     endif
-    return escape(query, ' \') " for <f-args>
+    return escape(query, ' \#%') " for <f-args> and cmdline-special
 endfunc
 function! History(...) abort
     silent doautocmd QuickFixCmdPre History
@@ -396,6 +396,7 @@ cnoremap <C-j> <S-Right>
 cnoremap <C-k> <S-Left>
 noremap! <C-space> <C-k>
 
+inoremap <expr> <CR> match(getline('.'), '\w') >= 0 ? "\<C-G>u\<CR>" : "\<CR>"
 inoremap <C-u> <C-g>u<C-u>
 " }}}
 
@@ -466,7 +467,7 @@ command! -count Wfh set winfixheight | if <count> | exe "normal! z".<count>."\<C
 noremap <leader>q :<C-u>q<CR>
 noremap q, :<C-u>q<CR>
 nnoremap <leader>w :<C-u>up<CR>
-noremap ZAQ :<C-u>qa!<CR>
+nnoremap ZAQ :<C-u>qa!<CR>
 command! -bang W   w<bang>
 command! -bang Q   q<bang>
 
@@ -480,10 +481,7 @@ nnoremap <leader>fe :e!<CR>
 " }}}
 
 " pairs {{{
-inoremap <expr> <CR> match(getline('.'), '\w') >= 0 ? "\<C-G>u\<CR>" : "\<CR>"
-
 xmap aa a%
-xmap ia i%
 " }}}
 
 " quickfix, loclist, ... {{{
@@ -514,16 +512,27 @@ function! s:PreviewQf(linenr) abort
     let l:entry = s:GetQfEntry(a:linenr)
     if empty(l:entry) | return | endif
     let l:listed = buflisted(l:entry.bufnr)
-    execute 'keepjumps pedit +'.l:entry.lnum bufname(l:entry.bufnr)
-    set eventignore+=all
-    keepjumps wincmd P
+    if s:PreviewBufnr() == l:entry.bufnr
+        noautocmd wincmd P
+        execute l:entry.lnum
+    else
+        execute 'keepjumps pedit +'.l:entry.lnum bufname(l:entry.bufnr)
+        noautocmd wincmd P
+    endif
     normal! zz
     setlocal cursorline nofoldenable
     if !l:listed
         setlocal nobuflisted bufhidden=delete noswapfile
     endif
-    keepjumps wincmd p
-    set eventignore-=all
+    noautocmd wincmd p
+endfunction
+function! s:PreviewBufnr()
+    for nr in range(1, winnr('$'))
+        if getwinvar(nr, '&previewwindow') == 1
+            return winbufnr(nr)
+        endif
+    endfor
+    return 0
 endfunction
 " }}}
 
@@ -614,8 +623,8 @@ function! AddWildignore(wigs, is_dir) abort
 endfunction
 if !exists('g:wildignore_files')
     let [g:wildignore_files, g:wildignore_dirs] = [[], []]
-    execute 'AddWildignore' join(s:wildignore_files)
-    execute 'AddWildignore!' join(s:wildignore_dirs)
+    call AddWildignore(s:wildignore_files, 0)
+    call AddWildignore(s:wildignore_dirs, 1)
 endif
 " }}}
 
