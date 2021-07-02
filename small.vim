@@ -376,8 +376,58 @@ nnoremap <c-space> <C-u>
 
 noremap <M-0> ^w
 
-noremap s f
-noremap S F
+" sneak {{{
+" TODO: support visual mode
+nnoremap <silent> s :<C-u>call MuSneak(0)<CR>
+nnoremap <silent> S :<C-u>call MuSneak(1)<CR>
+nnoremap <silent> ;     :<C-u>call MuSneakRepeat(0)<CR>
+nnoremap <silent> <M-;> :<C-u>call MuSneakRepeat(1)<CR>
+
+let g:musneak_repeat_sneak = 0
+function! MuSneak(up) abort
+    echo '>'
+    let ch1 = getchar()
+    let ch1 = type(ch1) == type(0) ? nr2char(ch1) : ch1
+    redraw | echo '>'.ch1
+    let ch2 = getchar()
+    let ch2 = type(ch2) == type(0) ? nr2char(ch2) : ch2
+    redraw | echo '>'.ch1.ch2
+    let g:musneak_up = a:up
+    let g:musneak_pat = '\v' . escape(ch1, '!#$%&()*+,-./:;<=>?@[\]^{|}~') . escape(ch2, '!#$%&()*+,-./:;<=>?@[\]^{|}~')
+    call MuSneakSearch(g:musneak_up, 1)
+    call MuSneakHijackFTft()
+endfunction
+function! MuSneakRepeat(rev) abort
+    if g:musneak_repeat_sneak
+        let i = v:count1
+        while i > 0 && MuSneakSearch(xor(g:musneak_up, a:rev), 0)
+            let i -= 1
+        endwhile
+    else
+        execute 'normal!' v:count1 . (a:rev ? ',' : ';')
+    endif
+endfunction
+function! MuSneakSearch(up, mark) abort
+    let flags = 'W' . (a:up ? 'b' : '') . (a:mark ? 's' : '')
+    let stopline = a:up ? line('w0') : line('w$')
+    " TODO: skip folded region with foldclosed()?
+    return searchpos(g:musneak_pat, flags, stopline)[0]
+endfunction
+function! MuSneakHijackFTft() abort
+    let g:musneak_repeat_sneak = 1
+    nnoremap <silent> f :<C-u>call MuSneakReset()<CR>f
+    nnoremap <silent> t :<C-u>call MuSneakReset()<CR>t
+    nnoremap <silent> F :<C-u>call MuSneakReset()<CR>F
+    nnoremap <silent> T :<C-u>call MuSneakReset()<CR>T
+endfunction
+function! MuSneakReset() abort
+    let g:musneak_repeat_sneak = 0
+    unmap f
+    unmap t
+    unmap F
+    unmap T
+endfunction
+" }}}
 
 let g:sword = '\v(\k+|([^[:alnum:]_[:blank:](){}[\]<>$])\2*|[(){}[\]<>$]|\s+)'
 inoremap <silent><C-j> <C-r>=SwordJumpRight()<CR><Right>
