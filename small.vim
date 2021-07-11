@@ -125,6 +125,8 @@ augroup END
 " fix terminal/gui problems {{{
 if has('gui_running')
     set guioptions=i
+    set guicursor+=a:blinkon0
+    command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
 elseif !has('nvim') " terminal vim
     silent! !stty -ixon > /dev/null 2>/dev/null
     set ttymouse=sgr
@@ -251,6 +253,7 @@ nnoremap <silent>* :call Star(0)\|set hlsearch<CR>
 nnoremap <silent>g* :call Star(1)\|set hlsearch<CR>
 vnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
 vnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
+let g:search_mode = get(g:, 'search_mode', '/')
 func! Star(g)
     let @c = expand('<cword>')
     if match(@c, '\k') == -1
@@ -320,12 +323,12 @@ func! GrepInput(raw, word)
     endif
     if a:word
         let query = '\b'.query.'\b'
-    elseif g:search_mode == 'n'
+    elseif g:search_mode ==# 'n'
         let query = substitute(query, '\v\\[<>]','','g')
-    elseif g:search_mode == 'v'
+    elseif g:search_mode ==# 'v'
         let query = escape(query, '+|?-(){}')
-    elseif query[0:1] != '\v'
-        let query = substitute(query, '\v\\[<>]','','g')
+    elseif query[0:1] !=# '\v'
+        let query = substitute(query, '\v(\\V|\\[<>])','','g')
     else
         let query = substitute(query[2:], '\v\\([~/])', '\1', 'g')
     endif
@@ -810,9 +813,7 @@ endif
 unlet! s:vinegar_netrw_up
 
 nnoremap <silent> <Plug>VinegarUp :call <SID>vinegar_opendir('edit')<CR>
-if empty(maparg('-', 'n')) && !hasmapto('<Plug>VinegarUp')
-  nmap - <Plug>VinegarUp
-endif
+nmap <leader>- <Plug>VinegarUp
 
 nnoremap <silent> <Plug>VinegarTabUp :call <SID>vinegar_opendir('tabedit')<CR>
 nnoremap <silent> <Plug>VinegarSplitUp :call <SID>vinegar_opendir('split')<CR>
@@ -1929,6 +1930,7 @@ endfunction
 " }}}
 
 " plugins {{{
+" NOTE: Gdiffsplit? git add -eu, git difftool -x 'nvim -d', ...
 " }}}
 
 " NOTE: reset ftdetect after modifying runtimepath
