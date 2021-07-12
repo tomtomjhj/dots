@@ -27,9 +27,11 @@
     * .profile issue
     * launch coqtop with `opam config exec --`?
 * https://help.ubuntu.com/community/CheckInstall
-* map caps lock to both ctrl and esc
-    * https://github.com/ItayGarin/ktrl
-    * https://askubuntu.com/a/228379
+* https://khady.info/opam-compilation-cache.html
+* https://github.com/cheat/cheat
+* input method for unicode chars
+    * compose key?
+    * want both tex notation and digraphs
 
 # Things to run (20.04)
 * `ubuntu-drivers install`
@@ -37,6 +39,24 @@
     * libhangul → shortcuts from Korean to system keyboard (for vim)
     * https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
     * ESC -> to En
+
+## capslock
+* https://gist.github.com/tanyuan/55bca522bf50363ae4573d4bdcf06e2e
+* https://gitlab.com/interception/linux/plugins/caps2esc
+
+```
+sudo add-apt-repository ppa:deafmute/interception
+sudo apt install interception-caps2esc
+sudo systemctl enable --now udevmon
+```
+
+`/etc/interception/udevmon.d/XXX.yaml`
+```yaml
+- JOB: intercept -g $DEVNODE | caps2esc -m 1 | uinput -d $DEVNODE
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
+```
 
 ## font
 ```
