@@ -1,5 +1,4 @@
 # TODO
-* sync ssh xclip and client xclip
 * automate installation
     * <https://github.com/junegunn/dotfiles/>
     *  <https://github.com/jaagr/dots>
@@ -15,23 +14,22 @@
     cfg config --local status.showUntrackedFiles no
     ```
     * `--separate-git-dir`
-* git `--follow`?
-    * `-D, --irreversible-delete`
-    * `-M[<n>], --find-renames[=<n>]`
-* Opam configuration should be run in `.bash_profile`, not in `.profile`. Why?
-    * https://wiki.archlinux.org/index.php/tmux#Start_a_non-login_shell
-    * https://superuser.com/a/789465
 * automate direct binary download https://stackoverflow.com/a/29360657
 * https://help.ubuntu.com/community/CheckInstall
-* vscoq + opam local switch
-    * .profile issue
-    * launch coqtop with `opam config exec --`?
-* https://help.ubuntu.com/community/CheckInstall
-* https://khady.info/opam-compilation-cache.html
+* opam
+    * Opam configuration should be run in `.bash_profile`, not in `.profile`. Why?
+        * https://wiki.archlinux.org/index.php/tmux#Start_a_non-login_shell
+        * https://superuser.com/a/789465
+    * vscoq + opam local switch
+        * .profile issue
+        * launch coqtop with `opam config exec --`?
+    * https://khady.info/opam-compilation-cache.html
 * https://github.com/cheat/cheat
 * input method for unicode chars
     * compose key?
     * want both tex notation and digraphs
+* https://github.com/bcpierce00/unison
+* https://github.com/rclone/rclone/issues/118
 
 # Things to run (20.04)
 * `ubuntu-drivers install`
@@ -57,6 +55,9 @@ sudo systemctl enable --now udevmon
     EVENTS:
       EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
 ```
+**TODO**
+* timeout like xcape
+* ctrl+mouse
 
 ## font
 ```
@@ -102,16 +103,19 @@ fc-cache -fv
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
 * disable `ctrl-alt-d` https://askubuntu.com/a/177994 TODO dconf-editor
 
+### firefox: allow plugins to override reserved keymap
+https://github.com/glacambre/firefox-patches/issues/1
+Run it after closing firefox. Rerun when firefox is updated.
+```
+sudo perl -i -pne 's/reserved="true"/               /g' /usr/lib/firefox/browser/omni.ja
+find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
+```
+
 ## tex
 * `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
+* **TODO** use docker with latest texlive...
 
 # stuff
-* https://github.com/skywind3000/z.lua
-    ```sh
-    # .bashrc
-    eval "$(lua ~/dots/ext/z.lua/z.lua --init bash enhanced once fzf)"
-    ```
-* `git apply --reject --whitespace=fix`
 * failed to suppress chrome white screen stun grenade
     * `chrome://version` → profile path → `path/User SytleSheets/Custom.css`
     * https://superuser.com/questions/580228/prevent-white-screen-before-loading-page-in-chromium
@@ -121,9 +125,6 @@ fc-cache -fv
 * https://mug896.github.io/awk-script/index.html https://mug896.github.io/bash-shell/quotes.html
 
 ## firefox
-* plugins can't override reserved keymap
-    * https://shallowsky.com/blog/tech/web/firefox-quantum-fixing-ctrl-w.html
-    * https://github.com/glacambre/firefox-patches/issues/1
 * ctrl-f is broken
     * sometimes skips a match
     * sometimes doesn't match at all; refreshing doesn't work
@@ -132,6 +133,8 @@ fc-cache -fv
     * multi-lang spell check is completely broken
 * pdf.js
     * copy-pasting removes the spaces in the text
+    * pdf print quality bad
+    * j/k is not like arrow up/down https://github.com/mozilla/pdf.js/issues/7019
 * firefox pdf dark mode https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375
 
 # Tips
@@ -142,3 +145,7 @@ fc-cache -fv
 * `git pull --autostash`
 * https://github.com/mhagger/git-imerge
 * git reflog
+* git `--follow`?
+    * `-D, --irreversible-delete`
+    * `-M[<n>], --find-renames[=<n>]`
+* `git apply --reject --whitespace=fix`
