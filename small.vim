@@ -1,8 +1,11 @@
 if &compatible | set nocompatible | endif
 
+" set runtimepath above this line for correct ftdetect
+if exists("did_load_filetypes") | filetype off | endif
+filetype plugin indent on
+
 " stuff from sensible that are not in my settings {{{
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
-filetype plugin indent on
 if !exists('g:syntax_on')
   syntax enable
 endif
@@ -132,9 +135,12 @@ elseif !has('nvim') " terminal vim
     silent! !stty -ixon > /dev/null 2>/dev/null
     set ttymouse=sgr
     " fix <M- mappings {{{
+    " NOTE: vim-rsi does it very differently
+    " NOTE: :h 'termcap' (e.g. arrows). Map only necessary stuff.
     " NOTE: <M- keys can be affected by 'encoding'.
     " NOTE: Run after VimEnter to avoid messing up terminal stuff.
-    function! s:InitESCMaps() abort
+    function! InitESCMaps() abort
+        " TODO: when can I map <M-]> safely?
         for c in ['+', '-', '/', '0', ';', 'P', 'n', 'p', 'q', 'y']
             exec 'map  <ESC>'.c '<M-'.c.'>'
             exec 'map! <ESC>'.c '<M-'.c.'>'
@@ -144,7 +150,7 @@ elseif !has('nvim') " terminal vim
         map! <Nul> <C-space>
     endfunction
     " A hack to bypass <ESC> prefix map timeout stuff.
-    function! s:ESCHack(mode)
+    function! ESCHack(mode)
         if mode(1) ==# 'niI'
             call feedkeys("\<ESC>", 'n')
             return
@@ -158,6 +164,8 @@ elseif !has('nvim') " terminal vim
             endif
             let extra .= nr2char(c)
         endwhile
+        " TODO: To support long maps starting with <ESC>, mapcheck("\<ESC>".extra)
+        " and collect more characters interactively.
         if a:mode != 'i'
             let prefix = v:count ? v:count : ''
             let prefix .= '"'.v:register . (a:mode == 'v' ? 'gv' : '')
@@ -170,31 +178,38 @@ elseif !has('nvim') " terminal vim
             call feedkeys(prefix, 'n')
         endif
         call feedkeys("\<ESC>" . extra . "\<Plug>" . a:mode . "mapESC")
+        return ''
     endfunction
 
-    imap <silent><Plug>imapESC <C-o>:<C-u>call ESCimap()<CR>
-    map  <silent><Plug>imapESC      :<C-u>call ESCimap()<CR>
-    imap <silent><Plug>nmapESC <C-o>:<C-u>call ESCnmap()<CR>
-    map  <silent><Plug>nmapESC      :<C-u>call ESCnmap()<CR>
-    imap <silent><Plug>vmapESC <C-o>:<C-u>call ESCvmap()<CR>
-    map  <silent><Plug>vmapESC      :<C-u>call ESCvmap()<CR>
-    imap <silent><Plug>omapESC <C-o>:<C-u>call ESComap()<CR>
-    map  <silent><Plug>omapESC      :<C-u>call ESComap()<CR>
+    " TODO remove redundant commands
+    imap <silent><Plug>imapESC <C-r>=ESCimap()<CR>
+    map  <silent><Plug>imapESC :<C-u>call ESCimap()<CR>
+    imap <silent><Plug>nmapESC <C-r>=ESCnmap()<CR>
+    map  <silent><Plug>nmapESC :<C-u>call ESCnmap()<CR>
+    imap <silent><Plug>vmapESC <C-r>=ESCvmap()<CR>
+    map  <silent><Plug>vmapESC :<C-u>call ESCvmap()<CR>
+    imap <silent><Plug>omapESC <C-r>=ESComap()<CR>
+    map  <silent><Plug>omapESC :<C-u>call ESComap()<CR>
 
     function! ESCimap()
-        imap <silent><buffer><nowait><ESC> <C-o>:<C-u>call <SID>ESCHack('i')<CR>
+        imap <silent><buffer><nowait><ESC> <C-r>=ESCHack('i')<CR>
+        return ''
     endfunction
     function! ESCnmap()
-        nmap <silent><buffer><nowait><ESC> :<C-u>call <SID>ESCHack('n')<CR>
+        nmap <silent><buffer><nowait><ESC> :<C-u>call ESCHack('n')<CR>
+        return ''
     endfunction
     function! ESCvmap()
-        vmap <silent><buffer><nowait><ESC> :<C-u>call <SID>ESCHack('v')<CR>
+        vmap <silent><buffer><nowait><ESC> :<C-u>call ESCHack('v')<CR>
+        return ''
     endfunction
     function! ESComap()
-        omap <silent><buffer><nowait><ESC> :<C-u>call <SID>ESCHack('o')<CR>
+        omap <silent><buffer><nowait><ESC> :<C-u>call ESCHack('o')<CR>
+        return ''
     endfunction
+    " TODO: omap generates an empty change when aborted by <ESC>
     augroup TerminalVimSetup | au!
-        au VimEnter * call s:InitESCMaps()
+        au VimEnter * call InitESCMaps()
         au BufEnter * call ESCimap() | call ESCnmap() | call ESCvmap() | call ESComap()
         if exists('##CmdlineEnter')
             au CmdlineEnter * set timeoutlen=23
@@ -2004,10 +2019,5 @@ function! MyMarkdownFoldExpr() abort
 endfunction
 " }}} }}}
 
-" plugins {{{
 " NOTE: Gdiffsplit? git add -eu, git difftool -x 'nvim -d', ...
-" }}}
-
-" NOTE: reset ftdetect after modifying runtimepath
-filetype off | filetype plugin indent on
 " vim: set fdm=marker et sw=4:
