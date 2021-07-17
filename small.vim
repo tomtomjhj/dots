@@ -465,7 +465,6 @@ cnoremap <C-j> <S-Right>
 cnoremap <C-k> <S-Left>
 noremap! <C-space> <C-k>
 
-inoremap <expr> <CR> match(getline('.'), '\w') >= 0 ? "\<C-G>u\<CR>" : "\<CR>"
 inoremap <C-u> <C-g>u<C-u>
 " }}}
 
@@ -551,6 +550,67 @@ nnoremap <leader>fe :e!<CR>
 
 " pairs {{{
 xmap aa a%
+
+inoremap <expr> ( AutoParenOpen('(', ')', 7)
+inoremap <expr> ) AutoParenClose('(', ')', 7)
+inoremap <expr> [ AutoParenOpen('[', ']', 7)
+inoremap <expr> ] AutoParenClose('[', ']', 7)
+inoremap <expr> { AutoParenOpen('{', '}', 127)
+inoremap <expr> } AutoParenClose('{', '}', 127)
+inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . AutoParenCR()
+inoremap <expr> <BS> AutoParenBS(7)
+
+function! AutoParenOpen(open, close, distance) abort
+    if AutoParenBalance(a:open, a:close, a:distance) > 0
+        return a:open
+    endif
+    return a:open . a:close . "\<C-g>U\<Left>"
+endfunction
+function! AutoParenClose(open, close, distance) abort
+    if s:curchar() !=# a:close
+        return a:close
+    endif
+    if AutoParenBalance(a:open, a:close, a:distance) >= 0
+        return "\<C-g>U\<Right>"
+    endif
+    return a:close
+endfunction
+function! AutoParenBS(distance) abort
+    let cur = s:curchar()
+    if empty(cur) | return "\<BS>" | endif
+    let prev = s:prevchar()
+    if empty(prev) | return "\<BS>" | endif
+    if prev . cur !~# '\v%(\(\)|\[\]|\{\})'
+        return "\<BS>"
+    endif
+    if AutoParenBalance(prev, cur, a:distance) < 0
+        return "\<BS>"
+    endif
+    return "\<Del>\<BS>"
+endfunction
+function! AutoParenCR() abort
+    let cur = s:curchar()
+    if empty(cur) | return "\<CR>" | endif
+    let prev = s:prevchar()
+    if empty(prev) | return "\<CR>" | endif
+    if prev . cur !~# '\v%(\(\)|\[\]|\{\})'
+        return "\<CR>"
+    endif
+    return "\<CR>\<C-c>O"
+endfunction
+function! AutoParenBalance(open, close, distance) abort
+    let openpat = '\V' . a:open
+    let closepat = '\V' . a:close
+    let lnum = line('.')
+    return searchpair(openpat, '', closepat, 'cnrm', '', lnum + a:distance)
+         \ - searchpair(openpat, '', closepat, 'bnrm', '', max([lnum - a:distance, 1]))
+endfunction
+function! s:prevchar() abort
+    return matchstr(getline('.'), '\%' . (col('.') - 1) . 'c.')
+endfunction
+function! s:curchar() abort
+    return matchstr(getline('.'), '\%' . col('.') . 'c.')
+endfunction
 " }}}
 
 " quickfix, loclist, ... {{{
