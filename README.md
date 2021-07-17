@@ -39,25 +39,12 @@
     * ESC -> to En
 
 ## capslock
+```bash
+./interception/install.sh
+```
+* https://gitlab.com/interception/linux/plugins/dual-function-keys
 * https://gist.github.com/tanyuan/55bca522bf50363ae4573d4bdcf06e2e
-* https://gitlab.com/interception/linux/plugins/caps2esc
 
-```
-sudo add-apt-repository ppa:deafmute/interception
-sudo apt install interception-caps2esc
-sudo systemctl enable --now udevmon
-```
-
-`/etc/interception/udevmon.d/XXX.yaml`
-```yaml
-- JOB: intercept -g $DEVNODE | caps2esc -m 1 | uinput -d $DEVNODE
-  DEVICE:
-    EVENTS:
-      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
-```
-**TODO**
-* timeout like xcape
-* ctrl+mouse
 
 ## font
 ```
