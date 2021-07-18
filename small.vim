@@ -90,10 +90,8 @@ else
     let s:undodir = $HOME . '/' . s:dotvim . '/undo'
     unlet s:dotvim
 endif
-if !isdirectory(s:backupdir) || !isdirectory(s:backupdir)
-    call mkdir(s:backupdir, "p", 0700)
-    call mkdir(s:undodir, "p", 0700)
-endif
+if !isdirectory(s:backupdir) | call mkdir(s:backupdir, "p", 0700) | endif
+if !isdirectory(s:undodir) | call mkdir(s:undodir, "p", 0700) | endif
 let &backupdir = s:backupdir . '//'
 let &undodir = s:undodir . '//'
 unlet s:backupdir s:undodir
@@ -407,9 +405,11 @@ function! MuSneak(up) abort
     echo '>'
     let ch1 = getchar()
     let ch1 = type(ch1) == type(0) ? nr2char(ch1) : ch1
+    if ch1 !~# '\p' | return | endif
     redraw | echo '>'.ch1
     let ch2 = getchar()
     let ch2 = type(ch2) == type(0) ? nr2char(ch2) : ch2
+    if ch2 !~# '\p' | return | endif
     redraw | echo '>'.ch1.ch2
     let g:musneak_up = a:up
     let g:musneak_pat = '\v' . escape(ch1, '!#$%&()*+,-./:;<=>?@[\]^{|}~') . escape(ch2, '!#$%&()*+,-./:;<=>?@[\]^{|}~')
@@ -2000,6 +2000,10 @@ function! s:FixMarkdown() abort
     setlocal comments=s:<!--,m:\ \ \ \ ,e:-->,:\|,n:>
     setlocal foldexpr=MyMarkdownFoldExpr()
     setlocal foldlevel=6
+    setlocal matchpairs-=<:>
+    if b:match_words[:3] ==# '<:>,'
+        let b:match_words = b:match_words[4:]
+    endif
 
     syn sync minlines=123
     syn sync linebreaks=1

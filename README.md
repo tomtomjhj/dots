@@ -103,11 +103,6 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 * **TODO** use docker with latest texlive...
 
 # stuff
-* failed to suppress chrome white screen stun grenade
-    * `chrome://version` → profile path → `path/User SytleSheets/Custom.css`
-    * https://superuser.com/questions/580228/prevent-white-screen-before-loading-page-in-chromium
-    * https://stackoverflow.com/questions/21207474/custom-css-has-stopped-working-in-32-0-1700-76-m-google-chrome-update
-    * https://github.com/hbtlabs/chromium-white-flash-fix
 * https://github.com/cyrus-and/gdb-dashboard
 * https://mug896.github.io/awk-script/index.html https://mug896.github.io/bash-shell/quotes.html
 
