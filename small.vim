@@ -551,34 +551,34 @@ nnoremap <leader>fe :e!<CR>
 " pairs {{{
 xmap aa a%
 
-inoremap <expr> ( AutoParenOpen('(', ')', 7)
-inoremap <expr> ) AutoParenClose('(', ')', 7)
-inoremap <expr> [ AutoParenOpen('[', ']', 7)
-inoremap <expr> ] AutoParenClose('[', ']', 7)
-inoremap <expr> { AutoParenOpen('{', '}', 127)
-inoremap <expr> } AutoParenClose('{', '}', 127)
-inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . AutoParenCR()
-inoremap <expr> <BS> AutoParenBS(7)
-inoremap <expr> " AutoParenDumb('"')
-inoremap <expr> ' AutoParenDumb("'")
-inoremap <expr> ` AutoParenDumb('`')
+inoremap <expr> ( MuPairsOpen('(', ')', 7)
+inoremap <expr> ) MuPairsClose('(', ')', 7)
+inoremap <expr> [ MuPairsOpen('[', ']', 7)
+inoremap <expr> ] MuPairsClose('[', ']', 7)
+inoremap <expr> { MuPairsOpen('{', '}', 127)
+inoremap <expr> } MuPairsClose('{', '}', 127)
+inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . MuPairsCR()
+inoremap <expr> <BS> MuPairsBS(7)
+inoremap <expr> " MuPairsDumb('"')
+inoremap <expr> ' MuPairsDumb("'")
+inoremap <expr> ` MuPairsDumb('`')
 
-function! AutoParenOpen(open, close, distance) abort
-    if AutoParenBalance(a:open, a:close, a:distance) > 0
+function! MuPairsOpen(open, close, distance) abort
+    if MuPairsBalance(a:open, a:close, a:distance) > 0
         return a:open
     endif
     return a:open . a:close . "\<C-g>U\<Left>"
 endfunction
-function! AutoParenClose(open, close, distance) abort
+function! MuPairsClose(open, close, distance) abort
     if s:curchar() !=# a:close
         return a:close
     endif
-    if AutoParenBalance(a:open, a:close, a:distance) >= 0
+    if MuPairsBalance(a:open, a:close, a:distance) >= 0
         return "\<C-g>U\<Right>"
     endif
     return a:close
 endfunction
-function! AutoParenBS(distance) abort
+function! MuPairsBS(distance) abort
     let cur = s:curchar()
     if empty(cur) | return "\<BS>" | endif
     let prev = s:prevchar()
@@ -589,12 +589,12 @@ function! AutoParenBS(distance) abort
     if prev . cur !~# '\V\%(()\|[]\|{}\)'
         return "\<BS>"
     endif
-    if AutoParenBalance(prev, cur, a:distance) < 0
+    if MuPairsBalance(prev, cur, a:distance) < 0
         return "\<BS>"
     endif
     return "\<Del>\<BS>"
 endfunction
-function! AutoParenCR() abort
+function! MuPairsCR() abort
     let cur = s:curchar()
     if empty(cur) | return "\<CR>" | endif
     let prev = s:prevchar()
@@ -604,14 +604,14 @@ function! AutoParenCR() abort
     endif
     return "\<CR>\<C-c>O"
 endfunction
-function! AutoParenBalance(open, close, distance) abort
+function! MuPairsBalance(open, close, distance) abort
     let openpat = '\V' . a:open
     let closepat = '\V' . a:close
     let lnum = line('.')
     return searchpair(openpat, '', closepat, 'cnrm', '', lnum + a:distance)
          \ - searchpair(openpat, '', closepat, 'bnrm', '', max([lnum - a:distance, 1]))
 endfunction
-function! AutoParenDumb(char) abort
+function! MuPairsDumb(char) abort
     if s:curchar() ==# a:char
         return "\<C-g>U\<Right>"
     elseif s:prevchar() =~# '\S'
