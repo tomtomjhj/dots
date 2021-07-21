@@ -559,6 +559,9 @@ inoremap <expr> { AutoParenOpen('{', '}', 127)
 inoremap <expr> } AutoParenClose('{', '}', 127)
 inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . AutoParenCR()
 inoremap <expr> <BS> AutoParenBS(7)
+inoremap <expr> " AutoParenDumb('"')
+inoremap <expr> ' AutoParenDumb("'")
+inoremap <expr> ` AutoParenDumb('`')
 
 function! AutoParenOpen(open, close, distance) abort
     if AutoParenBalance(a:open, a:close, a:distance) > 0
@@ -580,7 +583,10 @@ function! AutoParenBS(distance) abort
     if empty(cur) | return "\<BS>" | endif
     let prev = s:prevchar()
     if empty(prev) | return "\<BS>" | endif
-    if prev . cur !~# '\v%(\(\)|\[\]|\{\})'
+    if prev . cur =~# '\%(""\|''''\|``\)'
+        return "\<Del>\<BS>"
+    endif
+    if prev . cur !~# '\V\%(()\|[]\|{}\)'
         return "\<BS>"
     endif
     if AutoParenBalance(prev, cur, a:distance) < 0
@@ -593,7 +599,7 @@ function! AutoParenCR() abort
     if empty(cur) | return "\<CR>" | endif
     let prev = s:prevchar()
     if empty(prev) | return "\<CR>" | endif
-    if prev . cur !~# '\v%(\(\)|\[\]|\{\})'
+    if prev . cur !~# '\V\%(()\|[]\|{}\)'
         return "\<CR>"
     endif
     return "\<CR>\<C-c>O"
@@ -604,6 +610,14 @@ function! AutoParenBalance(open, close, distance) abort
     let lnum = line('.')
     return searchpair(openpat, '', closepat, 'cnrm', '', lnum + a:distance)
          \ - searchpair(openpat, '', closepat, 'bnrm', '', max([lnum - a:distance, 1]))
+endfunction
+function! AutoParenDumb(char) abort
+    if s:curchar() ==# a:char
+        return "\<C-g>U\<Right>"
+    elseif s:prevchar() =~# '\S'
+        return a:char
+    endif
+    return a:char . a:char . "\<C-g>U\<Left>"
 endfunction
 function! s:prevchar() abort
     return matchstr(getline('.'), '\%' . (col('.') - 1) . 'c.')
