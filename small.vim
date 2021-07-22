@@ -123,12 +123,8 @@ augroup BasicSetup | au!
 augroup END
 " }}}
 
-" fix terminal/gui problems {{{
-if has('gui_running')
-    set guioptions=i
-    set guicursor+=a:blinkon0
-    command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
-elseif !has('nvim') " terminal vim
+" fix terminal vim problems {{{
+if !has('gui_running') && !has('nvim')
     silent! !stty -ixon > /dev/null 2>/dev/null
     if $TERM =~ '\(tmux\|screen\)-256' | set term=xterm-256color | endif
     set ttymouse=sgr
@@ -216,6 +212,29 @@ elseif !has('nvim') " terminal vim
         endif
     augroup END
     " }}}
+endif
+" }}}
+
+" gui settings {{{
+if has('nvim')
+    augroup NvimUI | au!
+        au UIEnter * if exists('g:GuiLoaded') | call SetupNvimQt() | endif
+    augroup END
+    function! SetupNvimQt() abort
+        GuiTabline 0
+        GuiPopupmenu 0
+        GuiFont Source Code Pro:h13
+        func! FontSize(delta)
+            let [name, size] = matchlist(g:GuiFont, '\v(.*:h)(\d+)')[1:2]
+            let new_size = str2nr(size) + a:delta
+            exe 'GuiFont ' . name . new_size
+        endfunc
+        map <silent><C-+> :<C-u>call FontSize(v:count1)<CR>
+    endfunction
+elseif has('gui_running')
+    set guioptions=i
+    set guicursor+=a:blinkon0
+    command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
 endif
 " }}}
 
@@ -648,7 +667,7 @@ endfunction
 function! MuPairsDumb(char) abort
     if s:curchar() ==# a:char
         return "\<C-g>U\<Right>"
-    elseif s:prevchar() =~# '\S'
+    elseif s:prevchar() =~ '\k'
         return a:char
     endif
     return a:char . a:char . "\<C-g>U\<Left>"
