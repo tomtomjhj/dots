@@ -143,6 +143,7 @@ elseif !has('nvim') " terminal vim
             exec 'map  <ESC>'.c '<M-'.c.'>'
             exec 'map! <ESC>'.c '<M-'.c.'>'
         endfor
+        imap <ESC><BS> <M-BS>
         cnoremap <ESC><ESC> <C-c>
         map  <Nul> <C-space>
         map! <Nul> <C-space>
@@ -466,6 +467,39 @@ cnoremap <C-k> <S-Left>
 noremap! <C-space> <C-k>
 
 inoremap <C-u> <C-g>u<C-u>
+" Delete a single character of other non-blank chars
+inoremap <silent><expr><C-w>  FineGrainedICtrlW(0)
+" Like above, but first consume whitespace
+inoremap <silent><expr><M-BS> FineGrainedICtrlW(1)
+func! FineGrainedICtrlW(finer)
+    let l:col = col('.')
+    if l:col == 1 | return "\<BS>" | endif
+    let l:before = strpart(getline('.'), 0, l:col - 1)
+    let l:chars = split(l:before, '.\zs')
+    if l:chars[-1] =~ '\s'
+        let l:len = len(l:chars)
+        let l:idx = 1
+        while l:idx < l:len && l:chars[-(l:idx + 1)] =~ '\s'
+            let l:idx += 1
+        endwhile
+        if l:idx == l:len || (!a:finer && l:chars[-(l:idx + 1)] =~ '\k')
+            return "\<C-w>"
+        endif
+        let l:sts = &softtabstop
+        setlocal softtabstop=0
+        return repeat("\<BS>", l:idx)
+                    \ . "\<C-R>=FineGrainedICtrlWReset(".l:sts.")\<CR>"
+                    \ . (a:finer ? "" : "\<C-R>=MuPairsBS(7)\<CR>")
+    elseif l:chars[-1] !~ '\k'
+        return MuPairsBS(7)
+    else
+        return "\<C-w>"
+    endif
+endfunc
+function! FineGrainedICtrlWReset(sts) abort
+    let &l:softtabstop = a:sts
+    return ''
+endfunc
 " }}}
 
 " etc mappings {{{
