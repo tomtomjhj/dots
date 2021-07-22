@@ -14,6 +14,7 @@
     cfg config --local status.showUntrackedFiles no
     ```
     * `--separate-git-dir`
+    * https://konfekt.github.io/blog/2018/11/10/simple-dotfiles-setup
 * automate direct binary download https://stackoverflow.com/a/29360657
 * https://help.ubuntu.com/community/CheckInstall
 * opam
@@ -30,13 +31,31 @@
     * want both tex notation and digraphs
 * https://github.com/bcpierce00/unison
 * https://github.com/rclone/rclone/issues/118
+* disable primary selection stuff, middle mouse click,... (gnome tweak doesn't work... maybe wayland issue?)
 
 # Things to run (20.04)
-* `ubuntu-drivers install`
-* nimf
-    * libhangul → shortcuts from Korean to system keyboard (for vim)
-    * https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
-    * ESC -> to En
+
+## ppas
+```sh
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:neovim-ppa/stable
+sudo add-apt-repository ppa:libreoffice/ppa
+```
+
+## drivers
+```bash
+sudo ubuntu-drivers install
+```
+
+## 한글 nimf
+```bash
+sudo rm -f /etc/apt/sources.list.d/hamonikr.list
+curl -sL https://pkg.hamonikr.org/add-hamonikr.apt | sudo -E bash -
+sudo apt install nimf nimf-libhangul
+im-config -n nimf
+```
+* libhangul → add ESC to "shortcuts from Korean to system keyboard" so that esc in vim resets to en
+* set "hooking GDK key events" https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
 
 ## capslock
 ```bash
@@ -44,7 +63,6 @@
 ```
 * https://gitlab.com/interception/linux/plugins/dual-function-keys
 * https://gist.github.com/tanyuan/55bca522bf50363ae4573d4bdcf06e2e
-
 
 ## font
 ```
@@ -90,7 +108,7 @@ fc-cache -fv
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
 * disable `ctrl-alt-d` https://askubuntu.com/a/177994 TODO dconf-editor
 
-### firefox: allow plugins to override reserved keymap
+## firefox: allow plugins to override reserved keymap
 https://github.com/glacambre/firefox-patches/issues/1
 Run it after closing firefox. Rerun when firefox is updated.
 ```
@@ -101,6 +119,9 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 ## tex
 * `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
 * **TODO** use docker with latest texlive...
+
+## wayland stuff
+* **TODO** screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
 
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard
