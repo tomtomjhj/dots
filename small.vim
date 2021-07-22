@@ -6,9 +6,7 @@ filetype plugin indent on
 
 " stuff from sensible that are not in my settings {{{
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
-if !exists('g:syntax_on')
-  syntax enable
-endif
+syntax enable
 set nrformats-=octal
 if !has('nvim') && &ttimeoutlen == -1
   set ttimeout
@@ -24,11 +22,9 @@ endif
 set tabpagemax=50
 set sessionoptions-=options
 set viewoptions-=options
-" Allow color schemes to do bright colors without forcing bold.
 if &t_Co == 8 && $TERM !~# '^Eterm'
   set t_Co=16
 endif
-" Load matchit.vim, but only if the user hasn't installed a newer version.
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
@@ -67,6 +63,9 @@ set wildmenu wildmode=longest:full,full
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo*', '*.glob', '*.cm*', '*.aux']
 let s:wildignore_dirs = ['.git', '__pycache__', 'target']
 set complete-=i complete-=u completeopt=menuone,preview
+if exists('+completepopup')
+    set completeopt+=popup completepopup=border:off
+endif
 set path=.,./*,./..,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
 
 set ignorecase smartcase
@@ -98,7 +97,7 @@ unlet s:backupdir s:undodir
 
 set autoread
 set splitright splitbelow
-let &switchbuf = (has('patch-8.1.2315') || has('nvim-0.5')) ? 'useopen,uselast' : 'useopen'
+if (has('patch-8.1.2315') || has('nvim-0.5')) | set switchbuf+=uselast | endif
 set hidden
 set lazyredraw
 
@@ -131,6 +130,7 @@ if has('gui_running')
     command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
 elseif !has('nvim') " terminal vim
     silent! !stty -ixon > /dev/null 2>/dev/null
+    if $TERM =~ '\(tmux\|screen\)-256' | set term=xterm-256color | endif
     set ttymouse=sgr
     " fix <M- mappings {{{
     " NOTE: vim-rsi does it very differently
@@ -448,7 +448,7 @@ function! MuSneakReset() abort
 endfunction
 " }}}
 
-let g:sword = '\v(\k+|([^[:alnum:]_[:blank:](){}[\]<>$])\2*|[(){}[\]<>$]|\s+)'
+let g:sword = '\v(\k+|([^[:alnum:]_[:blank:](){}[\]<>''"`$])\2*|[(){}[\]<>''"`$]|\s+)'
 inoremap <silent><C-j> <C-r>=SwordJumpRight()<CR><Right>
 inoremap <silent><C-k> <C-r>=SwordJumpLeft()<CR>
 func! SwordJumpRight()
@@ -890,6 +890,30 @@ let g:netrw_home = &undodir .. '..'
 let g:netrw_fastbrowse = 0
 nnoremap <silent><C-w>es :Hexplore<CR>
 nnoremap <silent><C-w>ev :Vexplore!<CR>
+
+" https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
+function! GXBrowse(url)
+    let redir = '>&/dev/null'
+    if exists('g:netrw_browsex_viewer')
+        let viewer = g:netrw_browsex_viewer
+    elseif has('unix') && executable('xdg-open')
+        let viewer = 'xdg-open'
+    elseif has('macunix') && executable('open')
+        let viewer = 'open'
+    elseif has('win64') || has('win32')
+        let viewer = 'start'
+        redir = '>null'
+    else
+        return
+    endif
+    execute 'silent! !' . viewer . ' ' . shellescape(a:url, 1) . redir
+    redraw!
+endfunction
+let s:url_regex = '\c\<\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{0,3}[.]\|[a-z0-9.\-]\+[.][a-z]\{2,4}\/\)\%([^ \t()<>]\+\|(\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\)\+\%((\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\|[^ \t`!()[\]{};:'."'".'".,<>?«»“”‘’]\)'
+function! CursorURL() abort
+    return matchstr(expand('<cWORD>'), s:url_regex)
+endfunction
+nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
 
 " https://github.com/tpope/vim-vinegar/blob/b245f3ab4580eba27616a5ce06a56d5f791e67bd/plugin/vinegar.vim
 let s:vinegar_dotfiles = '\(^\|\s\s\)\zs\.\S\+'
