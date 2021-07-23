@@ -263,7 +263,7 @@ function! UpdateGitStatus()
   endif
 endfunction
 
-augroup Statusine | au!
+augroup Statusline | au!
     au VimEnter,WinEnter,BufEnter * call UpdateGitStatus()
 augroup END
 
@@ -619,14 +619,15 @@ inoremap <expr> ` MuPairsDumb('`')
 function! MuPairsOpen(open, close, distance) abort
     if MuPairsBalance(a:open, a:close, a:distance) > 0
         return a:open
+    elseif s:curchar() =~# '\k'
+        return a:open
     endif
     return a:open . a:close . "\<C-g>U\<Left>"
 endfunction
 function! MuPairsClose(open, close, distance) abort
     if s:curchar() !=# a:close
         return a:close
-    endif
-    if MuPairsBalance(a:open, a:close, a:distance) >= 0
+    elseif MuPairsBalance(a:open, a:close, a:distance) >= 0
         return "\<C-g>U\<Right>"
     endif
     return a:close
@@ -638,11 +639,9 @@ function! MuPairsBS(distance) abort
     if empty(prev) | return "\<BS>" | endif
     if prev . cur =~# '\%(""\|''''\|``\)'
         return "\<Del>\<BS>"
-    endif
-    if prev . cur !~# '\V\%(()\|[]\|{}\)'
+    elseif prev . cur !~# '\V\%(()\|[]\|{}\)'
         return "\<BS>"
-    endif
-    if MuPairsBalance(prev, cur, a:distance) < 0
+    elseif MuPairsBalance(prev, cur, a:distance) < 0
         return "\<BS>"
     endif
     return "\<Del>\<BS>"
@@ -665,9 +664,10 @@ function! MuPairsBalance(open, close, distance) abort
          \ - searchpair(openpat, '', closepat, 'bnrm', '', max([lnum - a:distance, 1]))
 endfunction
 function! MuPairsDumb(char) abort
-    if s:curchar() ==# a:char
+    let cur = s:curchar()
+    if cur ==# a:char
         return "\<C-g>U\<Right>"
-    elseif s:prevchar() =~ '\k'
+    elseif cur =~# '\S' || s:prevchar() =~# '\%(\k\|'.a:char.'\)'
         return a:char
     endif
     return a:char . a:char . "\<C-g>U\<Left>"
@@ -1822,7 +1822,7 @@ augroup END
 " }}}
 
 " colorscheme {{{
-let g:colors_name = 'zenbruh'
+" let g:colors_name = 'zenbruh'
 
 " Palette:
 let s:fg        = ['#eeeeee', 255]
@@ -2081,7 +2081,6 @@ augroup FileTypes | au!
     " NOTE: 'syntax-loading'
     au FileType markdown call s:FixMarkdown()
     au Filetype pandoc setlocal filetype=markdown
-    au FileType vim setlocal formatoptions-=t
 augroup END
 
 " markdown {{{
