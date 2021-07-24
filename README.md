@@ -39,6 +39,7 @@
 ```sh
 sudo apt-get install software-properties-common
 sudo add-apt-repository ppa:neovim-ppa/stable
+sudo add-apt-repository ppa:alessandro-strada/ppa  # google-drive-ocamlfuse
 sudo add-apt-repository ppa:libreoffice/ppa
 ```
 
@@ -117,11 +118,19 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 ```
 
 ## tex
-* `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
-* **TODO** use docker with latest texlive...
+* [Dockerfile](./docker/texlive/Dockerfile)
+* NOTE: `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
 
 ## wayland stuff
 * **TODO** screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
+
+## docker
+* https://docs.docker.com/engine/install/ubuntu/
+* https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+
+```
+sudo usermod -aG docker $USER
+```
 
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard
