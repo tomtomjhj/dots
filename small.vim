@@ -4,6 +4,19 @@ if &compatible | set nocompatible | endif
 if exists("did_load_filetypes") | filetype off | endif
 filetype plugin indent on
 
+" OS stuff {{{
+let g:os = (has('win64') || has('win32') || has('win16')) ? 'Windows' : substitute(system('uname'), '\n', '', '')
+
+if g:os ==# 'Windows'
+    " :h shell-powershell
+    set shell=powershell
+    let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
+    let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+    let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+    set shellquote= shellxquote=
+endif
+" }}}
+
 " stuff from sensible that are not in my settings {{{
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
 syntax enable
@@ -78,7 +91,7 @@ if has('nvim')
     let s:backupdir = &backupdir
     let s:undodir = &undodir
 else
-    let s:dotvim = has('win32') ? 'vimfiles' : '.vim'
+    let s:dotvim = g:os ==# 'Windows' ? 'vimfiles' : '.vim'
     let s:backupdir = $HOME . '/' . s:dotvim . '/backup'
     let s:undodir = $HOME . '/' . s:dotvim . '/undo'
     unlet s:dotvim
@@ -223,11 +236,16 @@ if has('nvim')
             let new_size = str2nr(size) + a:delta
             exe 'GuiFont ' . name . new_size
         endfunc
+        map <silent><C--> :<C-u>call FontSize(-v:count1)<CR>
         map <silent><C-+> :<C-u>call FontSize(v:count1)<CR>
+        map <silent><C-=> :<C-u>call FontSize(v:count1)<CR>
     endfunction
 elseif has('gui_running')
     set guioptions=i
     set guicursor+=a:blinkon0
+    if g:os ==# 'Windows'
+        set guifont=Source_Code_Pro:h12:cANSI:qDRAFT
+    endif
     command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
 endif
 " }}}
@@ -318,7 +336,9 @@ function! UpdateGitStatus()
 endfunction
 
 augroup Statusline | au!
-    au VimEnter,WinEnter,BufEnter,BufWritePost * call UpdateGitStatus()
+    if g:os ==# 'Windows' " too slow on windows
+        au BufWinEnter,BufWritePost * call UpdateGitStatus()
+    endif
 augroup END
 " }}}
 
