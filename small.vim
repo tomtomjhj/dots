@@ -8,20 +8,14 @@ filetype plugin indent on
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
 syntax enable
 set nrformats-=octal
-if !has('nvim') && &ttimeoutlen == -1
-  set ttimeout
-  set ttimeoutlen=100
-endif
+set ttimeout ttimeoutlen=50
 set display+=lastline
-if has('path_extra')
-  setglobal tags-=./tags tags-=./tags; tags^=./tags;
-endif
+set tags-=./tags tags-=./tags; tags^=./tags;
 if &shell =~# 'fish$' && (v:version < 704 || v:version == 704 && !has('patch276'))
   set shell=/usr/bin/env\ bash
 endif
 set tabpagemax=50
 set sessionoptions-=options
-set viewoptions-=options
 if &t_Co == 8 && $TERM !~# '^Eterm'
   set t_Co=16
 endif
@@ -303,7 +297,7 @@ endfunction
 func! ShortRelPath()
     let name = expand('%')
     if empty(name)
-        return empty(&buftype) ? '[No Name]' : ''
+        return empty(&buftype) ? '[No Name]' : &buftype ==# 'nofile' ? '[Scratch]' : ''
     elseif isdirectory(name)
         return pathshorten(fnamemodify(name[:-2], ":~")) . '/'
     endif
@@ -745,7 +739,10 @@ augroup END
 
 function! s:GetQfEntry(linenr) abort
     if &filetype !=# 'qf' | return {} | endif
-    let l:qflist = getqflist()
+    let l:qflist = getloclist(0)
+    if empty(l:qflist)
+        let l:qflist = getqflist()
+    endif
     if !l:qflist[a:linenr-1].valid | return {} | endif
     if !filereadable(bufname(l:qflist[a:linenr-1].bufnr)) | return {} | endif
     return l:qflist[a:linenr-1]
@@ -855,10 +852,10 @@ command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<a
 command! -nargs=+ -bang AddWildignore call AddWildignore([<f-args>], <bang>0)
 function! AddWildignore(wigs, is_dir) abort
     if a:is_dir
-        call add(g:wildignore_dirs, a:wigs)
+        let g:wildignore_dirs += a:wigs
         let globs = map(a:wigs, 'v:val.",".v:val."/,**/".v:val."/*"')
     else
-        call add(g:wildignore_files, a:wigs)
+        let g:wildignore_files += a:wigs
         let globs = a:wigs
     endif
     exe 'set wildignore+='.join(globs, ',')
@@ -2130,7 +2127,7 @@ let g:tex_no_error = 1
 augroup FileTypes | au!
     " NOTE: 'syntax-loading'
     au FileType markdown call s:FixMarkdown()
-    au Filetype pandoc setlocal filetype=markdown
+    au FileType pandoc setlocal filetype=markdown
 augroup END
 
 " markdown {{{
