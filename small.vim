@@ -239,9 +239,65 @@ endif
 " }}}
 
 " statusline {{{
-let s:mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
+let s:has_stl_expand_expr = has('patch-8.2.2854') || has('nvim-0.5')
+if s:has_stl_expand_expr
+    let s:statusline = [
+                \ '%{%StatuslineHighlight1()%}', '%( %{StatuslineMode()} %)',
+                \ '%{%StatuslineHighlight2()%}', '%( %{ShortRelPath()} %)',
+                \ '%{%StatuslineHighlight3()%}', '%m%r%w', '%{get(b:,"git_status","")}',
+                \ '%=',
+                \ '%{%StatuslineHighlight3()%}', ' %3p%% ',
+                \ '%{%StatuslineHighlight2()%}', ' %3l:%-2c ']
+else
+    let s:statusline = [
+                \ '%( %{StatuslineMode()} %)',
+                \ '%#TabLine#', '%( %{ShortRelPath()} %)',
+                \ '%#TabLineFill#', '%m%r%w', '%{get(b:,"git_status","")}',
+                \ '%=',
+                \ '%#TabLineFill#', ' %3p%% ',
+                \ '%#TabLine#', ' %3l:%-2c ']
+endif
+let &statusline = join(s:statusline, '')
+unlet s:statusline
+
+if s:has_stl_expand_expr
+    let s:stl_mode_hl = {
+                \ 'n' :     '%#STLModeNormal#',
+                \ 'i' :     '%#STLModeInsert1#',
+                \ 'R' :     '%#STLModeReplace#',
+                \ 'v' :     '%#STLModeVisual#',
+                \ 'V' :     '%#STLModeVisual#',
+                \ "\<C-v>": '%#STLModeVisual#',
+                \ 'c' :     '%#STLModeInsert1#',
+                \ 's' :     '%#STLModeVisual#',
+                \ 'S' :     '%#STLModeVisual#',
+                \ "\<C-s>": '%#STLModeVisual#',
+                \ 't':      '%#STLModeInsert1#',}
+
+    function! StatuslineHighlight1()
+        return get(s:stl_mode_hl, mode(), '')
+    endfunction
+    function! StatuslineHighlight2()
+        if g:actual_curwin != win_getid() | return '%#TabLine#' | endif
+        return mode() =~# '^[it]$' ? '%#STLModeInsert2#': '%#TabLine#'
+    endfunction
+    function! StatuslineHighlight3()
+        if g:actual_curwin != win_getid() | return '%#TabLineFill#' | endif
+        return mode() =~# '^[it]$' ? '%#STLModeInsert3#': '%#TabLineFill#'
+    endfunction
+
+    hi! STLModeNormal  guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
+    hi! STLModeVisual  guifg=#870000 ctermfg=88  guibg=#ff8700 ctermbg=208 gui=bold cterm=bold
+    hi! STLModeReplace guifg=#ffffff ctermfg=231 guibg=#df0000 ctermbg=160 gui=bold cterm=bold
+    hi! STLModeInsert1 guifg=#005f5f ctermfg=23  guibg=#ffffff ctermbg=231 gui=bold cterm=bold
+    hi! STLModeInsert2 guifg=#ffffff ctermfg=231 guibg=#0087af ctermbg=31
+    hi! STLModeInsert3 guifg=#ffffff ctermfg=231 guibg=#005f87 ctermbg=24
+endif
+
+let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
 function! StatuslineMode()
-    return get(s:mode_map, mode(), '')
+    if g:actual_curwin != win_getid() | return '' | endif
+    return get(s:stl_mode_map, mode(), '')
 endfunction
 
 func! ShortRelPath()
@@ -255,31 +311,21 @@ func! ShortRelPath()
 endfunc
 
 function! UpdateGitStatus()
-  if &modifiable && empty(&buftype)
-      let rev_parse = s:system('git -C '.expand('%:p:h').' rev-parse --abbrev-ref HEAD')[0]
-      if !v:shell_error
-          let b:git_status =' [' . rev_parse . ']'
-      endif
-  endif
+    if !empty(expand('%')) && &modifiable && empty(&buftype)
+        let rev_parse = s:system('git -C '.expand('%:p:h').' rev-parse --abbrev-ref HEAD')[0]
+        if !v:shell_error
+            let status = s:system('git status --porcelain ' . shellescape(expand("%")))
+            let status = empty(status) ? '' : status[0][:1]
+            let b:git_status = ' [' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
+        endif
+    else
+        let b:git_status = ''
+    endif
 endfunction
 
 augroup Statusline | au!
-    au VimEnter,WinEnter,BufEnter * call UpdateGitStatus()
+    au VimEnter,WinEnter,BufEnter,BufWritePost * call UpdateGitStatus()
 augroup END
-
-set statusline=
-set statusline+=\ %{StatuslineMode()}\ 
-set statusline+=%#TabLine#
-set statusline+=\ %{ShortRelPath()}\ 
-set statusline+=%#TabLineFill#
-set statusline+=%m%r%w
-set statusline+=%{get(b:,'git_status','')}
-set statusline+=%=
-set statusline+=%#TabLineFill#
-set statusline+=\ %3p%%\ 
-set statusline+=%#TabLine#
-set statusline+=\ %3l:%-2c
-set statusline+=\ 
 " }}}
 
 " search & files {{{
@@ -1956,7 +2002,11 @@ set background=dark
 " Required as some plugins will overwrite
 call s:h('Normal', s:fg, s:bg)
 call s:h('NormalFloat', s:none, s:bglighter)
-call s:h('StatusLine', s:none, s:bglighter, ['bold', 'inverse'])
+if s:has_stl_expand_expr
+    call s:h('StatusLine', s:none, s:bglighter, ['bold'])
+else
+    call s:h('StatusLine', s:none, s:bglighter, ['bold', 'inverse'])
+endif
 call s:h('StatusLineNC', s:none, s:bglight)
 call s:h('StatusLineTerm', s:none, s:bglighter, ['bold'])
 call s:h('StatusLineTermNC', s:none, s:bglight)
