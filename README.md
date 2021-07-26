@@ -3,9 +3,11 @@
     * <https://github.com/junegunn/dotfiles/>
     *  <https://github.com/jaagr/dots>
     * use make, stow, ...
+        * https://dotfiles.github.io/
         * https://github.com/masasam/dotfiles/blob/master/Makefile
         * https://polothy.github.io/post/2018-10-09-makefile-dotfiles/
         * https://github.com/b4b4r07/dotfiles/blob/master/Makefile
+        * https://konfekt.github.io/blog/2018/11/10/simple-dotfiles-setup
     * using bare repo and worktree
     ```sh
     git clone --bare ... $HOME/.dotfiles
@@ -14,7 +16,6 @@
     cfg config --local status.showUntrackedFiles no
     ```
     * `--separate-git-dir`
-    * https://konfekt.github.io/blog/2018/11/10/simple-dotfiles-setup
 * automate direct binary download https://stackoverflow.com/a/29360657
 * https://help.ubuntu.com/community/CheckInstall
 * opam
@@ -32,6 +33,12 @@
 * https://github.com/bcpierce00/unison
 * https://github.com/rclone/rclone/issues/118
 * disable primary selection stuff, middle mouse click,... (gnome tweak doesn't work... maybe wayland issue?)
+* terminal with better input handling, modifyOtherKeys, ...
+    * https://gitlab.gnome.org/GNOME/vte/-/issues/1441
+    * https://github.com/alacritty/alacritty/issues/3101
+    * https://vimhelp.org/vim_faq.txt.html#faq-20.5 https://vimhelp.org/map.txt.html#modifyOtherKeys
+    * https://github.com/neovim/neovim/issues/14350
+    * https://github.com/tmux/tmux/issues/2216 https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys
 
 # Things to run (20.04)
 
@@ -131,6 +138,9 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 ```
 sudo usermod -aG docker $USER
 ```
+
+## etc
+* `aptitude` good for resolving broken package issues
 
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard

@@ -245,6 +245,8 @@ elseif has('gui_running')
     set guicursor+=a:blinkon0
     if g:os ==# 'Windows'
         set guifont=Source_Code_Pro:h12:cANSI:qDRAFT
+    elseif g:os ==# 'Linux'
+        set guifont=Source\ Code\ Pro\ 12
     endif
     command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
 endif
@@ -336,7 +338,7 @@ function! UpdateGitStatus()
 endfunction
 
 augroup Statusline | au!
-    if g:os ==# 'Windows' " too slow on windows
+    if g:os !=# 'Windows' " too slow on windows
         au BufWinEnter,BufWritePost * call UpdateGitStatus()
     endif
 augroup END
