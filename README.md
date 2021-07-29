@@ -45,7 +45,7 @@
 ## ppas
 ```sh
 sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:neovim-ppa/stable
+sudo add-apt-repository ppa:neovim-ppa/unstable
 sudo add-apt-repository ppa:alessandro-strada/ppa  # google-drive-ocamlfuse
 sudo add-apt-repository ppa:libreoffice/ppa
 ```
@@ -171,3 +171,4 @@ sudo usermod -aG docker $USER
     * `-D, --irreversible-delete`
     * `-M[<n>], --find-renames[=<n>]`
 * `git apply --reject --whitespace=fix`
+* git files absolute dir `git -C "$ROOT" ls-files | awk -v R="$ROOT" '{ print R "/" $0 }'`

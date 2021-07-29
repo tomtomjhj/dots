@@ -324,22 +324,28 @@ func! ShortRelPath()
     return pathshorten(fnamemodify(name, ":~:."))
 endfunc
 
-function! UpdateGitStatus()
-    if !empty(expand('%')) && &modifiable && empty(&buftype)
-        let rev_parse = s:system('git -C '.expand('%:p:h').' rev-parse --abbrev-ref HEAD')[0]
+function! UpdateGitStatus(buf)
+    let bufname = fnamemodify(bufname(a:buf), ':p')
+    let status = ''
+    if !empty(bufname) && getbufvar(a:buf, '&modifiable') && empty(getbufvar(a:buf, '&buftype'))
+        let git = 'git -C '.fnamemodify(bufname, ':h')
+        let rev_parse = s:system(git . ' rev-parse --abbrev-ref HEAD')[0]
         if !v:shell_error
-            let status = s:system('git status --porcelain ' . shellescape(expand("%")))
+            let status = s:system(git . ' status --porcelain ' . shellescape(bufname))
             let status = empty(status) ? '' : status[0][:1]
-            let b:git_status = ' [' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
+            let status = ' [' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
         endif
-    else
-        let b:git_status = ''
     endif
+    call setbufvar(a:buf, 'git_status', status)
 endfunction
 
 augroup Statusline | au!
     if g:os !=# 'Windows' " too slow on windows
-        au BufWinEnter,BufWritePost * call UpdateGitStatus()
+        au BufReadPost,BufWritePost * call UpdateGitStatus(str2nr(expand('<abuf>')))
+        if exists('*getbufinfo')
+            " TODO: writing the file in index during diff doesn't fire this
+            au User FugitiveChanged for b in map(getbufinfo({'bufloaded':1}), 'v:val.bufnr') | call UpdateGitStatus(b) | endfor
+        endif
     endif
 augroup END
 " }}}
@@ -400,15 +406,15 @@ function! Grep(query, ...) abort
     let opts = string(v:count)
     let options = (&grepprg =~# '^egrep') ? Wildignore2exclude() : ''
     let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : s:cmdshellescape(a:query)
-    let files = '.'
+    let dir = '.'
     if a:0
-        let files = a:1
+        let dir = a:1
     elseif opts =~ '3'
-        let files = '`'. s:git_files_cmd() .'`'
+        let dir = s:git_root(empty(bufname()) ? getcwd() : bufname())
     elseif &grepprg ==# 'internal'
-        let files = '**'
+        let dir = '**'
     endif
-    exe 'grep!' options query files
+    exe 'grep!' options query dir
     belowright cwindow
 endfunction
 func! GrepInput(raw, word)
@@ -442,8 +448,15 @@ endfunction
 function! Files(...) abort
     silent doautocmd QuickFixCmdPre Files
     let opts = string(v:count)
-    let cmd = (opts =~ '3') ? s:git_files_cmd() : (&grepprg =~# '^rg') ? 'rg --files' : 'find . -type f'
-    let files = s:system(cmd)
+    if opts =~ '3'
+        let root = s:git_root(empty(bufname()) ? getcwd() : bufname())
+        " NOTE: add -co to include untracked files (n.b. may not enumerate each file)
+        let files = s:system('git -C '.root.' ls-files --exclude-standard')
+        call map(files, "'".root."/'.v:val")
+    else
+        let cmd = (&grepprg =~# '^rg') ? 'rg --files' : 'find . -type f'
+        let files = s:system(cmd)
+    endif
     if a:0
         call filter(files, 'match(v:val, a:1) >= 0')
     endif
@@ -811,9 +824,12 @@ else
         return output
     endfunction
 endif
-function! s:git_files_cmd() abort
-    " NOTE: add  -co to include untracked files (n.b. may not enumerate each file)
-    return 'git ls-files --exclude-standard ' . s:system('git rev-parse --show-toplevel')[0]
+function! s:git_root(file_or_dir) abort
+    let file_or_dir = fnamemodify(expand(a:file_or_dir), ':p')
+    let dir = isdirectory(file_or_dir) ? file_or_dir : fnamemodify(file_or_dir, ':h')
+    let output = s:system('git -C '.dir.' rev-parse --show-toplevel')[0]
+    if v:shell_error | throw output | endif
+    return output
 endfunction
 if has('patch-8.0.1040') || has('nvim-0.3.2')
     function! s:setqflist_files(files, title) abort
