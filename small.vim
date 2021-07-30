@@ -214,8 +214,9 @@ if !has('gui_running') && !has('nvim')
         au VimEnter * call InitESCMaps()
         au BufEnter * call ESCimap() | call ESCnmap() | call ESCvmap() | call ESComap()
         if exists('##CmdlineEnter')
-            au CmdlineEnter * set timeoutlen=23
-            au CmdlineLeave * set timeoutlen&vim
+            let g:cmdlines = 0
+            au CmdlineEnter * let g:cmdlines += 1 | set timeoutlen=23
+            au CmdlineLeave * let g:cmdlines -= 1 | if !g:cmdlines | set timeoutlen&vim | endif
         endif
     augroup END
     " }}}
@@ -394,7 +395,7 @@ command! -nargs=? Files call Files(<f-args>)
 
 if executable('rg')
     " --vimgrep is like vimgrep /pat/g
-    let &grepprg = 'rg --column --line-number --no-heading'
+    let &grepprg = 'rg --column --line-number --no-heading --smart-case'
     set grepformat^=%f:%l:%c:%m
 elseif executable('egrep')
     let &grepprg = 'egrep -nrI $* /dev/null'
@@ -416,6 +417,7 @@ function! Grep(query, ...) abort
     endif
     exe 'grep!' options query dir
     belowright cwindow
+    redraw
 endfunction
 func! GrepInput(raw, word)
     let query = a:raw
