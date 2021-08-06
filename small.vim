@@ -73,7 +73,7 @@ set complete-=i complete-=u completeopt=menuone,preview
 if exists('+completepopup')
     set completeopt+=popup completepopup=border:off
 endif
-set path=.,./*,./..,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
+set path=.,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
 
 set ignorecase smartcase
 set hlsearch incsearch
@@ -310,10 +310,16 @@ if s:has_stl_expand_expr
 endif
 
 let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
-function! StatuslineMode()
-    if g:actual_curwin != win_getid() | return '' | endif
-    return get(s:stl_mode_map, mode(), '')
-endfunction
+if has('patch-8.1.1372') || has('nvim-0.5')
+    function! StatuslineMode()
+        if g:actual_curwin != win_getid() | return '' | endif
+        return get(s:stl_mode_map, mode(), '')
+    endfunction
+else
+    function! StatuslineMode()
+        return get(s:stl_mode_map, mode(), '')
+    endfunction
+endif
 
 func! ShortRelPath()
     let name = expand('%')
@@ -744,7 +750,7 @@ function! MuPairsDumb(char) abort
     let cur = s:curchar()
     if cur ==# a:char
         return "\<C-g>U\<Right>"
-    elseif cur =~# '\S' || s:prevchar() =~# '\%(\k\|'.a:char.'\)'
+    elseif cur =~# '\k' || s:prevchar() =~# '\%(\k\|'.a:char.'\)'
         return a:char
     endif
     return a:char . a:char . "\<C-g>U\<Left>"
@@ -905,6 +911,10 @@ if !exists('g:wildignore_files')
     call AddWildignore(s:wildignore_files, 0)
     call AddWildignore(s:wildignore_dirs, 1)
 endif
+
+if !has('nvim')
+    command -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
+endif
 " }}}
 
 " comments {{{
@@ -1022,7 +1032,7 @@ inoremap <silent> <M-/> <C-G>u<C-\><C-o>:call <SID>commentary_insert()<CR>
 " }}} }}}
 
 " netrw & vinegar {{{
-let g:netrw_home = &undodir .. '..'
+let g:netrw_home = &undodir . '..'
 let g:netrw_fastbrowse = 0
 nnoremap <silent><C-w>es :Hexplore<CR>
 nnoremap <silent><C-w>ev :Vexplore!<CR>
