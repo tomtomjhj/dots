@@ -71,7 +71,7 @@ let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', 
 let s:wildignore_dirs = ['.git', '__pycache__', 'target']
 set complete-=i complete-=u completeopt=menuone,preview
 if exists('+completepopup')
-    set completeopt+=popup completepopup=border:off
+    set completeopt+=popup completepopup=highlight:NormalFloat,border:off
 endif
 set path=.,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
 
@@ -913,7 +913,7 @@ if !exists('g:wildignore_files')
 endif
 
 if !has('nvim')
-    command -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
+    command! -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
 endif
 " }}}
 

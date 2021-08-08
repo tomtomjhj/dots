@@ -285,6 +285,7 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias ssh='TERM=xterm-256color ssh'
 alias tmux='tmux -2u'
+alias hx='history -d -1' # or `history -d -2--1`
 man () { /usr/bin/man "$@" | nvim +Man!; }
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
