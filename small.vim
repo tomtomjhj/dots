@@ -2105,7 +2105,7 @@ call s:h('Conceal', s:special, s:none)
 if has('nvim')
   hi! link SpecialKey ZenbruhRed
 else
-  hi! link SpecialKey ZenbruhSubtle
+  hi! link SpecialKey ZenbruhNonText
 endif
 
 hi! link Comment ZenbruhComment
@@ -2166,6 +2166,25 @@ hi! link markdownOrderedListMarker Constant
 
 hi! link pythonBuiltin Constant
 hi! link pythonExceptions Type
+
+hi! link rustCommentLineDoc Comment
+hi! link rustIdentifier NONE
+hi! link rustLabel Special
+hi! link rustModPath NONE
+
+hi! link shCmdSubRegion Delimiter
+hi! link shArithRegion Delimiter
+hi! link shCommandSub NONE
+hi! link shArithmetic NONE
+hi! link shShellVariables Identifier
+hi! link shSpecial Constant
+hi! link shSpecialDQ shSpecial
+hi! link shSpecialSQ shSpecial
+
+hi! link vimCommentTitle Title
+hi! link vimEnvVar Constant
+hi! link vimOption Type
+hi! link vimSetSep Delimiter
 " }}}
 
 " filetypes {{{
