@@ -394,6 +394,10 @@ nnoremap <leader>g/ :<C-u>Grep <C-r>=GrepInput(@/,0)<CR>
 nnoremap <leader>gw :<C-u>Grep <C-R>=GrepInput(expand('<cword>'),1)<CR>
 nnoremap <C-f>      :<C-u>Files<space>
 nnoremap <leader>hh :<C-u>History<space>
+cnoreabbrev <expr> vsb <SID>cabbrev('vsb', 'vert sb')
+cnoreabbrev <expr> vsf <SID>cabbrev('vsf', 'vert sf')
+cnoreabbrev <expr> tsb <SID>cabbrev('tsb', 'tab sb')
+cnoreabbrev <expr> tsf <SID>cabbrev('tsf', 'tab sf')
 
 command! -nargs=* -complete=dir Grep call Grep(<f-args>)
 command! -nargs=? History call History(<f-args>)
@@ -672,8 +676,8 @@ noremap <leader>q :<C-u>q<CR>
 noremap q, :<C-u>q<CR>
 nnoremap <leader>w :<C-u>up<CR>
 nnoremap ZAQ :<C-u>qa!<CR>
-command! -bang W   w<bang>
-command! -bang Q   q<bang>
+cnoreabbrev <expr> W <SID>cabbrev('W', 'w')
+cnoreabbrev <expr> Q <SID>cabbrev('Q', 'q')
 
 nnoremap <leader>cx :tabclose<CR>
 nnoremap <leader>td :tab split<CR>
@@ -864,6 +868,9 @@ function! Wildignore2exclude() abort
     call map(exclude, 's:cmdshellescape(v:val)')
     call map(exclude_dir, 's:cmdshellescape(v:val)')
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
+endfunction
+function s:cabbrev(lhs, rhs) abort
+    return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
 endfunction
 " }}}
 
