@@ -350,8 +350,7 @@ augroup Statusline | au!
     if g:os !=# 'Windows' " too slow on windows
         au BufReadPost,BufWritePost * call UpdateGitStatus(str2nr(expand('<abuf>')))
         if exists('*getbufinfo')
-            " TODO: writing the file in index during diff doesn't fire this
-            au User FugitiveChanged for b in map(getbufinfo({'bufloaded':1}), 'v:val.bufnr') | call UpdateGitStatus(b) | endfor
+            au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
         endif
     endif
 augroup END
@@ -921,6 +920,7 @@ endif
 
 if !has('nvim')
     command! -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
+    command! SW w !sudo tee % > /dev/null
 endif
 " }}}
 
@@ -1041,6 +1041,7 @@ inoremap <silent> <M-/> <C-G>u<C-\><C-o>:call <SID>commentary_insert()<CR>
 " netrw & vinegar {{{
 let g:netrw_home = &undodir . '..'
 let g:netrw_fastbrowse = 0
+let g:netrw_clipboard = 0
 nnoremap <silent><C-w>es :Hexplore<CR>
 nnoremap <silent><C-w>ev :Vexplore!<CR>
 
@@ -2204,6 +2205,7 @@ augroup FileTypes | au!
     " NOTE: 'syntax-loading'
     au FileType markdown call s:FixMarkdown()
     au FileType pandoc setlocal filetype=markdown
+    au FileType python setlocal foldmethod=indent foldnestmax=2 foldignore=
 augroup END
 
 " markdown {{{
