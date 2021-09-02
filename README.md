@@ -19,9 +19,7 @@
 * automate direct binary download https://stackoverflow.com/a/29360657
 * https://help.ubuntu.com/community/CheckInstall
 * opam
-    * Opam configuration should be run in `.bash_profile`, not in `.profile`. Why?
-        * https://wiki.archlinux.org/index.php/tmux#Start_a_non-login_shell
-        * https://superuser.com/a/789465
+    * Opam configuration should be run in `.bash_profile`
     * vscoq + opam local switch
         * .profile issue
         * launch coqtop with `opam config exec --`?
@@ -123,6 +121,8 @@ Run it after closing firefox. Rerun when firefox is updated.
 sudo perl -i -pne 's/reserved="true"/               /g' /usr/lib/firefox/browser/omni.ja
 find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 ```
+* automation?
+* Removing all reserved keys is not great since some sites have annoying keymaps.
 
 ## tex
 * [Dockerfile](./docker/texlive/Dockerfile)
@@ -142,9 +142,25 @@ sudo usermod -aG docker $USER
 ## etc
 * `aptitude` good for resolving broken package issues
 
+# 21.04
+* fix opam https://github.com/ocaml/opam/issues/3708
+  ```
+  opam install ocaml.4.11.1 ocaml-system.4.11.1 --yes --unlock-base
+  ```
+* pip kdewallet https://stackoverflow.com/q/64570510
+
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard
 * https://mug896.github.io/awk-script/index.html https://mug896.github.io/bash-shell/quotes.html
+* login shell
+    * what's the point? https://unix.stackexchange.com/a/324391
+    * `~/.bash_profile`, `~/.profile`, `~/.bashrc` https://superuser.com/a/789465
+    * tmux
+        * why login shell? https://superuser.com/q/968942
+        * can make it run non-login shell https://wiki.archlinux.org/title/tmux#Start_a_non-login_shell
+    * gnome-shell
+        * Can't refresh `~/.profile`. Must re-login https://unix.stackexchange.com/a/2963
+        * (21.04) re-login to Xorg doesn't run `~/.profile`??
 
 ## firefox
 * ctrl-f is broken
@@ -161,6 +177,15 @@ sudo usermod -aG docker $USER
 
 # Tips
 * gnome shell `alt-F2`
+* troubleshooting slow boot (after removing swap partition)
+    * diagnosis
+        * `sudo journalctl -b`
+        * `systemd-analyze` (very slow kernel stuff)
+        * `dmesg` doesn't show some messages??
+        * removed `quiet splash` from grub config to see all the messages from kernel
+            * `Gave up waiting for suspend/resume device`
+    * remove the removed swap partition from `/etc/fstab` https://askubuntu.com/a/744478
+    * remove the resume device stuff `sudo rm /etc/initramfs-tools/conf.d/resume && sudo update-initramfs -u` https://askubuntu.com/a/1126353
 
 ## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
@@ -172,3 +197,4 @@ sudo usermod -aG docker $USER
     * `-M[<n>], --find-renames[=<n>]`
 * `git apply --reject --whitespace=fix`
 * git files absolute dir `git -C "$ROOT" ls-files | awk -v R="$ROOT" '{ print R "/" $0 }'`
+* `git reset --merge` to abort `stash pop` https://stackoverflow.com/a/60444590
