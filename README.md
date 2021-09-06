@@ -23,7 +23,10 @@
     * vscoq + opam local switch
         * .profile issue
         * launch coqtop with `opam config exec --`?
-    * https://khady.info/opam-compilation-cache.html
+    * too much duplication
+        * https://khady.info/opam-compilation-cache.html
+        * opam-bin
+        * https://coq.zulipchat.com/#narrow/stream/237655-Miscellaneous/topic/opam.20switch.20tight.20to.20a.20directory.3F
 * https://github.com/cheat/cheat
 * input method for unicode chars
     * compose key?
@@ -161,6 +164,9 @@ sudo usermod -aG docker $USER
     * gnome-shell
         * Can't refresh `~/.profile`. Must re-login https://unix.stackexchange.com/a/2963
         * (21.04) re-login to Xorg doesn't run `~/.profile`??
+* less
+    * run `lesskey lesskey`
+    * https://github.com/gwsw/less/issues/188 `<C-w>` doesn't work either.. Use `<C-M-H>`
 
 ## firefox
 * ctrl-f is broken
@@ -186,6 +192,11 @@ sudo usermod -aG docker $USER
             * `Gave up waiting for suspend/resume device`
     * remove the removed swap partition from `/etc/fstab` https://askubuntu.com/a/744478
     * remove the resume device stuff `sudo rm /etc/initramfs-tools/conf.d/resume && sudo update-initramfs -u` https://askubuntu.com/a/1126353
+* logging stderr to file with timestamp, using process substitution
+  ```bash
+  cmd 2> >(while read line; do echo "$(date -Iseconds) $line"; done > log)
+  ```
+    * TODO: how does bash interact with the subprocess's stdout/stderr?
 
 ## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>

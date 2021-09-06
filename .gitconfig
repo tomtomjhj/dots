@@ -26,6 +26,8 @@
 	name = Jaehwang Jerry Jung
 [core]
 	editor = nvim
+	# default: FRX
+	pager = less -FRi
 [diff]
 	tool = vimdiff3
 	algorithm = histogram

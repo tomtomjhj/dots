@@ -1,0 +1,7 @@
+#command
+#line-edit
+^W word-delete
+^P up
+^N down
+^Q abort
+#env

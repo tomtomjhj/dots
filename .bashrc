@@ -267,6 +267,8 @@ export PROMPT_DIRTRIM=3
 
 export LC_ALL=C.UTF-8
 
+export LESS='Ri'
+
 alias nv=nvim
 cn() { nvim --cmd 'let g:ide_client = "coc"' "$@"; }
 vil() { nvim --cmd 'set background=light' "$@"; }
