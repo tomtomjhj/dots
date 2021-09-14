@@ -144,6 +144,8 @@ if !has('gui_running') && !has('nvim')
     set t_RS= " uses <Esc>P and <ESC>\
     for c in ['+', '-', '/', '0', ';', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
         exe 'set <M-'.c.'>='."\<Esc>".c
+        exe 'noremap  <M-'.c.'>' c
+        exe 'noremap! <M-'.c.'>' c
     endfor
     " <M-BS>, <C-space> are not :set-able
     exe "set <F34>=\<Esc>\<C-?>"
