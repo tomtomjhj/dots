@@ -325,10 +325,6 @@ nnoremap <leader>g/ :<C-u>Grep <C-r>=GrepInput(@/,0)<CR>
 nnoremap <leader>gw :<C-u>Grep <C-R>=GrepInput(expand('<cword>'),1)<CR>
 nnoremap <C-f>      :<C-u>Files<space>
 nnoremap <leader>hh :<C-u>History<space>
-cnoreabbrev <expr> vsb <SID>cabbrev('vsb', 'vert sb')
-cnoreabbrev <expr> vsf <SID>cabbrev('vsf', 'vert sf')
-cnoreabbrev <expr> tsb <SID>cabbrev('tsb', 'tab sb')
-cnoreabbrev <expr> tsf <SID>cabbrev('tsf', 'tab sf')
 
 command! -nargs=* -complete=dir Grep call Grep(<f-args>)
 command! -nargs=? History call History(<f-args>)
@@ -543,8 +539,10 @@ endfunc
 nnoremap <silent><leader><CR> :let v:searchforward=1\|nohlsearch<CR>
 nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
 nnoremap <leader>ss :setlocal spell! spell?<CR>
+nnoremap <leader>sc :if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
 nnoremap <leader>sp :setlocal paste! paste?<CR>
 nnoremap <leader>sw :set wrap! wrap?<CR>
+nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
 
 noremap <leader>dp :diffput<CR>
 noremap <leader>do :diffget<CR>
@@ -591,6 +589,7 @@ onoremap <silent> ge :execute "normal! " . v:count1 . "ge<space>"<cr>
 nnoremap <silent> & :&&<cr>
 xnoremap <silent> & :&&<cr>
 
+" set nrformats+=alpha
 noremap  <M-+> <C-a>
 vnoremap <M-+> g<C-a>
 noremap  <M--> <C-x>
@@ -609,6 +608,11 @@ nnoremap <leader>w :<C-u>up<CR>
 nnoremap ZAQ :<C-u>qa!<CR>
 cnoreabbrev <expr> W <SID>cabbrev('W', 'w')
 cnoreabbrev <expr> Q <SID>cabbrev('Q', 'q')
+
+cnoreabbrev <expr> vsb <SID>cabbrev('vsb', 'vert sb')
+cnoreabbrev <expr> vsf <SID>cabbrev('vsf', 'vert sf')
+cnoreabbrev <expr> tsb <SID>cabbrev('tsb', 'tab sb')
+cnoreabbrev <expr> tsf <SID>cabbrev('tsf', 'tab sf')
 
 nnoremap <leader>cx :tabclose<CR>
 nnoremap <leader>td :tab split<CR>
@@ -753,6 +757,38 @@ function! s:PreviewBufnr()
 endfunction
 " }}}
 
+" netrw {{{
+let g:netrw_home = &undodir . '..'
+let g:netrw_fastbrowse = 0
+let g:netrw_clipboard = 0
+nnoremap <silent><C-w>es :Hexplore<CR>
+nnoremap <silent><C-w>ev :Vexplore!<CR>
+
+" https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
+function! GXBrowse(url)
+    let redir = '>&/dev/null'
+    if exists('g:netrw_browsex_viewer')
+        let viewer = g:netrw_browsex_viewer
+    elseif has('unix') && executable('xdg-open')
+        let viewer = 'xdg-open'
+    elseif has('macunix') && executable('open')
+        let viewer = 'open'
+    elseif has('win64') || has('win32')
+        let viewer = 'start'
+        redir = '>null'
+    else
+        return
+    endif
+    execute 'silent! !' . viewer . ' ' . shellescape(a:url, 1) . redir
+    redraw!
+endfunction
+let s:url_regex = '\c\<\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{0,3}[.]\|[a-z0-9.\-]\+[.][a-z]\{2,4}\/\)\%([^ \t()<>]\+\|(\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\)\+\%((\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\|[^ \t`!()[\]{};:'."'".'".,<>?«»“”‘’]\)'
+function! CursorURL() abort
+    return matchstr(expand('<cWORD>'), s:url_regex)
+endfunction
+nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
+" }}}
+
 " etc util {{{
 " helpers {{{
 if exists('*execute')
@@ -790,6 +826,12 @@ endfunction
 function! s:cmdshellescape(text) abort
     return escape(shellescape(a:text), '#%')
 endfunction
+function s:cabbrev(lhs, rhs) abort
+    return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
+endfunction
+" }}}
+
+nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
 function! Text2Magic(text)
     return escape(a:text, '\.*$^~[]')
 endfunction
@@ -800,12 +842,6 @@ function! Wildignore2exclude() abort
     call map(exclude_dir, 's:cmdshellescape(v:val)')
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
-function s:cabbrev(lhs, rhs) abort
-    return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
-endfunction
-" }}}
-
-nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
 
 function! Execute(cmd) abort
     let output = s:execute(a:cmd)
@@ -858,7 +894,7 @@ endif
 
 " comments {{{
 " Commentary: {{{2
-" https://github.com/tpope/vim-commentary/blob/349340debb34f6302931f0eb7139b2c11dfdf427/plugin/commentary.vim
+" https://github.com/tpope/vim-commentary/blob/627308e30639be3e2d5402808ce18690557e8292/plugin/commentary.vim
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
         \ &commentstring, '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')), '%s', 1)
@@ -887,6 +923,7 @@ function! s:commentary_go(...) abort
 
   let [l, r] = s:commentary_surroundings()
   let uncomment = 2
+  let force_uncomment = a:0 > 2 && a:3
   for lnum in range(lnum1,lnum2)
     let line = matchstr(getline(lnum),'\S.*\s\@<!')
     let [l, r] = s:commentary_strip_white_space(l,r,line)
@@ -909,7 +946,11 @@ function! s:commentary_go(...) abort
             \'\M' . substitute(l, '\ze\S\s*$', '\\zs\\d\\*\\ze', '') . '\|' . substitute(r, '\S\zs', '\\zs\\d\\*\\ze', ''),
             \'\=substitute(submatch(0)+1-uncomment,"^0$\\|^-\\d*$","","")','g')
     endif
-    if uncomment
+    if force_uncomment
+      if line =~ '^\s*' . l
+        let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l):-strlen(r)-1]','')
+      endif
+    elseif uncomment
       let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l):-strlen(r)-1]','')
     else
       let line = substitute(line,'^\%('.matchstr(getline(lnum1),indent).'\|\s*\)\zs.*\S\@<=','\=l.submatch(0).r','')
@@ -948,7 +989,7 @@ function! s:commentary_textobject(inner) abort
   endif
 endfunction
 
-command! -range -bar Commentary call s:commentary_go(<line1>,<line2>)
+command! -range -bar -bang Commentary call s:commentary_go(<line1>,<line2>,<bang>0)
 xnoremap <expr>   <Plug>Commentary     <SID>commentary_go()
 nnoremap <expr>   <Plug>Commentary     <SID>commentary_go()
 nnoremap <expr>   <Plug>CommentaryLine <SID>commentary_go() . '_'
@@ -970,38 +1011,8 @@ endfunction
 inoremap <silent> <M-/> <C-G>u<C-\><C-o>:call <SID>commentary_insert()<CR>
 " }}} }}}
 
-" netrw & vinegar {{{
-let g:netrw_home = &undodir . '..'
-let g:netrw_fastbrowse = 0
-let g:netrw_clipboard = 0
-nnoremap <silent><C-w>es :Hexplore<CR>
-nnoremap <silent><C-w>ev :Vexplore!<CR>
-
-" https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
-function! GXBrowse(url)
-    let redir = '>&/dev/null'
-    if exists('g:netrw_browsex_viewer')
-        let viewer = g:netrw_browsex_viewer
-    elseif has('unix') && executable('xdg-open')
-        let viewer = 'xdg-open'
-    elseif has('macunix') && executable('open')
-        let viewer = 'open'
-    elseif has('win64') || has('win32')
-        let viewer = 'start'
-        redir = '>null'
-    else
-        return
-    endif
-    execute 'silent! !' . viewer . ' ' . shellescape(a:url, 1) . redir
-    redraw!
-endfunction
-let s:url_regex = '\c\<\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{0,3}[.]\|[a-z0-9.\-]\+[.][a-z]\{2,4}\/\)\%([^ \t()<>]\+\|(\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\)\+\%((\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\|[^ \t`!()[\]{};:'."'".'".,<>?«»“”‘’]\)'
-function! CursorURL() abort
-    return matchstr(expand('<cWORD>'), s:url_regex)
-endfunction
-nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
-
-" https://github.com/tpope/vim-vinegar/blob/b245f3ab4580eba27616a5ce06a56d5f791e67bd/plugin/vinegar.vim
+" vinegar {{{
+" https://github.com/tpope/vim-vinegar/blob/43576e84d3034bccb1216f39f51ed36d945d7b96/plugin/vinegar.vim
 let s:vinegar_dotfiles = '\(^\|\s\s\)\zs\.\S\+'
 
 let s:vinegar_escape = 'substitute(escape(v:val, ".$~"), "*", ".*", "g")'
@@ -1038,7 +1049,7 @@ function! s:vinegar_opendir(cmd) abort
   elseif expand('%') =~# '^$\|^term:[\/][\/]'
     execute a:cmd '.'
   else
-    execute a:cmd '%:h' . s:vinegar_slash()
+    execute a:cmd '%:h' . (expand('%:p') =~# '^\a\a\+:' ? s:vinegar_slash() : '')
     call s:vinegar_seek(expand('#:t'))
   endif
 endfunction
