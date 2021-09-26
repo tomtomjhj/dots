@@ -215,7 +215,7 @@ if s:has_stl_expand_expr
                 \ 'v' :     '%#STLModeVisual#',
                 \ 'V' :     '%#STLModeVisual#',
                 \ "\<C-v>": '%#STLModeVisual#',
-                \ 'c' :     '%#STLModeInsert1#',
+                \ 'c' :     '%#STLModeCmdline1#',
                 \ 's' :     '%#STLModeVisual#',
                 \ 'S' :     '%#STLModeVisual#',
                 \ "\<C-s>": '%#STLModeVisual#',
@@ -226,19 +226,22 @@ if s:has_stl_expand_expr
     endfunction
     function! StatuslineHighlight2()
         if g:actual_curwin != win_getid() | return '%#TabLine#' | endif
-        return mode() =~# '^[it]$' ? '%#STLModeInsert2#': '%#TabLine#'
+        return mode() =~# '^[it]' ? '%#STLModeInsert2#' : mode() =~# '^c' ? '%#STLModeCmdline2#' : '%#TabLine#'
     endfunction
     function! StatuslineHighlight3()
         if g:actual_curwin != win_getid() | return '%#TabLineFill#' | endif
-        return mode() =~# '^[it]$' ? '%#STLModeInsert3#': '%#TabLineFill#'
+        return mode() =~# '^[it]' ? '%#STLModeInsert3#' : mode() =~# '^c' ? '%#STLModeCmdline3#' : '%#TabLineFill#'
     endfunction
 
-    hi! STLModeNormal  guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
-    hi! STLModeVisual  guifg=#870000 ctermfg=88  guibg=#ff8700 ctermbg=208 gui=bold cterm=bold
-    hi! STLModeReplace guifg=#ffffff ctermfg=231 guibg=#df0000 ctermbg=160 gui=bold cterm=bold
-    hi! STLModeInsert1 guifg=#005f5f ctermfg=23  guibg=#ffffff ctermbg=231 gui=bold cterm=bold
-    hi! STLModeInsert2 guifg=#ffffff ctermfg=231 guibg=#0087af ctermbg=31
-    hi! STLModeInsert3 guifg=#ffffff ctermfg=231 guibg=#005f87 ctermbg=24
+    hi! STLModeNormal   guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
+    hi! STLModeVisual   guifg=#870000 ctermfg=88  guibg=#ff8700 ctermbg=208 gui=bold cterm=bold
+    hi! STLModeReplace  guifg=#ffffff ctermfg=231 guibg=#df0000 ctermbg=160 gui=bold cterm=bold
+    hi! STLModeInsert1  guifg=#005f5f ctermfg=23  guibg=#ffffff ctermbg=231 gui=bold cterm=bold
+    hi! STLModeInsert2  guifg=#ffffff ctermfg=231 guibg=#0087af ctermbg=31
+    hi! STLModeInsert3  guifg=#ffffff ctermfg=231 guibg=#005f87 ctermbg=24
+    hi! STLModeCmdline1 guifg=#262626 ctermfg=235 guibg=#ffffff ctermbg=231 gui=bold cterm=bold
+    hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
+    hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
 endif
 
 let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
@@ -1884,8 +1887,8 @@ let s:selection = ['#626262', 241]
 let s:subtle    = ['#444444', 238]
 let s:special   = ['#ffd7d7', 224]
 
-let s:white        = ['#ffffff',  15]
-let s:black        = ['#000000',   0]
+let s:white        = ['#ffffff', 231]
+let s:black        = ['#000000',  16]
 let s:cyan         = ['#87d7d7', 116]
 let s:lightcyan    = ['#afd7d7', 152]
 let s:green        = ['#afd75f', 149]
