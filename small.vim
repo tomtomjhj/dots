@@ -83,7 +83,7 @@ set shortmess+=Ic shortmess-=S
 set belloff=all
 
 set history=1000
-set viminfo=!,'150,<50,s30,h
+set viminfo=!,'150,<50,s30,h,r/tmp,rfugitive://
 set updatetime=1234
 set backup undofile noswapfile
 if has('nvim')
@@ -121,6 +121,7 @@ augroup BasicSetup | au!
     endif
     let &pumheight = min([&window/4, 20])
     au VimResized * let &pumheight = min([&window/4, 20])
+    au FileType git,fugitive,gitcommit setl foldmethod=syntax foldlevel=99
     if has('nvim')
         au TermOpen * setlocal nonumber norelativenumber foldcolumn=0
     endif
