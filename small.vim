@@ -199,18 +199,18 @@ if s:has_stl_expand_expr
 else
     let s:statusline = [
                 \ '%( %{StatuslineMode()} %)',
-                \ '%#TabLine#', '%( %{ShortRelPath()} %)',
-                \ '%#TabLineFill#', '%m%r%w', '%{get(b:,"git_status","")}',
+                \ '%#STLModeNormal2#', '%( %{ShortRelPath()} %)',
+                \ '%#STLModeNormal3#', '%m%r%w', '%{get(b:,"git_status","")}',
                 \ '%=',
-                \ '%#TabLineFill#', ' %3p%% ',
-                \ '%#TabLine#', ' %3l:%-2c ']
+                \ '%#STLModeNormal3#', ' %3p%% ',
+                \ '%#STLModeNormal2#', ' %3l:%-2c ']
 endif
 let &statusline = join(s:statusline, '')
 unlet s:statusline
 
 if s:has_stl_expand_expr
     let s:stl_mode_hl = {
-                \ 'n' :     '%#STLModeNormal#',
+                \ 'n' :     '%#STLModeNormal1#',
                 \ 'i' :     '%#STLModeInsert1#',
                 \ 'R' :     '%#STLModeReplace#',
                 \ 'v' :     '%#STLModeVisual#',
@@ -226,15 +226,28 @@ if s:has_stl_expand_expr
         return get(s:stl_mode_hl, mode(), '')
     endfunction
     function! StatuslineHighlight2()
-        if g:actual_curwin != win_getid() | return '%#TabLine#' | endif
-        return mode() =~# '^[it]' ? '%#STLModeInsert2#' : mode() =~# '^c' ? '%#STLModeCmdline2#' : '%#TabLine#'
+        if g:actual_curwin != win_getid() | return '%#STLModeNormal2#' | endif
+        return mode() =~# '^[it]' ? '%#STLModeInsert2#' : mode() =~# '^c' ? '%#STLModeCmdline2#' : '%#STLModeNormal2#'
     endfunction
     function! StatuslineHighlight3()
-        if g:actual_curwin != win_getid() | return '%#TabLineFill#' | endif
-        return mode() =~# '^[it]' ? '%#STLModeInsert3#' : mode() =~# '^c' ? '%#STLModeCmdline3#' : '%#TabLineFill#'
+        if g:actual_curwin != win_getid() | return '%#STLModeNormal3#' | endif
+        return mode() =~# '^[it]' ? '%#STLModeInsert3#' : mode() =~# '^c' ? '%#STLModeCmdline3#' : '%#STLModeNormal3#'
     endfunction
+endif
 
-    hi! STLModeNormal   guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
+function! StatuslineHighlightInit()
+    if s:has_stl_expand_expr
+        hi! StatusLine guibg=#303030 ctermbg=236 gui=bold cterm=bold
+    else
+        hi! StatusLine guibg=#303030 ctermbg=236 gui=bold,inverse cterm=bold,inverse
+    endif
+    hi! StatusLineNC     guibg=#262626 ctermbg=235 gui=none cterm=none
+    hi! StatusLineTerm   guibg=#303030 ctermbg=236 gui=bold cterm=bold
+    hi! StatusLineTermNC guibg=#262626 ctermbg=235 gui=none cterm=none
+
+    hi! STLModeNormal1  guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
+    hi! STLModeNormal2                            guibg=#626262 ctermbg=241
+    hi! STLModeNormal3                            guibg=#303030 ctermbg=236
     hi! STLModeVisual   guifg=#870000 ctermfg=88  guibg=#ff8700 ctermbg=208 gui=bold cterm=bold
     hi! STLModeReplace  guifg=#ffffff ctermfg=231 guibg=#df0000 ctermbg=160 gui=bold cterm=bold
     hi! STLModeInsert1  guifg=#005f5f ctermfg=23  guibg=#ffffff ctermbg=231 gui=bold cterm=bold
@@ -243,7 +256,8 @@ if s:has_stl_expand_expr
     hi! STLModeCmdline1 guifg=#262626 ctermfg=235 guibg=#ffffff ctermbg=231 gui=bold cterm=bold
     hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
     hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
-endif
+endfunction
+call StatuslineHighlightInit()
 
 let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
 if has('patch-8.1.1372') || has('nvim-0.5')
@@ -289,6 +303,7 @@ augroup Statusline | au!
             au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
         endif
     endif
+    au ColorScheme * call StatuslineHighlightInit()
 augroup END
 " }}}
 
@@ -2004,14 +2019,6 @@ set background=dark
 " Required as some plugins will overwrite
 call s:h('Normal', s:fg, s:bg)
 call s:h('NormalFloat', s:none, s:bglighter)
-if s:has_stl_expand_expr
-    call s:h('StatusLine', s:none, s:bglighter, ['bold'])
-else
-    call s:h('StatusLine', s:none, s:bglighter, ['bold', 'inverse'])
-endif
-call s:h('StatusLineNC', s:none, s:bglight)
-call s:h('StatusLineTerm', s:none, s:bglighter, ['bold'])
-call s:h('StatusLineTermNC', s:none, s:bglight)
 call s:h('WildMenu', s:bg, s:purple, ['bold'])
 call s:h('CursorLine', s:none, s:bglight)
 
