@@ -37,7 +37,7 @@ if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
 endif
 " }}}
 
-" settings {{{
+" Basic {{{
 set mouse=a
 set number ruler showcmd
 set foldcolumn=1 foldnestmax=5
@@ -121,7 +121,6 @@ augroup BasicSetup | au!
     endif
     let &pumheight = min([&window/4, 20])
     au VimResized * let &pumheight = min([&window/4, 20])
-    au FileType git,fugitive,gitcommit setl foldmethod=syntax foldlevel=99
     if has('nvim')
         au TermOpen * setlocal nonumber norelativenumber foldcolumn=0
     endif
@@ -186,7 +185,7 @@ elseif has('gui_running')
 endif
 " }}}
 
-" statusline {{{
+" Statusline {{{
 let s:has_stl_expand_expr = has('patch-8.2.2854') || has('nvim-0.5')
 if s:has_stl_expand_expr
     let s:statusline = [
@@ -307,6 +306,119 @@ augroup Statusline | au!
 augroup END
 " }}}
 
+" Languages {{{
+augroup Languages | au!
+    " NOTE: 'syntax-loading'
+    au FileType markdown call s:markdown()
+    au FileType pandoc setlocal filetype=markdown
+    au FileType python call s:python()
+augroup END
+
+" markdown {{{
+let g:markdown_folding = 1
+function! s:markdown() abort
+    setlocal formatoptions< formatlistpat<
+    setlocal commentstring=<!--%s-->
+    setlocal comments=s:<!--,m:\ \ \ \ ,e:-->,:\|,n:>
+    setlocal foldexpr=MyMarkdownFoldExpr()
+    setlocal foldlevel=6
+    setlocal matchpairs-=<:>
+    if b:match_words[:3] ==# '<:>,'
+        let b:match_words = b:match_words[4:]
+    endif
+
+    syn sync minlines=123
+    syn sync linebreaks=1
+    if hlID('markdownError')
+        syn clear markdownError markdownItalic markdownBold markdownBoldItalic
+        syn clear markdownListMarker markdownOrderedListMarker
+        syn clear markdownCode markdownCodeBlock
+    endif
+    let concealends = ''
+    if has('conceal') && get(g:, 'markdown_syntax_conceal', 1) == 1
+        let concealends = ' concealends'
+    endif
+    " no emphasis using underscore
+    exe 'syn region markdownItalic matchgroup=markdownItalicDelimiter start="\*\S\@=" end="\S\@<=\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
+    exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\*\*\S\@=" end="\S\@<=\*\*" skip="\\\*" contains=markdownLineStart,markdownItalic,@Spell' . concealends
+    exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\*\*\*\S\@=" end="\S\@<=\*\*\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
+    " arbitrarily nested items
+    syn match markdownListMarker "^\s*[-*+]\%(\s\+\S\)\@=" contained
+    syn match markdownOrderedListMarker "\s*\<\d\+\.\%(\s\+\S\)\@=" contained
+    " no indented code block
+    syn region markdownCode matchgroup=markdownCodeDelimiter start="`" end="`" keepend contains=markdownLineStart
+    syn region markdownCode matchgroup=markdownCodeDelimiter start="`` \=" end=" \=``" keepend contains=markdownLineStart
+    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\).*$" end="^\s*\z1\ze\s*$" keepend
+    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\).*$" end="^\s*\z1\ze\s*$" keepend
+    " redefine fenced code block with language to fix the priority
+    let done_include = {}
+    for type in g:markdown_fenced_languages
+        if has_key(done_include, matchstr(type,'[^.]*'))
+            continue
+        endif
+        exe 'syn region markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\..*','','').' matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\)\s*\%({.\{-}\.\)\='.matchstr(type,'[^=]*').'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\.','','g') . concealends
+        exe 'syn region markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\..*','','').' matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\)\s*\%({.\{-}\.\)\='.matchstr(type,'[^=]*').'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\.','','g') . concealends
+        let done_include[matchstr(type,'[^.]*')] = 1
+    endfor
+endfunction
+
+function! s:IsCodeBlock(lnum) abort
+    let synstack = synstack(a:lnum, 1)
+    for i in synstack
+        if synIDattr(i, 'name') =~# '^markdown\%(Code\|Highlight\)'
+            return 1
+        endif
+    endfor
+    return 0
+endfunction
+
+function! MyMarkdownFoldExpr() abort
+    let line = getline(v:lnum)
+    let hashes = matchstr(line, '^#\+')
+    let is_code = -1
+    if !empty(hashes)
+        let is_code = s:IsCodeBlock(v:lnum)
+        if !is_code
+            return ">" . len(hashes)
+        endif
+    endif
+    if !empty(line)
+        let nextline = getline(v:lnum + 1)
+        if nextline =~ '^=\+$'
+            if is_code == -1
+                let is_code = s:IsCodeBlock(v:lnum)
+            endif
+            if !is_code
+                return ">1"
+            endif
+        endif
+        if nextline =~ '^-\+$'
+            if is_code == -1
+                let is_code = s:IsCodeBlock(v:lnum)
+            endif
+            if !is_code
+                return ">2"
+            endif
+        endif
+    endif
+    return "="
+endfunction
+" }}}
+
+" Python {{{
+let g:pyindent_continue = '&shiftwidth'
+let g:pyindent_open_paren = '&shiftwidth'
+function s:python() abort
+    setlocal foldmethod=indent foldnestmax=2 foldignore=
+    setlocal formatoptions+=ro
+endfunction
+" }}}
+
+let g:lisp_rainbow = 1
+let g:vimsyn_embed = 'l' " NOTE: only loads $VIMRUNTIME/syntax/lua.vim
+let g:tex_no_error = 1
+" }}}
+
 " search & files {{{
 nnoremap <silent>* :call Star(0)\|set hlsearch<CR>
 nnoremap <silent>g* :call Star(1)\|set hlsearch<CR>
@@ -327,7 +439,8 @@ endfunc
 func! VisualStar(g)
     let g:search_mode = 'v'
     let l:reg_save = @"
-    noau exec "norm! gvy"
+    " don't trigger TextYankPost
+    noau silent! normal! gvy
     let @c = @"
     let l:pattern = Text2Magic(@")
     let @/ = a:g ? '\<' . l:pattern . '\>' : l:pattern " reversed
@@ -518,7 +631,7 @@ cnoremap <C-j> <S-Right>
 cnoremap <C-k> <S-Left>
 noremap! <C-space> <C-k>
 
-inoremap <C-u> <C-g>u<C-u>
+inoremap <expr> <C-u> match(getline('.'), '\S') >= 0 ? "\<C-g>u<C-u>" : "<C-u>"
 " Delete a single character of other non-blank chars
 inoremap <silent><expr><C-w>  FineGrainedICtrlW(0)
 " Like above, but first consume whitespace
@@ -776,7 +889,7 @@ function! s:PreviewBufnr()
 endfunction
 " }}}
 
-" netrw {{{
+" Explorers {{{
 let g:netrw_home = &undodir . '..'
 let g:netrw_fastbrowse = 0
 let g:netrw_clipboard = 0
@@ -806,6 +919,18 @@ function! CursorURL() abort
     return matchstr(expand('<cWORD>'), s:url_regex)
 endfunction
 nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
+" }}}
+
+" git {{{
+let g:flog_default_arguments = { 'max_count': 512, 'all': 1, }
+let g:flog_permanent_default_arguments = { 'date': 'short', }
+
+augroup git-custom | au!
+    " TODO: Very slow and doesn't fold each hunk.
+    au FileType git,fugitive,gitcommit nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
+    au User FugitiveObject,FugitiveIndex unmap <buffer> *
+    au FileType floggraph nunmap <buffer> <Tab>
+augroup END
 " }}}
 
 " etc util {{{
@@ -2148,109 +2273,4 @@ hi! link vimEnvVar Constant
 hi! link vimOption Type
 hi! link vimSetSep Delimiter
 " }}}
-
-" filetypes {{{
-let g:markdown_folding = 1
-let g:pyindent_continue = '&shiftwidth'
-let g:pyindent_open_paren = '&shiftwidth'
-let g:tex_no_error = 1
-
-augroup FileTypes | au!
-    " NOTE: 'syntax-loading'
-    au FileType markdown call s:FixMarkdown()
-    au FileType pandoc setlocal filetype=markdown
-    au FileType python setlocal foldmethod=indent foldnestmax=2 foldignore=
-augroup END
-
-" markdown {{{
-function! s:FixMarkdown() abort
-    setlocal formatoptions< formatlistpat<
-    setlocal commentstring=<!--%s-->
-    setlocal comments=s:<!--,m:\ \ \ \ ,e:-->,:\|,n:>
-    setlocal foldexpr=MyMarkdownFoldExpr()
-    setlocal foldlevel=6
-    setlocal matchpairs-=<:>
-    if b:match_words[:3] ==# '<:>,'
-        let b:match_words = b:match_words[4:]
-    endif
-
-    syn sync minlines=123
-    syn sync linebreaks=1
-    if hlID('markdownError')
-        syn clear markdownError markdownItalic markdownBold markdownBoldItalic
-        syn clear markdownListMarker markdownOrderedListMarker
-        syn clear markdownCode markdownCodeBlock
-    endif
-    let concealends = ''
-    if has('conceal') && get(g:, 'markdown_syntax_conceal', 1) == 1
-        let concealends = ' concealends'
-    endif
-    " no emphasis using underscore
-    exe 'syn region markdownItalic matchgroup=markdownItalicDelimiter start="\*\S\@=" end="\S\@<=\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
-    exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\*\*\S\@=" end="\S\@<=\*\*" skip="\\\*" contains=markdownLineStart,markdownItalic,@Spell' . concealends
-    exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\*\*\*\S\@=" end="\S\@<=\*\*\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
-    " arbitrarily nested items
-    syn match markdownListMarker "^\s*[-*+]\%(\s\+\S\)\@=" contained
-    syn match markdownOrderedListMarker "\s*\<\d\+\.\%(\s\+\S\)\@=" contained
-    " no indented code block
-    syn region markdownCode matchgroup=markdownCodeDelimiter start="`" end="`" keepend contains=markdownLineStart
-    syn region markdownCode matchgroup=markdownCodeDelimiter start="`` \=" end=" \=``" keepend contains=markdownLineStart
-    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\).*$" end="^\s*\z1\ze\s*$" keepend
-    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\).*$" end="^\s*\z1\ze\s*$" keepend
-    " redefine fenced code block with language to fix the priority
-    let done_include = {}
-    for type in g:markdown_fenced_languages
-        if has_key(done_include, matchstr(type,'[^.]*'))
-            continue
-        endif
-        exe 'syn region markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\..*','','').' matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\)\s*\%({.\{-}\.\)\='.matchstr(type,'[^=]*').'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\.','','g') . concealends
-        exe 'syn region markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\..*','','').' matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\)\s*\%({.\{-}\.\)\='.matchstr(type,'[^=]*').'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\.','','g') . concealends
-        let done_include[matchstr(type,'[^.]*')] = 1
-    endfor
-endfunction
-
-function! s:IsCodeBlock(lnum) abort
-    let synstack = synstack(a:lnum, 1)
-    for i in synstack
-        if synIDattr(i, 'name') =~# '^markdown\%(Code\|Highlight\)'
-            return 1
-        endif
-    endfor
-    return 0
-endfunction
-
-function! MyMarkdownFoldExpr() abort
-    let line = getline(v:lnum)
-    let hashes = matchstr(line, '^#\+')
-    let is_code = -1
-    if !empty(hashes)
-        let is_code = s:IsCodeBlock(v:lnum)
-        if !is_code
-            return ">" . len(hashes)
-        endif
-    endif
-    if !empty(line)
-        let nextline = getline(v:lnum + 1)
-        if nextline =~ '^=\+$'
-            if is_code == -1
-                let is_code = s:IsCodeBlock(v:lnum)
-            endif
-            if !is_code
-                return ">1"
-            endif
-        endif
-        if nextline =~ '^-\+$'
-            if is_code == -1
-                let is_code = s:IsCodeBlock(v:lnum)
-            endif
-            if !is_code
-                return ">2"
-            endif
-        endif
-    endif
-    return "="
-endfunction
-" }}} }}}
-
-" NOTE: Gdiffsplit? git add -eu, git difftool -x 'nvim -d', ...
 " vim: set fdm=marker et sw=4:
