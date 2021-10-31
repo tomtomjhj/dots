@@ -255,6 +255,10 @@ function! StatuslineHighlightInit()
     hi! STLModeCmdline1 guifg=#262626 ctermfg=235 guibg=#ffffff ctermbg=231 gui=bold cterm=bold
     hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
     hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
+
+    hi! TabLine      cterm=NONE ctermfg=NONE ctermbg=241 gui=NONE guibg=#626262
+    hi! TabLineFill  cterm=NONE ctermbg=238 gui=NONE guibg=#444444
+    " TabLineSel
 endfunction
 call StatuslineHighlightInit()
 
@@ -309,10 +313,20 @@ augroup END
 " Languages {{{
 augroup Languages | au!
     " NOTE: 'syntax-loading'
+    au FileType c,cpp call s:c_cpp()
     au FileType markdown call s:markdown()
     au FileType pandoc setlocal filetype=markdown
     au FileType python call s:python()
 augroup END
+
+" c, cpp {{{
+function! s:c_cpp() abort
+    " don't highlight the #define content
+    syn clear cDefine
+    syn region	cDefine		matchgroup=PreProc start="^\s*\zs\(%:\|#\)\s*\(define\|undef\)\>" skip="\\$" end="$" keepend contains=ALLBUT,@cPreProcGroup,@Spell
+    hi! link cDefine NONE
+endfunction
+" }}}
 
 " markdown {{{
 let g:markdown_folding = 1
@@ -2010,257 +2024,55 @@ augroup END
 " }}}
 
 " colorscheme {{{
-" let g:colors_name = 'zenbruh'
-
-" Palette:
-let s:fg        = ['#eeeeee', 255]
-let s:fgdarkish = ['#d0d0d0', 252]
-let s:fgdark    = ['#bcbcbc', 250]
-
-let s:bglighter = ['#303030', 236]
-let s:bglight   = ['#262626', 235]
-let s:bg        = ['#1c1c1c', 234]
-let s:bgdark    = ['#121212', 233]
-let s:bgdarker  = ['#121212', 233]
-
-let s:comment   = ['#afd7af', 151]
-let s:selection = ['#626262', 241]
-let s:subtle    = ['#444444', 238]
-let s:special   = ['#ffd7d7', 224]
-
-let s:white        = ['#ffffff', 231]
-let s:black        = ['#000000',  16]
-let s:cyan         = ['#87d7d7', 116]
-let s:lightcyan    = ['#afd7d7', 152]
-let s:green        = ['#afd75f', 149]
-let s:deepskyblue  = ['#005f5f',  23]
-let s:orange       = ['#ffaf5f', 215]
-let s:mediumpurple = ['#5f5f87',  60]
-let s:pink         = ['#ffafd7', 218]
-let s:purple       = ['#d7afff', 183]
-let s:red          = ['#ff5f5f', 203]
-let s:redish       = ['#d78787', 174]
-let s:yellow       = ['#ffff87', 228]
-let s:yellowish    = ['#ffd7af', 223]
-let s:none         = ['NONE', 'NONE']
-
-" Script Helpers:
-function! s:h(scope, fg, ...) " bg, attr_list, special
-  let l:fg = copy(a:fg)
-  let l:bg = get(a:, 1, ['NONE', 'NONE'])
-
-  let l:attr_list = filter(get(a:, 2, ['NONE']), 'type(v:val) == 1')
-  let l:attrs = len(l:attr_list) > 0 ? join(l:attr_list, ',') : 'NONE'
-
-  " Falls back to coloring foreground group on terminals because
-  " nearly all do not support undercurl
-  let l:special = get(a:, 3, ['NONE', 'NONE'])
-  if l:special[0] !=# 'NONE' && l:fg[0] ==# 'NONE' && !has('gui_running')
-    let l:fg[0] = l:special[0]
-    let l:fg[1] = l:special[1]
-  endif
-
-  let l:hl_string = [
-        \ 'highlight', a:scope,
-        \ 'guifg=' . l:fg[0], 'ctermfg=' . l:fg[1],
-        \ 'guibg=' . l:bg[0], 'ctermbg=' . l:bg[1],
-        \ 'gui=' . l:attrs, 'cterm=' . l:attrs,
-        \ 'guisp=' . l:special[0],
-        \]
-
-  execute join(l:hl_string, ' ')
-endfunction
-
-" Zenbruh Highlight Groups:
-call s:h('ZenbruhBgLight', s:none, s:bglight)
-call s:h('ZenbruhBgLighter', s:none, s:bglighter)
-call s:h('ZenbruhBgDark', s:none, s:bgdark)
-call s:h('ZenbruhBgDarker', s:none, s:bgdarker)
-
-call s:h('ZenbruhFg', s:fg)
-call s:h('ZenbruhFgUnderline', s:fg, s:none, ['underline'])
-call s:h('ZenbruhFgBold', s:fg, s:none, ['bold'])
-call s:h('ZenbruhFgItalic', s:fg, s:none, ['italic'])
-call s:h('ZenbruhFgBoldItalic', s:fg, s:none, ['bold', 'italic'])
-call s:h('ZenbruhFgDark', s:fgdark)
-
-call s:h('ZenbruhComment', s:comment)
-call s:h('ZenbruhCommentBold', s:comment, s:none, ['bold'])
-
-call s:h('ZenbruhSelection', s:none, s:selection)
-
-call s:h('ZenbruhSubtle', s:subtle)
-call s:h('ZenbruhNonText', s:selection)
-
-call s:h('ZenbruhCyan', s:cyan)
-call s:h('ZenbruhCyanItalic', s:cyan, s:none, ['italic'])
-call s:h('ZenbruhLightCyan', s:lightcyan)
-
-call s:h('ZenbruhGreen', s:green)
-call s:h('ZenbruhGreenBold', s:green, s:none, ['bold'])
-call s:h('ZenbruhGreenItalic', s:green, s:none, ['italic'])
-
-call s:h('ZenbruhOrange', s:orange)
-call s:h('ZenbruhOrangeItalic', s:orange, s:none, ['italic'])
-call s:h('ZenbruhOrangeInverse', s:bg, s:orange)
-
-call s:h('ZenbruhPink', s:pink)
-call s:h('ZenbruhPinkItalic', s:pink, s:none, ['italic'])
-
-call s:h('ZenbruhPurple', s:purple)
-call s:h('ZenbruhPurpleBold', s:purple, s:none, ['bold'])
-call s:h('ZenbruhPurpleItalic', s:purple, s:none, ['italic'])
-
-call s:h('ZenbruhRed', s:red)
-call s:h('ZenbruhRedInverse', s:fg, s:red)
-call s:h('ZenbruhRedish', s:redish)
-
-call s:h('ZenbruhYellow', s:yellow)
-call s:h('ZenbruhYellowish', s:yellowish)
-call s:h('ZenbruhYellowishBold', s:yellowish, s:none, ['bold'])
-
-call s:h('ZenbruhError', s:red, s:none, [], s:red)
-
-call s:h('ZenbruhErrorLine', s:none, s:none, ['undercurl'], s:red)
-call s:h('ZenbruhWarnLine', s:none, s:none, ['undercurl'], s:orange)
-call s:h('ZenbruhInfoLine', s:none, s:none, ['undercurl'], s:cyan)
-
-call s:h('ZenbruhTodo', s:pink, s:none, ['bold', 'inverse'])
-call s:h('ZenbruhSearch', s:none, s:subtle, ['bold', 'underline'])
-call s:h('ZenbruhIncSearch', s:none, s:none, ['bold', 'underline', 'inverse'])
-call s:h('ZenbruhBoundary', s:fgdarkish, s:bgdark)
-call s:h('ZenbruhLink', s:cyan, s:none, ['underline'])
-
-call s:h('ZenbruhDiffAdd', s:none, s:deepskyblue)
-call s:h('ZenbruhDiffChange', s:none, s:none)
-call s:h('ZenbruhDiffText', s:none, s:mediumpurple)
-call s:h('ZenbruhDiffDelete', s:red, s:bgdark)
-
-call s:h('ZenbruhSpecial', s:special)
-
-" User Interface:
 set background=dark
 
-" Required as some plugins will overwrite
-call s:h('Normal', s:fg, s:bg)
-call s:h('NormalFloat', s:none, s:bglighter)
-call s:h('WildMenu', s:bg, s:purple, ['bold'])
-call s:h('CursorLine', s:none, s:bglight)
+" :h group-name
+hi! Comment      term=NONE ctermfg=108 guifg=#87af87
+hi! Constant     term=underline ctermfg=152 guifg=#afd7d7
+hi! Identifier   term=NONE cterm=NONE ctermfg=NONE guifg=NONE
+hi! Statement    term=bold cterm=bold ctermfg=NONE gui=bold guifg=NONE
+hi! PreProc      term=bold cterm=bold ctermfg=NONE gui=bold guifg=NONE
+hi! Type         term=NONE ctermfg=NONE gui=NONE guifg=NONE
+hi! StorageClass term=underline cterm=underline gui=underline
+hi! link Structure Keyword
+hi! link Typedef Keyword
+hi! Special      term=underline ctermfg=224 guifg=#ffd7d7
+hi! Delimiter    ctermfg=252 guifg=#bcbcbc
+hi! Underlined   ctermfg=143 guifg=#afaf5f
+hi! Todo         cterm=bold,reverse ctermfg=218 ctermbg=NONE gui=bold,reverse guifg=#ffafd7 guibg=NONE
 
-hi! link ColorColumn  ZenbruhBgDark
-hi! link CursorColumn CursorLine
-hi! link CursorLineNr ZenbruhYellow
-hi! link DiffAdd      ZenbruhDiffAdd
-hi! link DiffChange   ZenbruhDiffChange
-hi! link DiffDelete   ZenbruhDiffDelete
-hi! link DiffText     ZenbruhDiffText
-hi! link diffFile     ZenbruhGreen
-hi! link diffNewFile  ZenbruhRed
-hi! link diffAdded    ZenbruhGreen
-hi! link diffLine     ZenbruhCyanItalic
-hi! link diffRemoved  ZenbruhRed
-hi! link Directory    ZenbruhPurpleBold
-hi! link ErrorMsg     ZenbruhRedInverse
-hi! link FoldColumn   ZenbruhSubtle
-hi! link Folded       ZenbruhBoundary
-hi! link IncSearch    ZenbruhIncSearch
-hi! link LineNr       ZenbruhFgDark
-hi! link MoreMsg      ZenbruhFgBold
-hi! link NonText      ZenbruhNonText
-hi! link Pmenu        ZenbruhBgDark
-hi! link PmenuSbar    ZenbruhBgDark
-hi! link PmenuSel     ZenbruhSelection
-hi! link PmenuThumb   ZenbruhSelection
-hi! link Question     ZenbruhFgBold
-hi! link Search       ZenbruhSearch
-hi! link SignColumn   ZenbruhComment
-hi! link TabLine      ZenbruhSelection
-hi! link TabLineFill  ZenbruhBgLighter
-hi! link TabLineSel   Normal
-hi! link Title        ZenbruhGreenBold
-hi! link VertSplit    ZenbruhBoundary
-hi! link Visual       ZenbruhSelection
-hi! link VisualNOS    Visual
-hi! link WarningMsg   ZenbruhOrangeInverse
+" :h highlight-groups
+hi! DiffAdd      ctermbg=22 guibg=#284028
+hi! DiffChange   ctermbg=234 guibg=#1c1c1c
+hi! DiffDelete   ctermfg=203 ctermbg=232 guifg=#ff5f5f guibg=#080808
+hi! DiffText     cterm=NONE ctermbg=60 gui=NONE guibg=#484060
+hi! VertSplit    cterm=NONE ctermbg=232 ctermfg=252 gui=NONE guibg=#080808 guifg=#d0d0d0
+hi! Folded       ctermfg=252 ctermbg=232 guifg=#d0d0d0 guibg=#080808
+hi! FoldColumn   ctermbg=NONE ctermfg=238 guibg=NONE guifg=#444444
+hi! IncSearch    cterm=bold,underline,reverse gui=bold,underline,reverse
+hi! LineNr       ctermfg=250 guifg=#bcbcbc
+hi! MatchParen   cterm=bold,underline ctermfg=231 ctermbg=67 gui=bold,underline guifg=#ffffff guibg=#5f87af
+hi! NonText      ctermfg=242 gui=NONE guifg=#6c6c6c
+hi! Normal       ctermbg=233 guibg=#121212 ctermfg=255 guifg=#eeeeee
+hi! NormalFloat  ctermbg=235 guibg=#262626
+hi! Pmenu        ctermbg=232 ctermfg=252 guibg=#080808 guifg=#d0d0d0
+hi! PmenuSel     ctermbg=241 ctermfg=231 guibg=#626262 guifg=#ffffff
+hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline guifg=#d7af87 guibg=#444444
+hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
+hi! Title        term=bold cterm=bold gui=bold
+hi! Visual       ctermbg=241 guibg=#626262
 
-" Syntax:
-" Required as some plugins will overwrite
-call s:h('MatchParen', s:white, s:black, ['bold', 'underline'])
-call s:h('Conceal', s:special, s:none)
+" Filetypes:
+hi! diffAdded    ctermfg=149 guifg=#afd75f
+hi! diffRemoved  ctermfg=203 guifg=#ff5f5f
 
-" Neovim uses SpecialKey for escape characters only. Vim uses it for that, plus whitespace.
-if has('nvim')
-  hi! link SpecialKey ZenbruhRed
-else
-  hi! link SpecialKey ZenbruhNonText
-endif
-
-hi! link Comment ZenbruhComment
-hi! link Underlined ZenbruhFgUnderline
-hi! link Todo ZenbruhTodo
-
-hi! link Error ZenbruhError
-hi! link SpellBad ZenbruhErrorLine
-hi! link SpellLocal ZenbruhWarnLine
-hi! link SpellCap ZenbruhWarnLine
-hi! link SpellRare ZenbruhInfoLine
-
-hi! link Constant ZenbruhLightCyan
-hi! link String ZenbruhRedish
-hi! link Character ZenbruhRedish
-hi! link Number ZenbruhPurple
-hi! link Boolean ZenbruhPurple
-hi! link Float ZenbruhPurple
-
-hi! link Identifier ZenbruhSpecial
-hi! link Function ZenbruhGreen
-
-hi! link Statement ZenbruhYellowishBold
-hi! link Conditional ZenbruhYellowishBold
-hi! link Repeat ZenbruhYellowishBold
-hi! link Label ZenbruhYellowishBold
-hi! link Operator ZenbruhYellowish
-hi! link Keyword ZenbruhYellowishBold
-hi! link Exception ZenbruhYellowishBold
-
-hi! link PreProc ZenbruhYellowishBold
-hi! link Include ZenbruhYellowishBold
-hi! link Define ZenbruhYellowishBold
-hi! link Macro ZenbruhYellowishBold
-hi! link PreCondit ZenbruhYellowishBold
-hi! link StorageClass ZenbruhYellowishBold
-hi! link Structure ZenbruhYellowishBold
-hi! link Typedef ZenbruhYellowishBold
-
-hi! link Type ZenbruhCyan
-
-hi! link Delimiter ZenbruhFgDark
-
-hi! link Special ZenbruhSpecial
-hi! link SpecialComment ZenbruhCommentBold
-hi! link Tag ZenbruhCyan
-hi! link helpHyperTextJump ZenbruhLink
-hi! link helpCommand ZenbruhPurple
-hi! link helpExample ZenbruhGreen
-hi! link helpBacktick Special
-
-" Etc:
-hi! link markdownCode Special
-hi! link markdownCodeBlock Special
-hi! link markdownCodeDelimiter Special
-hi! link markdownListMarker Constant
-hi! link markdownOrderedListMarker Constant
-
-hi! link pythonBuiltin Constant
-hi! link pythonExceptions Type
+hi! link markdownCode String
+hi! link markdownCodeDelimiter String
 
 hi! link rustCommentLineDoc Comment
-hi! link rustIdentifier NONE
 hi! link rustLabel Special
 hi! link rustModPath NONE
 
-hi! link shCmdSubRegion Delimiter
-hi! link shArithRegion Delimiter
 hi! link shCommandSub NONE
 hi! link shArithmetic NONE
 hi! link shShellVariables Identifier
@@ -2269,8 +2081,5 @@ hi! link shSpecialDQ shSpecial
 hi! link shSpecialSQ shSpecial
 
 hi! link vimCommentTitle Title
-hi! link vimEnvVar Constant
-hi! link vimOption Type
-hi! link vimSetSep Delimiter
 " }}}
 " vim: set fdm=marker et sw=4:
