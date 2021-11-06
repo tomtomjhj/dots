@@ -72,6 +72,7 @@ im-config -n nimf
 ```
 * https://gitlab.com/interception/linux/plugins/dual-function-keys
 * https://gist.github.com/tanyuan/55bca522bf50363ae4573d4bdcf06e2e
+* kmonad?
 
 ## font
 ```
@@ -115,6 +116,7 @@ fc-cache -fv
        use-theme-transparency=false
        ```
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
+    * https://github.com/bluz71/vim-nightfly-guicolors/blob/master/terminal_themes/gnome-terminal-nightfly.sh
 * disable `ctrl-alt-d` https://askubuntu.com/a/177994 TODO dconf-editor
 
 ## firefox: allow plugins to override reserved keymap
@@ -167,6 +169,20 @@ sudo usermod -aG docker $USER
 * less
     * run `lesskey lesskey`
     * https://github.com/gwsw/less/issues/188 `<C-w>` doesn't work either.. Use `<C-M-H>`
+    * `F` command or `+F` (scroll forward)
+    * display the search at the bottom? highlight the current search differently?
+* ignore
+  ```
+  ## .ignore
+  !_opam/
+
+  ## _opam/.ignore
+  *
+  !*/
+  # !lib/coq/theories/**/*.v
+  !lib/coq/user-contrib/**/*.v
+  lib/coq/user-contrib/Ltac2
+  ```
 
 ## firefox
 * ctrl-f is broken
@@ -209,3 +225,4 @@ sudo usermod -aG docker $USER
 * `git apply --reject --whitespace=fix`
 * git files absolute dir `git -C "$ROOT" ls-files | awk -v R="$ROOT" '{ print R "/" $0 }'`
 * `git reset --merge` to abort `stash pop` https://stackoverflow.com/a/60444590
+* `git diff --check`

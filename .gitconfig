@@ -1,7 +1,7 @@
 [alias]
 	unstage = reset HEAD --
-	cm = commit -v
-	cma = commit -v --amend
+	cm = commit
+	cma = commit --amend
 	cmm = commit -m
 	co = checkout
 	lg = log --all --decorate --oneline --graph
@@ -28,6 +28,8 @@
 	editor = nvim
 	# default: FRX
 	pager = less -FRi
+[commit]
+	verbose = true
 [diff]
 	tool = vimdiff3
 	algorithm = histogram
