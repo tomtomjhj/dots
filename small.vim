@@ -942,8 +942,8 @@ let g:flog_permanent_default_arguments = { 'date': 'short', }
 augroup git-custom | au!
     " TODO: Very slow and doesn't fold each hunk.
     au FileType git,fugitive,gitcommit nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
-    au User FugitiveObject,FugitiveIndex unmap <buffer> *
-    au FileType floggraph nunmap <buffer> <Tab>
+    au User FugitiveObject,FugitiveIndex silent! unmap <buffer> *
+    au FileType floggraph silent! nunmap <buffer> <Tab>
 augroup END
 " }}}
 
@@ -2033,7 +2033,7 @@ hi! Identifier   term=NONE cterm=NONE ctermfg=NONE guifg=NONE
 hi! Statement    term=bold cterm=bold ctermfg=NONE gui=bold guifg=NONE
 hi! PreProc      term=bold cterm=bold ctermfg=NONE gui=bold guifg=NONE
 hi! Type         term=NONE ctermfg=NONE gui=NONE guifg=NONE
-hi! StorageClass term=underline cterm=underline gui=underline
+hi! StorageClass term=italic cterm=italic gui=italic
 hi! link Structure Keyword
 hi! link Typedef Keyword
 hi! Special      term=underline ctermfg=224 guifg=#ffd7d7
@@ -2042,6 +2042,7 @@ hi! Underlined   ctermfg=143 guifg=#afaf5f
 hi! Todo         cterm=bold,reverse ctermfg=218 ctermbg=NONE gui=bold,reverse guifg=#ffafd7 guibg=NONE
 
 " :h highlight-groups
+hi! link Conceal Special
 hi! DiffAdd      ctermbg=22 guibg=#284028
 hi! DiffChange   ctermbg=234 guibg=#1c1c1c
 hi! DiffDelete   ctermfg=203 ctermbg=232 guifg=#ff5f5f guibg=#080808
@@ -2059,12 +2060,16 @@ hi! Pmenu        ctermbg=232 ctermfg=252 guibg=#080808 guifg=#d0d0d0
 hi! PmenuSel     ctermbg=241 ctermfg=231 guibg=#626262 guifg=#ffffff
 hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline guifg=#d7af87 guibg=#444444
 hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
-hi! Title        term=bold cterm=bold gui=bold
+hi! SpellBad     cterm=undercurl ctermbg=NONE guibg=NONE ctermfg=203 guifg=#ff5f5f
+hi! SpellCap     cterm=undercurl ctermbg=NONE guibg=NONE ctermfg=215 guifg=#ffaf5f
+hi! Title        term=bold cterm=bold ctermfg=150 gui=bold guifg=#afd787
 hi! Visual       ctermbg=241 guibg=#626262
 
 " Filetypes:
-hi! diffAdded    ctermfg=149 guifg=#afd75f
+hi! diffAdded    ctermfg=150 guifg=#afd787
 hi! diffRemoved  ctermfg=203 guifg=#ff5f5f
+
+hi! link helpHyperTextJump Underlined
 
 hi! link markdownCode String
 hi! link markdownCodeDelimiter String
