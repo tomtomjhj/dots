@@ -152,6 +152,9 @@ if !has('gui_running') && !has('nvim')
     map! <F34> <M-BS>
     map  <Nul> <C-space>
     map! <Nul> <C-space>
+    " :h undercurl
+    let &t_Cs = "\e[4:3m"
+    let &t_Ce = "\e[4:0m"
 endif
 " }}}
 
@@ -2060,8 +2063,8 @@ hi! Pmenu        ctermbg=232 ctermfg=252 guibg=#080808 guifg=#d0d0d0
 hi! PmenuSel     ctermbg=241 ctermfg=231 guibg=#626262 guifg=#ffffff
 hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline guifg=#d7af87 guibg=#444444
 hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
-hi! SpellBad     cterm=undercurl ctermbg=NONE guibg=NONE ctermfg=203 guifg=#ff5f5f
-hi! SpellCap     cterm=undercurl ctermbg=NONE guibg=NONE ctermfg=215 guifg=#ffaf5f
+exe 'hi! SpellBad cterm=undercurl ctermbg=NONE guisp=#ff5f5f' . (has('patch-8.2.0863') ? ' ctermul=203' : '')
+exe 'hi! SpellCap cterm=undercurl ctermbg=NONE guisp=#ffaf5f' . (has('patch-8.2.0863') ? ' ctermul=215' : '')
 hi! Title        term=bold cterm=bold ctermfg=150 gui=bold guifg=#afd787
 hi! Visual       ctermbg=241 guibg=#626262
 
@@ -2070,6 +2073,7 @@ hi! diffAdded    ctermfg=150 guifg=#afd787
 hi! diffRemoved  ctermfg=203 guifg=#ff5f5f
 
 hi! link helpHyperTextJump Underlined
+hi! link helpOption Underlined
 
 hi! link markdownCode String
 hi! link markdownCodeDelimiter String
