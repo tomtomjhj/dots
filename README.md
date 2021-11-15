@@ -119,7 +119,9 @@ fc-cache -fv
     * https://github.com/bluz71/vim-nightfly-guicolors/blob/master/terminal_themes/gnome-terminal-nightfly.sh
 * disable `ctrl-alt-d` https://askubuntu.com/a/177994 TODO dconf-editor
 
-## firefox: allow plugins to override reserved keymap
+## firefox
+
+### allow plugins to override reserved keymap
 https://github.com/glacambre/firefox-patches/issues/1
 Run it after closing firefox. Rerun when firefox is updated.
 ```
@@ -128,6 +130,9 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 ```
 * automation?
 * Removing all reserved keys is not great since some sites have annoying keymaps.
+
+### etc
+* `privacy.resistFingerprinting` breaks some stuff
 
 ## tex
 * [Dockerfile](./docker/texlive/Dockerfile)
@@ -146,6 +151,12 @@ sudo usermod -aG docker $USER
 
 ## etc
 * `aptitude` good for resolving broken package issues
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+cargo install ripgrep fd-find bat zoxide git-delta
+# ripgrep_all du-dust tokei cargo-cache
+```
 
 # 21.04
 * fix opam https://github.com/ocaml/opam/issues/3708
@@ -213,6 +224,13 @@ sudo usermod -aG docker $USER
   cmd 2> >(while read line; do echo "$(date -Iseconds) $line"; done > log)
   ```
     * TODO: how does bash interact with the subprocess's stdout/stderr?
+* archiving: put the ignore file in the dir for `--exclude-vcs-ignores` and exlucde the ignore file itself; remove ownership
+  ```bash
+  tar czvf $NAME.tar.gz \
+      --exclude-vcs-ignores --exclude=.gitignore \
+      --owner=0 --group=0 \
+      $NAME
+  ```
 
 ## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>

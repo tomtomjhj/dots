@@ -298,6 +298,10 @@ if [ -x "$(command -v fd)" ]; then
 fi
 export FZF_DEFAULT_OPTS="--bind alt-a:select-all,alt-d:deselect-all,alt-t:toggle-all"
 
+if [ -x "$(command -v fd)" ]; then
+    eval "$(zoxide init bash)"
+fi
+
 stty -ixon
 
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
