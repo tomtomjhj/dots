@@ -73,7 +73,7 @@ set complete-=i complete-=u completeopt=menuone,preview
 if exists('+completepopup')
     set completeopt+=popup completepopup=highlight:NormalFloat,border:off
 endif
-set path=.,,*,*/*,*/*/*,*/*/*/*,*/*/*/*/*
+set path=.,,
 
 set ignorecase smartcase
 set hlsearch incsearch
@@ -758,10 +758,12 @@ nnoremap ZAQ :<C-u>qa!<CR>
 cnoreabbrev <expr> W <SID>cabbrev('W', 'w')
 cnoreabbrev <expr> Q <SID>cabbrev('Q', 'q')
 
+cnoreabbrev <expr> ff  <SID>cabbrev('ff',  "find**/<Left><Left><Left>")
+cnoreabbrev <expr> sff <SID>cabbrev('sff', "sf**/<Left><Left><Left>")
 cnoreabbrev <expr> vsb <SID>cabbrev('vsb', 'vert sb')
-cnoreabbrev <expr> vsf <SID>cabbrev('vsf', 'vert sf')
+cnoreabbrev <expr> vsf <SID>cabbrev('vsf', "vert sf**/<Left><Left><Left>")
 cnoreabbrev <expr> tsb <SID>cabbrev('tsb', 'tab sb')
-cnoreabbrev <expr> tsf <SID>cabbrev('tsf', 'tab sf')
+cnoreabbrev <expr> tsf <SID>cabbrev('tsf', "tab sf**/<Left><Left><Left>")
 
 nnoremap <leader>cx :tabclose<CR>
 nnoremap <leader>td :tab split<CR>
@@ -770,6 +772,8 @@ nnoremap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>fe :e!<CR>
+
+inoreabbrev <expr> \date\ strftime('%F')
 " }}}
 
 " pairs {{{
@@ -1167,9 +1171,9 @@ nmap gcu <Plug>Commentary<Plug>Commentary
 " Etc: {{{2
 function! s:commentary_insert()
   let [l, r] = s:commentary_surroundings()
-  call feedkeys(l . r . repeat("\<Left>", strchars(r)), 'ni')
+  return l . r . repeat("\<C-G>U\<Left>", strchars(r))
 endfunction
-inoremap <silent> <M-/> <C-G>u<C-\><C-o>:call <SID>commentary_insert()<CR>
+inoremap <expr> <M-/> "\<C-G>u" . <SID>commentary_insert()
 " }}} }}}
 
 " vinegar {{{
@@ -2048,10 +2052,10 @@ hi! Todo         cterm=bold,reverse ctermfg=218 ctermbg=NONE gui=bold,reverse gu
 hi! link Conceal Special
 hi! DiffAdd      ctermbg=22 guibg=#284028
 hi! DiffChange   ctermbg=234 guibg=#1c1c1c
-hi! DiffDelete   ctermfg=203 ctermbg=232 guifg=#ff5f5f guibg=#080808
+hi! DiffDelete   ctermfg=203 ctermbg=16 guifg=#ff5f5f guibg=#000000
 hi! DiffText     cterm=NONE ctermbg=60 gui=NONE guibg=#484060
-hi! VertSplit    cterm=NONE ctermbg=232 ctermfg=252 gui=NONE guibg=#080808 guifg=#d0d0d0
-hi! Folded       ctermfg=252 ctermbg=232 guifg=#d0d0d0 guibg=#080808
+hi! VertSplit    cterm=NONE ctermbg=16 ctermfg=252 gui=NONE guibg=#000000 guifg=#d0d0d0
+hi! Folded       ctermfg=252 ctermbg=16 guifg=#d0d0d0 guibg=#000000
 hi! FoldColumn   ctermbg=NONE ctermfg=238 guibg=NONE guifg=#444444
 hi! IncSearch    cterm=bold,underline,reverse gui=bold,underline,reverse
 hi! LineNr       ctermfg=250 guifg=#bcbcbc
@@ -2059,7 +2063,7 @@ hi! MatchParen   cterm=bold,underline ctermfg=231 ctermbg=67 gui=bold,underline 
 hi! NonText      ctermfg=242 gui=NONE guifg=#6c6c6c
 hi! Normal       ctermbg=233 guibg=#121212 ctermfg=255 guifg=#eeeeee
 hi! NormalFloat  ctermbg=235 guibg=#262626
-hi! Pmenu        ctermbg=232 ctermfg=252 guibg=#080808 guifg=#d0d0d0
+hi! Pmenu        ctermbg=16 ctermfg=252 guibg=#000000 guifg=#d0d0d0
 hi! PmenuSel     ctermbg=241 ctermfg=231 guibg=#626262 guifg=#ffffff
 hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline guifg=#d7af87 guibg=#444444
 hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
