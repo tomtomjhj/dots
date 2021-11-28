@@ -107,7 +107,7 @@ fc-cache -fv
        default-size-rows=30
        use-system-font=false
        cell-width-scale=1.0
-       palette=['rgb(31,31,31)', 'rgb(235,96,107)', 'rgb(195,232,141)', 'rgb(247,235,149)', 'rgb(128,203,195)', 'rgb(255,36,144)', 'rgb(174,221,255)', 'rgb(255,255,255)', 'rgb(65,65,65)', 'rgb(235,96,107)', 'rgb(195,232,141)', 'rgb(247,235,149)', 'rgb(125,198,191)', 'rgb(108,113,195)', 'rgb(86,214,255)', 'rgb(255,255,255)']
+       palette=['rgb(31,31,31)', 'rgb(235,96,107)', 'rgb(195,232,141)', 'rgb(247,235,149)', 'rgb(128,203,195)', 'rgb(255,36,144)', 'rgb(174,221,255)', 'rgb(255,255,255)', 'rgb(102,102,102)', 'rgb(235,96,107)', 'rgb(195,232,141)', 'rgb(247,235,149)', 'rgb(125,198,191)', 'rgb(108,113,195)', 'rgb(86,214,255)', 'rgb(255,255,255)']
        background-transparency-percent=11
        foreground-color='rgb(255,255,255)'
        cell-height-scale=1.0
@@ -230,6 +230,7 @@ cargo install ripgrep fd-find bat zoxide git-delta
       --exclude-vcs-ignores --exclude=.gitignore \
       --owner=0 --group=0 \
       $NAME
+  # BSD tar doesn't support --ower stuff. GNU and BSD both support --numeric-owner.
   ```
 
 ## Git
