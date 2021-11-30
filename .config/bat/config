@@ -1,2 +1,2 @@
---theme="base16"
+--theme="term16"
 --map-syntax "*.v:SML"
