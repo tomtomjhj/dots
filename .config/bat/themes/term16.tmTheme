@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-original: https://github.com/sharkdp/bat/blob/master/assets/themes/base16.tmTheme
+Minimal terminal 16 colors theme
+based on https://github.com/sharkdp/bat/blob/master/assets/themes/base16.tmTheme
 line highlight: 7 → 8
-comment: keep 7
-fg: 7 → f
+comment: 7 → 2
+literals,constants: e
+keywords: bold
+special: d
 -->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -21,7 +24,7 @@ fg: 7 → f
         and AA is the special value 00 to indicate this encoding is being used.
         -->
         <key>author</key>
-        <string>Template: Chris Kempson, Scheme: Mitchell Kember</string>
+        <string>Template: Chris Kempson, Scheme: Jaehwang Jung</string>
         <key>name</key>
         <string>Base16</string>
         <key>colorSpaceName</key>
@@ -36,17 +39,13 @@ fg: 7 → f
                     <key>caret</key>
                     <string>#0f000000</string>
                     <key>foreground</key>
-                    <string>#0f000000</string>
+                    <string>#07000000</string>
                     <key>invisibles</key>
                     <string>#08000000</string>
                     <key>lineHighlight</key>
                     <string>#08000000</string>
                     <key>selection</key>
                     <string>#0b000000</string>
-                    <key>gutter</key>
-                    <string>#0a000000</string>
-                    <key>gutterForeground</key>
-                    <string>#08000000</string>
                 </dict>
             </dict>
             <dict>
@@ -57,7 +56,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#07000000</string>
+                    <string>#02000000</string>
                 </dict>
             </dict>
             <dict>
@@ -68,18 +67,9 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#05000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Functions</string>
-                <key>scope</key>
-                <string>entity.name.function, meta.require, support.function.any-method</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#04000000</string>
+                    <string>#07000000</string>
+                    <key>fontStyle</key>
+                    <string>bold</string>
                 </dict>
             </dict>
             <dict>
@@ -90,42 +80,11 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#0e000000</string>
+                    <string>#0d000000</string>
                 </dict>
             </dict>
-            <dict>
-                <key>name</key>
-                <string>Classes</string>
-                <key>scope</key>
-                <string>support.class, entity.name.class, entity.name.type.class</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#03000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Classes</string>
-                <key>scope</key>
-                <string>meta.class</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#0f000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Methods</string>
-                <key>scope</key>
-                <string>keyword.other.special-method</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#04000000</string>
-                </dict>
-            </dict>
+            <!-- NOTE: Rust sublime syntax is completely broken. 'let' and 'usize' are both in storage.type.
+            https://github.com/sublimehq/Packages/blob/master/Rust/Rust.sublime-syntax -->
             <dict>
                 <key>name</key>
                 <string>Storage</string>
@@ -133,19 +92,8 @@ fg: 7 → f
                 <string>storage</string>
                 <key>settings</key>
                 <dict>
-                    <key>foreground</key>
-                    <string>#05000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Support</string>
-                <key>scope</key>
-                <string>support.function</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#06000000</string>
+                    <key>fontStyle</key>
+                    <string>bold</string>
                 </dict>
             </dict>
             <dict>
@@ -156,7 +104,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#02000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -167,7 +115,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#09000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -178,7 +126,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#09000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -189,7 +137,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#09000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -200,62 +148,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#09000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Tags</string>
-                <key>scope</key>
-                <string>entity.name.tag</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#01000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Attributes</string>
-                <key>scope</key>
-                <string>entity.other.attribute-name</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#09000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Attribute IDs</string>
-                <key>scope</key>
-                <string>entity.other.attribute-name.id, punctuation.definition.entity</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#04000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Selector</string>
-                <key>scope</key>
-                <string>meta.selector</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#05000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Values</string>
-                <key>scope</key>
-                <string>none</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#09000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -268,18 +161,9 @@ fg: 7 → f
                     <key>fontStyle</key>
                     <string></string>
                     <key>foreground</key>
-                    <string>#04000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Units</string>
-                <key>scope</key>
-                <string>keyword.other.unit</string>
-                <key>settings</key>
-                <dict>
-                    <key>foreground</key>
-                    <string>#09000000</string>
+                    <string>#0a000000</string>
+                    <key>fontStyle</key>
+                    <string>bold</string>
                 </dict>
             </dict>
             <dict>
@@ -291,8 +175,6 @@ fg: 7 → f
                 <dict>
                     <key>fontStyle</key>
                     <string>bold</string>
-                    <key>foreground</key>
-                    <string>#03000000</string>
                 </dict>
             </dict>
             <dict>
@@ -304,8 +186,6 @@ fg: 7 → f
                 <dict>
                     <key>fontStyle</key>
                     <string>italic</string>
-                    <key>foreground</key>
-                    <string>#05000000</string>
                 </dict>
             </dict>
             <dict>
@@ -316,7 +196,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#02000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -327,7 +207,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#01000000</string>
+                    <string>#03000000</string>
                 </dict>
             </dict>
             <dict>
@@ -338,7 +218,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#09000000</string>
+                    <string>#03000000</string>
                 </dict>
             </dict>
             <dict>
@@ -349,20 +229,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#09000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Separator</string>
-                <key>scope</key>
-                <string>meta.separator</string>
-                <key>settings</key>
-                <dict>
-                    <key>background</key>
-                    <string>#0b000000</string>
-                    <key>foreground</key>
-                    <string>#0f000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -373,7 +240,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#02000000</string>
+                    <string>#0a000000</string>
                 </dict>
             </dict>
             <dict>
@@ -406,7 +273,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#06000000</string>
+                    <string>#0e000000</string>
                 </dict>
             </dict>
             <dict>
@@ -417,7 +284,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#06000000</string>
+                    <string>#0d000000</string>
                 </dict>
             </dict>
             <dict>
@@ -428,7 +295,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#06000000</string>
+                    <string>#0d000000</string>
                 </dict>
             </dict>
             <dict>
@@ -439,59 +306,7 @@ fg: 7 → f
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
-                    <string>#05000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Illegal</string>
-                <key>scope</key>
-                <string>invalid.illegal</string>
-                <key>settings</key>
-                <dict>
-                    <key>background</key>
-                    <string>#01000000</string>
-                    <key>foreground</key>
-                    <string>#0f000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Broken</string>
-                <key>scope</key>
-                <string>invalid.broken</string>
-                <key>settings</key>
-                <dict>
-                    <key>background</key>
-                    <string>#09000000</string>
-                    <key>foreground</key>
-                    <string>#00000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Deprecated</string>
-                <key>scope</key>
-                <string>invalid.deprecated</string>
-                <key>settings</key>
-                <dict>
-                    <key>background</key>
-                    <string>#0e000000</string>
-                    <key>foreground</key>
-                    <string>#0f000000</string>
-                </dict>
-            </dict>
-            <dict>
-                <key>name</key>
-                <string>Unimplemented</string>
-                <key>scope</key>
-                <string>invalid.unimplemented</string>
-                <key>settings</key>
-                <dict>
-                    <key>background</key>
-                    <string>#08000000</string>
-                    <key>foreground</key>
-                    <string>#0f000000</string>
+                    <string>#0d000000</string>
                 </dict>
             </dict>
         </array>
