@@ -320,6 +320,7 @@ augroup Languages | au!
     au FileType markdown call s:markdown()
     au FileType pandoc setlocal filetype=markdown
     au FileType python call s:python()
+    au FileType xml setlocal formatoptions-=r " very broken: <!--<CR> → <!--\n--> █
 augroup END
 
 " c, cpp {{{
@@ -779,14 +780,14 @@ inoreabbrev <expr> \date\ strftime('%F')
 " pairs {{{
 xmap aa a%
 
-inoremap <expr> ( MuPairsOpen('(', ')', 7)
-inoremap <expr> ) MuPairsClose('(', ')', 7)
-inoremap <expr> [ MuPairsOpen('[', ']', 7)
-inoremap <expr> ] MuPairsClose('[', ']', 7)
+inoremap <expr> ( MuPairsOpen('(', ')', 15)
+inoremap <expr> ) MuPairsClose('(', ')', 15)
+inoremap <expr> [ MuPairsOpen('[', ']', 15)
+inoremap <expr> ] MuPairsClose('[', ']', 15)
 inoremap <expr> { MuPairsOpen('{', '}', 127)
 inoremap <expr> } MuPairsClose('{', '}', 127)
 inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . MuPairsCR()
-inoremap <expr> <BS> MuPairsBS(7)
+inoremap <expr> <BS> MuPairsBS(15)
 inoremap <expr> " MuPairsDumb('"')
 inoremap <expr> ' MuPairsDumb("'")
 inoremap <expr> ` MuPairsDumb('`')
