@@ -39,7 +39,8 @@ endif
 
 " Basic {{{
 set mouse=a
-set number ruler showcmd
+set number
+set ruler showcmd
 set foldcolumn=1 foldnestmax=5
 set scrolloff=2 sidescrolloff=2 sidescroll=1 nostartofline
 set showtabline=1
@@ -690,8 +691,8 @@ nnoremap <silent><leader><CR> :let v:searchforward=1\|nohlsearch<CR>
 nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
 nnoremap <leader>ss :setlocal spell! spell?<CR>
 nnoremap <leader>sc :if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
-nnoremap <leader>sp :setlocal paste! paste?<CR>
-nnoremap <leader>sw :set wrap! wrap?<CR>
+nnoremap <leader>sp :set paste! paste?<CR>
+nnoremap <leader>sw :setlocal wrap! wrap?<CR>
 nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
 
 noremap <leader>dp :diffput<CR>
@@ -750,7 +751,7 @@ nnoremap <C-k> <C-W>k
 nnoremap <C-h> <C-W>h
 nnoremap <C-l> <C-W>l
 
-command! -count Wfh set winfixheight | if <count> | exe "normal! z".<count>."\<CR>" | endif
+command! -count Wfh setlocal winfixheight | if <count> | exe "normal! z".<count>."\<CR>" | endif
 
 noremap <leader>q :<C-u>q<CR>
 noremap q, :<C-u>q<CR>
