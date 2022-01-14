@@ -688,7 +688,8 @@ endfunc
 
 " etc mappings {{{
 nnoremap <silent><leader><CR> :let v:searchforward=1\|nohlsearch<CR>
-nnoremap <silent><leader><C-L> :diffupdate\|syntax sync fromstart<CR><C-L>
+nnoremap <silent><leader><C-L> :diffupdate<CR><C-L>
+nnoremap <silent><leader>sfs :syntax sync fromstart<CR><C-L>
 nnoremap <leader>ss :setlocal spell! spell?<CR>
 nnoremap <leader>sc :if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
 nnoremap <leader>sp :set paste! paste?<CR>
@@ -711,9 +712,6 @@ inoremap <C-q> <Esc>
 vnoremap <C-q> <Esc>
 onoremap <C-q> <Esc>
 noremap! <C-M-q> <C-q>
-if has('nvim')
-    tnoremap <M-[> <C-\><C-n>
-endif
 
 cnoremap <M-p> <Up>
 cnoremap <M-n> <Down>
@@ -857,6 +855,13 @@ function! s:curchar() abort
 endfunction
 " }}}
 
+" shell, terminal {{{
+if has('nvim')
+    tnoremap <M-[> <C-\><C-n>
+    tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+endif
+" }}}
+
 " quickfix, loclist, ... {{{
 if has('patch-8.1.0311') || has('nvim-0.3.2')
     packadd cfilter
@@ -930,7 +935,7 @@ function! GXBrowse(url)
         let viewer = 'open'
     elseif has('win64') || has('win32')
         let viewer = 'start'
-        redir = '>null'
+        let redir = '>null'
     else
         return
     endif
@@ -1019,15 +1024,18 @@ endfunction
 command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
 
 command! -range=% TrimWhitespace
-            \ let _view = winsaveview() |
-            \ keeppatterns keepjumps <line1>,<line2>substitute/\s\+$//e |
-            \ call winrestview(_view) |
-            \ unlet _view
-noremap <leader>fm :TrimWhitespace<CR>
+            \ let _view = winsaveview()
+            \|keeppatterns keepjumps <line1>,<line2>substitute/\s\+$//e
+            \|call winrestview(_view)
+            \|unlet _view
+
 command! -range=% Unpdf
-            \ keeppatterns keepjumps <line1>,<line2>substitute/[“”łž]/"/ge |
-            \ keeppatterns keepjumps <line1>,<line2>substitute/[‘’]/'/ge |
-            \ keeppatterns keepjumps <line1>,<line2>substitute/\w\zs-\n//ge
+            \ let _view = winsaveview()
+            \|keeppatterns keepjumps <line1>,<line2>substitute/[“”łž]/"/ge
+            \|keeppatterns keepjumps <line1>,<line2>substitute/[‘’]/'/ge
+            \|keeppatterns keepjumps <line1>,<line2>substitute/\w\zs-\n//ge
+            \|call winrestview(_view)
+            \|unlet _view
 
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
@@ -1052,6 +1060,11 @@ if !exists('g:wildignore_files')
     call AddWildignore(s:wildignore_files, 0)
     call AddWildignore(s:wildignore_dirs, 1)
 endif
+
+command! -range=% ZulipMarkdown
+            \ keeppatterns keepjumps <line1>,<line2>substitute/^    \ze[-+*]\s/  /e
+            \|keeppatterns keepjumps <line1>,<line2>substitute/^        \ze[-+*]\s/    /e
+            \|keeppatterns keepjumps <line1>,<line2>substitute/^            \ze[-+*]\s/      /e
 
 if !has('nvim')
     command! -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
