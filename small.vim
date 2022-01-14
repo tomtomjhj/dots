@@ -336,91 +336,297 @@ endfunction
 " markdown {{{
 let g:markdown_folding = 1
 function! s:markdown() abort
-    setlocal formatoptions< formatlistpat<
-    setlocal commentstring=<!--%s-->
-    setlocal comments=s:<!--,m:\ \ \ \ ,e:-->,:\|,n:>
-    setlocal foldexpr=MyMarkdownFoldExpr()
+    syn clear
+    if exists("b:undo_ftplugin")
+      exe b:undo_ftplugin
+      unlet! b:undo_ftplugin b:did_ftplugin
+    endif
+    " tpope-vim-markdown/syntax/markdown.vim {{{
+    if !exists('main_syntax')
+      let main_syntax = 'markdown'
+    endif
+
+    if has('folding')
+      let l:foldmethod = &l:foldmethod
+      let l:foldtext = &l:foldtext
+    endif
+    let l:iskeyword = &l:iskeyword
+
+    runtime! syntax/html.vim
+    unlet! b:current_syntax
+
+    syn include @markdownYaml syntax/yaml.vim
+    unlet! b:current_syntax
+
+    if !exists('g:markdown_fenced_languages')
+      let g:markdown_fenced_languages = []
+    endif
+    let l:done_include = {}
+    for l:ft in map(copy(g:markdown_fenced_languages),'matchstr(v:val,"[^=]*$")')
+      if has_key(l:done_include, l:ft)
+        continue
+      endif
+      syn case match
+      exe 'syn include @markdownHighlight'.l:ft.' syntax/'.l:ft.'.vim'
+      unlet! b:current_syntax
+      let l:done_include[l:ft] = 1
+    endfor
+
+    syn spell toplevel
+    if exists('l:foldmethod') && l:foldmethod !=# &l:foldmethod
+      let &l:foldmethod = l:foldmethod
+    endif
+    if exists('l:foldtext') && l:foldtext !=# &l:foldtext
+      let &l:foldtext = l:foldtext
+    endif
+    if l:iskeyword !=# &l:iskeyword
+      let &l:iskeyword = l:iskeyword
+    endif
+
+    if !exists('g:markdown_minlines')
+      let g:markdown_minlines = 50
+    endif
+    execute 'syn sync minlines=' . g:markdown_minlines
+    syn sync maxlines=500
+    syn sync linebreaks=1
+    syn case ignore
+
+    syn match markdownValid '[<>]\c[a-z/$!]\@!' transparent contains=NONE
+    syn match markdownValid '&\%(#\=\w*;\)\@!' transparent contains=NONE
+
+    syn match markdownLineStart "^[<@]\@!" nextgroup=@markdownBlock,htmlSpecialChar
+
+    syn cluster markdownBlock contains=markdownH1,markdownH2,markdownH3,markdownH4,markdownH5,markdownH6,markdownBlockquote,markdownListMarker,markdownOrderedListMarker,markdownCodeBlock,markdownRule
+    syn cluster markdownInline contains=markdownLineBreak,markdownLinkText,markdownItalic,markdownBold,markdownCode,markdownEscape,@htmlTop,markdownValid
+
+    syn match markdownH1 "^.\+\n=\+$" contained contains=@markdownInline,markdownHeadingRule,markdownAutomaticLink
+    syn match markdownH2 "^.\+\n-\+$" contained contains=@markdownInline,markdownHeadingRule,markdownAutomaticLink
+
+    syn match markdownHeadingRule "^[=-]\+$" contained
+
+    syn region markdownH1 matchgroup=markdownH1Delimiter start=" \{,3}#\s"      end="#*\s*$" keepend oneline contains=@markdownInline,markdownAutomaticLink contained
+    syn region markdownH2 matchgroup=markdownH2Delimiter start=" \{,3}##\s"     end="#*\s*$" keepend oneline contains=@markdownInline,markdownAutomaticLink contained
+    syn region markdownH3 matchgroup=markdownH3Delimiter start=" \{,3}###\s"    end="#*\s*$" keepend oneline contains=@markdownInline,markdownAutomaticLink contained
+    syn region markdownH4 matchgroup=markdownH4Delimiter start=" \{,3}####\s"   end="#*\s*$" keepend oneline contains=@markdownInline,markdownAutomaticLink contained
+    syn region markdownH5 matchgroup=markdownH5Delimiter start=" \{,3}#####\s"  end="#*\s*$" keepend oneline contains=@markdownInline,markdownAutomaticLink contained
+    syn region markdownH6 matchgroup=markdownH6Delimiter start=" \{,3}######\s" end="#*\s*$" keepend oneline contains=@markdownInline,markdownAutomaticLink contained
+
+    syn match markdownBlockquote ">\%(\s\|$\)" contained nextgroup=@markdownBlock
+
+    " TODO: real nesting
+    syn match markdownListMarker "\s*[-*+]\%(\s\+\S\)\@=" contained
+    syn match markdownOrderedListMarker "\s*\<\d\+\.\%(\s\+\S\)\@=" contained
+
+    syn match markdownRule "\* *\* *\*[ *]*$" contained
+    syn match markdownRule "- *- *-[ -]*$" contained
+
+    " NOTE: Front matter delimiter should be prioritized over rule. Also it's not
+    " contained in markdownBlock cluster.
+    syn region markdownYamlFrontMatter matchgroup=markdownFrontMatterDelimiter start="\%^---$" end="^\(---\|\.\.\.\)$" contains=@markdownYaml
+
+    syn match markdownLineBreak " \{2,\}$"
+
+    syn region markdownIdDeclaration matchgroup=markdownLinkDelimiter start="^ \{0,3\}!\=\[" end="\]:" oneline keepend nextgroup=markdownUrl skipwhite
+    syn match markdownUrl "\S\+" nextgroup=markdownUrlTitle skipwhite contained
+    syn region markdownUrl matchgroup=markdownUrlDelimiter start="<" end=">" oneline keepend nextgroup=markdownUrlTitle skipwhite contained
+    syn region markdownUrlTitle matchgroup=markdownUrlTitleDelimiter start=+"+ end=+"+ keepend contained
+    syn region markdownUrlTitle matchgroup=markdownUrlTitleDelimiter start=+'+ end=+'+ keepend contained
+    syn region markdownUrlTitle matchgroup=markdownUrlTitleDelimiter start=+(+ end=+)+ keepend contained
+
+    syn region markdownLinkText matchgroup=markdownLinkTextDelimiter start="!\=\[\%(\_[^][]*\%(\[\_[^][]*\]\_[^][]*\)*]\%( \=[[(]\)\)\@=" end="\]\%( \=[[(]\)\@=" nextgroup=markdownLink,markdownId skipwhite contains=@markdownInline,markdownLineStart
+    syn region markdownLink matchgroup=markdownLinkDelimiter start="(" end=")" contains=markdownUrl keepend contained
+    syn region markdownId matchgroup=markdownIdDelimiter start="\[" end="\]" keepend contained
+    syn region markdownAutomaticLink matchgroup=markdownUrlDelimiter start="<\%(\w\+:\|[[:alnum:]_+-]\+@\)\@=" end=">" keepend oneline
+
+    let l:concealends = ''
+    if has('conceal') && get(g:, 'markdown_syntax_conceal', 1) == 1
+      let l:concealends = ' concealends'
+    endif
+    exe 'syn region markdownItalic matchgroup=markdownItalicDelimiter start="\*\S\@=" end="\S\@<=\*\|^$" skip="\\\*" contains=markdownLineStart,@Spell' . l:concealends
+    exe 'syn region markdownItalic matchgroup=markdownItalicDelimiter start="\w\@<!_\S\@=" end="\S\@<=_\w\@!\|^$" skip="\\_" contains=markdownLineStart,@Spell' . l:concealends
+    exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\*\*\S\@=" end="\S\@<=\*\*\|^$" skip="\\\*" contains=markdownLineStart,markdownItalic,@Spell' . l:concealends
+    exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\w\@<!__\S\@=" end="\S\@<=__\w\@!\|^$" skip="\\_" contains=markdownLineStart,markdownItalic,@Spell' . l:concealends
+    exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\*\*\*\S\@=" end="\S\@<=\*\*\*\|^$" skip="\\\*" contains=markdownLineStart,@Spell' . l:concealends
+    exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\w\@<!___\S\@=" end="\S\@<=___\w\@!\|^$" skip="\\_" contains=markdownLineStart,@Spell' . l:concealends
+
+    syn region markdownCode matchgroup=markdownCodeDelimiter start="`" end="`\|^$" skip="``"
+    syn region markdownCode matchgroup=markdownCodeDelimiter start="``" end="``\|^$" skip="```"
+    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="\z(`\{3,\}\).*$" end="\z1\ze\s*$"
+    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="\z(\~\{3,\}\).*$" end="\z1\ze\s*$"
+
+    syn match markdownFootnote "\[^[^\]]\+\]"
+    syn match markdownFootnoteDefinition "^\[^[^\]]\+\]:"
+
+    if main_syntax ==# 'markdown'
+      let l:done_include = {}
+      for l:type in g:markdown_fenced_languages
+        if has_key(l:done_include, l:type)
+          continue
+        endif
+        let l:name = matchstr(l:type,'[^=]*')
+        let l:ft = matchstr(l:type,'[^=]*$')
+        exe 'syn region markdownHighlight'.l:ft.' matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\)\s*\%({.\{-}\.\)\='.l:name.'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.l:ft . l:concealends
+        exe 'syn region markdownHighlight'.l:ft.' matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\)\s*\%({.\{-}\.\)\='.l:name.'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.l:ft . l:concealends
+        let l:done_include[l:type] = 1
+      endfor
+    endif
+
+    syn match markdownEscape "\\[][\\`*_{}()<>#+.!-]"
+
+    hi def link markdownH1                    htmlH1
+    hi def link markdownH2                    htmlH2
+    hi def link markdownH3                    htmlH3
+    hi def link markdownH4                    htmlH4
+    hi def link markdownH5                    htmlH5
+    hi def link markdownH6                    htmlH6
+    hi def link markdownHeadingRule           markdownRule
+    hi def link markdownH1Delimiter           markdownHeadingDelimiter
+    hi def link markdownH2Delimiter           markdownHeadingDelimiter
+    hi def link markdownH3Delimiter           markdownHeadingDelimiter
+    hi def link markdownH4Delimiter           markdownHeadingDelimiter
+    hi def link markdownH5Delimiter           markdownHeadingDelimiter
+    hi def link markdownH6Delimiter           markdownHeadingDelimiter
+    hi def link markdownHeadingDelimiter      Delimiter
+    hi def link markdownOrderedListMarker     markdownListMarker
+    hi def link markdownListMarker            htmlTagName
+    hi def link markdownBlockquote            Comment
+    hi def link markdownRule                  PreProc
+    hi def link markdownFrontMatterDelimiter  Delimiter
+
+    hi def link markdownFootnote              Typedef
+    hi def link markdownFootnoteDefinition    Typedef
+
+    hi def link markdownLinkText              htmlLink
+    hi def link markdownIdDeclaration         Typedef
+    hi def link markdownId                    Type
+    hi def link markdownAutomaticLink         markdownUrl
+    hi def link markdownUrl                   Float
+    hi def link markdownUrlTitle              String
+    hi def link markdownIdDelimiter           markdownLinkDelimiter
+    hi def link markdownUrlDelimiter          htmlTag
+    hi def link markdownUrlTitleDelimiter     Delimiter
+
+    hi def link markdownItalic                htmlItalic
+    hi def link markdownItalicDelimiter       markdownItalic
+    hi def link markdownBold                  htmlBold
+    hi def link markdownBoldDelimiter         markdownBold
+    hi def link markdownBoldItalic            htmlBoldItalic
+    hi def link markdownBoldItalicDelimiter   markdownBoldItalic
+    hi def link markdownCodeDelimiter         Delimiter
+
+    hi def link markdownEscape                Special
+
+    let b:current_syntax = "markdown"
+    if main_syntax ==# 'markdown'
+      unlet main_syntax
+    endif
+    " }}}
+    " after/syntax/markdown.vim {{{
+    syn keyword mkdTodo TODO containedin=ALL
+    hi def link mkdTodo Todo
+    " }}}
+    " tpope-vim-markdown/ftplugin/markdown.vim {{{
+    runtime! ftplugin/html.vim ftplugin/html_*.vim ftplugin/html/*.vim
+
+    setlocal comments=fb:*,fb:-,fb:+,n:> commentstring=<!--%s-->
+    setlocal formatoptions+=tcqln formatoptions-=r formatoptions-=o
+    setlocal formatlistpat=^\\s*\\d\\+\\.\\s\\+\\\|^\\s*[-*+]\\s\\+\\\|^\\[^\\ze[^\\]]\\+\\]:\\&^.\\{4\\}
+
+    if exists('b:undo_ftplugin')
+      let b:undo_ftplugin .= "|setl cms< com< fo< flp<"
+    else
+      let b:undo_ftplugin = "setl cms< com< fo< flp<"
+    endif
+
+    if !exists("g:no_plugin_maps") && !exists("g:no_markdown_maps")
+      nnoremap <silent><buffer> [[ :<C-U>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "bsW")<CR>
+      nnoremap <silent><buffer> ]] :<C-U>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "sW")<CR>
+      xnoremap <silent><buffer> [[ :<C-U>exe "normal! gv"<Bar>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "bsW")<CR>
+      xnoremap <silent><buffer> ]] :<C-U>exe "normal! gv"<Bar>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "sW")<CR>
+      let b:undo_ftplugin .= '|sil! nunmap <buffer> [[|sil! nunmap <buffer> ]]|sil! xunmap <buffer> [[|sil! xunmap <buffer> ]]'
+    endif
+
+    function! s:IsCodeBlock(lnum) abort
+      let synstack = synstack(a:lnum, 1)
+      for i in synstack
+        if synIDattr(i, 'name') =~# '^markdown\%(Code\|Highlight\)'
+          return 1
+        endif
+      endfor
+      return 0
+    endfunction
+
+    function! MarkdownFold() abort
+      let line = getline(v:lnum)
+      let hashes = matchstr(line, '^#\+')
+      let is_code = -1
+      if !empty(hashes)
+        let is_code = s:IsCodeBlock(v:lnum)
+        if !is_code
+          return ">" . len(hashes)
+        endif
+      endif
+      if !empty(line)
+        let nextline = getline(v:lnum + 1)
+        if nextline =~ '^=\+$'
+          if is_code == -1
+            let is_code = s:IsCodeBlock(v:lnum)
+          endif
+          if !is_code
+            return ">1"
+          endif
+        endif
+        if nextline =~ '^-\+$'
+          if is_code == -1
+            let is_code = s:IsCodeBlock(v:lnum)
+          endif
+          if !is_code
+            return ">2"
+          endif
+        endif
+      endif
+      return "="
+    endfunction
+
+    function! s:HashIndent(lnum) abort
+      let hash_header = matchstr(getline(a:lnum), '^#\{1,6}')
+      if len(hash_header)
+        return hash_header
+      else
+        let nextline = getline(a:lnum + 1)
+        if nextline =~# '^=\+\s*$'
+          return '#'
+        elseif nextline =~# '^-\+\s*$'
+          return '##'
+        endif
+      endif
+    endfunction
+
+    function! MarkdownFoldText() abort
+      let hash_indent = s:HashIndent(v:foldstart)
+      let title = substitute(getline(v:foldstart), '^#\+\s*', '', '')
+      let foldsize = (v:foldend - v:foldstart + 1)
+      let linecount = '['.foldsize.' lines]'
+      return hash_indent.' '.title.' '.linecount
+    endfunction
+
+    if has("folding") && get(g:, "markdown_folding", 0)
+      setlocal foldexpr=MarkdownFold()
+      setlocal foldmethod=expr
+      setlocal foldtext=MarkdownFoldText()
+      let b:undo_ftplugin .= "|setl foldexpr< foldmethod< foldtext<"
+    endif
+    " }}}
+    " s:markdown() {{{
     setlocal foldlevel=6
+
+    " too intrusive
     setlocal matchpairs-=<:>
+    " $VIMRUNTIME/ftplugin/html.vim:31 → remove `<:>,`
     if b:match_words[:3] ==# '<:>,'
         let b:match_words = b:match_words[4:]
     endif
-
-    syn sync minlines=123
-    syn sync linebreaks=1
-    if hlID('markdownError')
-        syn clear markdownError markdownItalic markdownBold markdownBoldItalic
-        syn clear markdownListMarker markdownOrderedListMarker
-        syn clear markdownCode markdownCodeBlock
-    endif
-    let concealends = ''
-    if has('conceal') && get(g:, 'markdown_syntax_conceal', 1) == 1
-        let concealends = ' concealends'
-    endif
-    " no emphasis using underscore
-    exe 'syn region markdownItalic matchgroup=markdownItalicDelimiter start="\*\S\@=" end="\S\@<=\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
-    exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\*\*\S\@=" end="\S\@<=\*\*" skip="\\\*" contains=markdownLineStart,markdownItalic,@Spell' . concealends
-    exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\*\*\*\S\@=" end="\S\@<=\*\*\*" skip="\\\*" contains=markdownLineStart,@Spell' . concealends
-    " arbitrarily nested items
-    syn match markdownListMarker "^\s*[-*+]\%(\s\+\S\)\@=" contained
-    syn match markdownOrderedListMarker "\s*\<\d\+\.\%(\s\+\S\)\@=" contained
-    " no indented code block
-    syn region markdownCode matchgroup=markdownCodeDelimiter start="`" end="`" keepend contains=markdownLineStart
-    syn region markdownCode matchgroup=markdownCodeDelimiter start="`` \=" end=" \=``" keepend contains=markdownLineStart
-    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\).*$" end="^\s*\z1\ze\s*$" keepend
-    syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\).*$" end="^\s*\z1\ze\s*$" keepend
-    " redefine fenced code block with language to fix the priority
-    let done_include = {}
-    for type in g:markdown_fenced_languages
-        if has_key(done_include, matchstr(type,'[^.]*'))
-            continue
-        endif
-        exe 'syn region markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\..*','','').' matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\)\s*\%({.\{-}\.\)\='.matchstr(type,'[^=]*').'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\.','','g') . concealends
-        exe 'syn region markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\..*','','').' matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\)\s*\%({.\{-}\.\)\='.matchstr(type,'[^=]*').'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.substitute(matchstr(type,'[^=]*$'),'\.','','g') . concealends
-        let done_include[matchstr(type,'[^.]*')] = 1
-    endfor
-endfunction
-
-function! s:IsCodeBlock(lnum) abort
-    let synstack = synstack(a:lnum, 1)
-    for i in synstack
-        if synIDattr(i, 'name') =~# '^markdown\%(Code\|Highlight\)'
-            return 1
-        endif
-    endfor
-    return 0
-endfunction
-
-function! MyMarkdownFoldExpr() abort
-    let line = getline(v:lnum)
-    let hashes = matchstr(line, '^#\+')
-    let is_code = -1
-    if !empty(hashes)
-        let is_code = s:IsCodeBlock(v:lnum)
-        if !is_code
-            return ">" . len(hashes)
-        endif
-    endif
-    if !empty(line)
-        let nextline = getline(v:lnum + 1)
-        if nextline =~ '^=\+$'
-            if is_code == -1
-                let is_code = s:IsCodeBlock(v:lnum)
-            endif
-            if !is_code
-                return ">1"
-            endif
-        endif
-        if nextline =~ '^-\+$'
-            if is_code == -1
-                let is_code = s:IsCodeBlock(v:lnum)
-            endif
-            if !is_code
-                return ">2"
-            endif
-        endif
-    endif
-    return "="
+    " }}}
 endfunction
 " }}}
 
@@ -2095,7 +2301,8 @@ hi! link helpHyperTextJump Underlined
 hi! link helpOption Underlined
 
 hi! link markdownCode String
-hi! link markdownCodeDelimiter String
+hi! link markdownCodeBlock String
+hi! link markdownHeadingDelimiter Keyword
 
 hi! link rustCommentLineDoc Comment
 hi! link rustLabel Special
