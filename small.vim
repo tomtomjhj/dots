@@ -879,9 +879,9 @@ func! FineGrainedICtrlW(finer)
         setlocal softtabstop=0
         return repeat("\<BS>", l:idx)
                     \ . "\<C-R>=FineGrainedICtrlWReset(".l:sts.")\<CR>"
-                    \ . (a:finer ? "" : "\<C-R>=MuPairsBS(7)\<CR>")
+                    \ . (a:finer ? "" : "\<C-R>=MuPairsBS()\<CR>")
     elseif l:chars[-1] !~ '\k'
-        return MuPairsBS(7)
+        return MuPairsBS()
     else
         return "\<C-w>"
     endif
@@ -985,35 +985,42 @@ inoreabbrev <expr> \date\ strftime('%F')
 " pairs {{{
 xmap aa a%
 
-inoremap <expr> ( MuPairsOpen('(', ')', 15)
-inoremap <expr> ) MuPairsClose('(', ')', 15)
-inoremap <expr> [ MuPairsOpen('[', ']', 15)
-inoremap <expr> ] MuPairsClose('[', ']', 15)
-inoremap <expr> { MuPairsOpen('{', '}', 127)
-inoremap <expr> } MuPairsClose('{', '}', 127)
+inoremap <expr> ( MuPairsOpen('(', ')')
+inoremap <expr> ) MuPairsClose('(', ')')
+inoremap <expr> [ MuPairsOpen('[', ']')
+inoremap <expr> ] MuPairsClose('[', ']')
+inoremap <expr> { MuPairsOpen('{', '}')
+inoremap <expr> } MuPairsClose('{', '}')
 inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . MuPairsCR()
-inoremap <expr> <BS> MuPairsBS(15)
+inoremap <expr> <BS> MuPairsBS()
 inoremap <expr> " MuPairsDumb('"')
 inoremap <expr> ' MuPairsDumb("'")
 inoremap <expr> ` MuPairsDumb('`')
 
-function! MuPairsOpen(open, close, distance) abort
-    if MuPairsBalance(a:open, a:close, a:distance) > 0
+" NOTE: If the cursor is on the start of the line which is also start of a
+" syntax region R (comment or string), the region type is detected as R, while
+" the actual region type of the to-be-inserted opener might not be R. So the
+" opener may match a closer in a different region, which prevents inserting a
+" closer. This is not really an issue because the closer can't be inserted
+" anyway since the start of R is usually delimited by non-keyword char, which
+" prevents inserting the closer.
+function! MuPairsOpen(open, close) abort
+    if MuPairsBalance(a:open, a:close, MuPairsRegionType(line('.'), s:esccol())) > 0
         return a:open
     elseif s:curchar() =~# '\k'
         return a:open
     endif
     return a:open . a:close . "\<C-g>U\<Left>"
 endfunction
-function! MuPairsClose(open, close, distance) abort
+function! MuPairsClose(open, close) abort
     if s:curchar() !=# a:close
         return a:close
-    elseif MuPairsBalance(a:open, a:close, a:distance) >= 0
+    elseif MuPairsBalance(a:open, a:close, MuPairsRegionType(line('.'), s:esccol())) >= 0
         return "\<C-g>U\<Right>"
     endif
     return a:close
 endfunction
-function! MuPairsBS(distance) abort
+function! MuPairsBS() abort
     let cur = s:curchar()
     if empty(cur) | return "\<BS>" | endif
     let prev = s:prevchar()
@@ -1022,7 +1029,7 @@ function! MuPairsBS(distance) abort
         return "\<Del>\<BS>"
     elseif prev . cur !~# '\V\%(()\|[]\|{}\)'
         return "\<BS>"
-    elseif MuPairsBalance(prev, cur, a:distance) < 0
+    elseif MuPairsBalance(prev, cur, MuPairsRegionType(line('.'), s:esccol())) < 0
         return "\<BS>"
     endif
     return "\<Del>\<BS>"
@@ -1037,12 +1044,12 @@ function! MuPairsCR() abort
     endif
     return "\<CR>\<C-c>O"
 endfunction
-function! MuPairsBalance(open, close, distance) abort
+function! MuPairsBalance(open, close, rtype) abort
     let openpat = '\V' . a:open
     let closepat = '\V' . a:close
-    let lnum = line('.')
-    return searchpair(openpat, '', closepat, 'cnrm', '', lnum + a:distance)
-         \ - searchpair(openpat, '', closepat, 'bnrm', '', max([lnum - a:distance, 1]))
+    let skip = 'MuPairsRegionType(line("."), col(".")) !=# ' . '"'.a:rtype.'"'
+    return searchpair(openpat, '', closepat, 'cnrm', skip, 0, 16)
+       \ - searchpair(openpat, '', closepat, 'bnrm', skip, 0, 16)
 endfunction
 function! MuPairsDumb(char) abort
     let cur = s:curchar()
@@ -1053,9 +1060,34 @@ function! MuPairsDumb(char) abort
     endif
     return a:char . a:char . "\<C-g>U\<Left>"
 endfunction
-function! s:prevchar() abort
-    return matchstr(getline('.'), '\%' . (col('.') - 1) . 'c.')
+" The coloumn at which the cursor will be placed when exiting insert mode
+" using <Esc> or <C-o>. Wrong for multibyte, but ok because synID works
+" correctly for any byte index.
+function! s:esccol() abort
+    return max([col('.') - 1, 1])
 endfunction
+" Can be fooled by groups contained in comment/string like vimTodo, escape,
+" ..., but synstack is too slow.
+function! MuPairsRegionType(l, c) abort
+    let name = synIDattr(synID(a:l, a:c, 0), 'name')
+    if name =~? 'comment' | return 'c' | endif
+    if name =~? 'string' | return 's' | endif
+    return 'n'
+endfunction
+if exists('*charcol')
+    function! s:prevchar() abort
+        let c = charcol('.')
+        if c == 1 | return '' | endif
+        let l = getline('.')
+        return matchstr(l, '.', byteidx(l, c - 1 - 1))
+    endfunction
+else
+    " NOTE: Returns empty string if prev char is multibyte. This actually
+    " isn't that problematic for mupairs since parens are usually 1 byte.
+    function! s:prevchar() abort
+        return matchstr(getline('.'), '\%' . (col('.') - 1) . 'c.')
+    endfunction
+endif
 function! s:curchar() abort
     return matchstr(getline('.'), '\%' . col('.') . 'c.')
 endfunction
