@@ -549,7 +549,7 @@ function! s:markdown() abort
     function! s:IsCodeBlock(lnum) abort
       let synstack = synstack(a:lnum, 1)
       for i in synstack
-        if synIDattr(i, 'name') =~# '^markdown\%(Code\|Highlight\)'
+        if synIDattr(i, 'name') =~# '^\%(markdown\%(Code\|Highlight\|Yaml\)\|htmlComment\)'
           return 1
         endif
       endfor
@@ -1221,13 +1221,13 @@ function! Wildignore2exclude() abort
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
 
-function! Execute(cmd) abort
+function! Execute(cmd, mods) abort
     let output = s:execute(a:cmd)
-    new
+    exe a:mods 'new'
     setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
     call setline(1, split(output, "\n"))
 endfunction
-command! -nargs=* -complete=command Execute silent call Execute(<q-args>)
+command! -nargs=* -complete=command Execute silent call Execute(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
@@ -2267,6 +2267,7 @@ hi! link Typedef Keyword
 hi! Special      term=underline ctermfg=224 guifg=#ffd7d7
 hi! Delimiter    ctermfg=252 guifg=#bcbcbc
 hi! Underlined   ctermfg=143 guifg=#afaf5f
+hi! Error        ctermfg=203 ctermbg=NONE guifg=#ff5f5f guibg=NONE
 hi! Todo         cterm=bold,reverse ctermfg=218 ctermbg=NONE gui=bold,reverse guifg=#ffafd7 guibg=NONE
 
 " :h highlight-groups
