@@ -64,8 +64,18 @@ set langmenu=en
 set encoding=utf-8
 set spelllang=en,cjk
 
-let mapleader = ","
+let mapleader = "\<Space>"
+noremap <Space> <Nop>
+let maplocalleader = ","
+noremap , <Nop>
 noremap <M-;> ,
+" <C-Space> as the insert mode leader
+noremap! <C-Space> <Nop>
+" scrolling with only left hand
+noremap <C-Space> <C-u>
+noremap <Space><Space> <C-d>
+" digraph
+noremap! <C-Space><C-Space> <C-k>
 
 set wildmenu wildmode=longest:full,full
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo*', '*.glob', '*.cm*', '*.aux']
@@ -84,7 +94,7 @@ set shortmess+=Ic shortmess-=S
 set belloff=all
 
 set history=1000
-set viminfo=!,'150,<50,s30,h,r/tmp,rfugitive://
+set viminfo=!,'150,<50,s30,h,r/tmp,rterm://,rfugitive://
 set updatetime=1234
 set backup undofile noswapfile
 if has('nvim')
@@ -134,8 +144,11 @@ augroup END
 " fix terminal vim problems {{{
 if !has('gui_running') && !has('nvim')
     silent! !stty -ixon > /dev/null 2>/dev/null
+    " term=tmux-256color messes up ctrl-arrows
     if $TERM =~ '\(tmux\|screen\)-256' | set term=xterm-256color | endif
+    " set to xterm in tmux, which doesn't support window resizing with mouse
     set ttymouse=sgr
+
     " NOTE: <M- keys can be affected by 'encoding'.
     " NOTE: Characters that come after <Esc> in terminal codes: [ ] P \ M O
     " (see term.c and `set termcap`)
@@ -148,11 +161,17 @@ if !has('gui_running') && !has('nvim')
         exe 'noremap  <M-'.c.'>' c
         exe 'noremap! <M-'.c.'>' c
     endfor
-    " <M-BS>, <C-space> are not :set-able
+    " <M-BS>, <C-space> are not :set-able. So there is no nice way to map them
+    " that both vim and nvim understand.
     exe "set <F34>=\<Esc>\<C-?>"
     map! <F34> <M-BS>
-    map  <Nul> <C-space>
-    map! <Nul> <C-space>
+    map  <Nul> <C-Space>
+    map! <Nul> <C-Space>
+    " NOTE: Once a map prefix is entered, the above mapping doesn't work, i.e.
+    " <Nul><Nul> becomes <C-Space><Nul>. Currently I use non-prefix <C-Space>
+    " for this mapping only.
+    map! <C-Space><Nul> <C-Space><C-Space>
+
     " :h undercurl
     let &t_Cs = "\e[4:3m"
     let &t_Ce = "\e[4:0m"
@@ -334,6 +353,7 @@ endfunction
 " }}}
 
 " markdown {{{
+let g:markdown_fenced_languages = []
 let g:markdown_folding = 1
 function! s:markdown() abort
     syn clear
@@ -633,7 +653,7 @@ endfunction
 " Python {{{
 let g:pyindent_continue = '&shiftwidth'
 let g:pyindent_open_paren = '&shiftwidth'
-function s:python() abort
+function! s:python() abort
     setlocal foldmethod=indent foldnestmax=2 foldignore=
     setlocal formatoptions+=ro
 endfunction
@@ -763,6 +783,7 @@ endfunction
 " }}}
 
 " Motion, insert mode, ... {{{
+" just set nowrap instead of explicit linewise ops
 nnoremap <expr> j                     v:count ? 'j' : 'gj'
 nnoremap <expr> k                     v:count ? 'k' : 'gk'
 nnoremap <expr> J                     v:count ? 'j' : 'gj'
@@ -778,9 +799,6 @@ onoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 noremap <leader>J J
 noremap <expr> H v:count ? 'H' : 'h'
 noremap <expr> L v:count ? 'L' : 'l'
-
-nnoremap <space> <C-d>
-nnoremap <c-space> <C-u>
 
 noremap <M-0> ^w
 
@@ -852,9 +870,9 @@ func! SwordJumpLeft()
     call search(col('.') != 1 ? g:sword : '\v$', 'bW')
     return ''
 endfunc
+" <C-b> <C-e>
 cnoremap <C-j> <S-Right>
 cnoremap <C-k> <S-Left>
-noremap! <C-space> <C-k>
 
 inoremap <expr> <C-u> match(getline('.'), '\S') >= 0 ? "\<C-g>u<C-u>" : "<C-u>"
 " Delete a single character of other non-blank chars
@@ -905,8 +923,9 @@ nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
 noremap <leader>dp :diffput<CR>
 noremap <leader>do :diffget<CR>
 
-inoremap <C-v> <C-g>u<C-\><C-o>:set paste<CR><C-r>+<C-\><C-o>:set nopaste<CR>
-vnoremap <C-c> "+y
+" clipboard.
+inoremap <C-v> <C-g>u<C-r><C-p>+
+xnoremap <leader>y "+y
 
 noremap <leader>fn 2<C-g>
 
@@ -1180,6 +1199,7 @@ function! GXBrowse(url)
     execute 'silent! !' . viewer . ' ' . shellescape(a:url, 1) . redir
     redraw!
 endfunction
+" based on https://gist.github.com/gruber/249502
 let s:url_regex = '\c\<\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{0,3}[.]\|[a-z0-9.\-]\+[.][a-z]\{2,4}\/\)\%([^ \t()<>]\+\|(\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\)\+\%((\([^ \t()<>]\+\|\(([^ \t()<>]\+)\)\)*)\|[^ \t`!()[\]{};:'."'".'".,<>?«»“”‘’]\)'
 function! CursorURL() abort
     return matchstr(expand('<cWORD>'), s:url_regex)
@@ -1236,7 +1256,7 @@ endfunction
 function! s:cmdshellescape(text) abort
     return escape(shellescape(a:text), '#%')
 endfunction
-function s:cabbrev(lhs, rhs) abort
+function! s:cabbrev(lhs, rhs) abort
     return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
 endfunction
 " }}}
@@ -1275,6 +1295,7 @@ command! -range=% Unpdf
             \|call winrestview(_view)
             \|unlet _view
 
+" :substitute using a dict, where key == submatch (like VisualStar)
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
                 \ . '/\C\%(' . join(map(keys(a:dict), 'Text2Magic(v:val)'), '\|'). '\)'
