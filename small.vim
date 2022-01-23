@@ -69,13 +69,11 @@ noremap <Space> <Nop>
 let maplocalleader = ","
 noremap , <Nop>
 noremap <M-;> ,
-" <C-Space> as the insert mode leader
-noremap! <C-Space> <Nop>
 " scrolling with only left hand
 noremap <C-Space> <C-u>
 noremap <Space><Space> <C-d>
 " digraph
-noremap! <C-Space><C-Space> <C-k>
+noremap! <C-Space> <C-k>
 
 set wildmenu wildmode=longest:full,full
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo*', '*.glob', '*.cm*', '*.aux']
@@ -161,16 +159,12 @@ if !has('gui_running') && !has('nvim')
         exe 'noremap  <M-'.c.'>' c
         exe 'noremap! <M-'.c.'>' c
     endfor
-    " <M-BS>, <C-space> are not :set-able. So there is no nice way to map them
-    " that both vim and nvim understand.
+  " <M-BS>, <C-space> are not :set-able. So there is no nice way to use them
+  " in multi-char mapping that that both vim and nvim understand.
     exe "set <F34>=\<Esc>\<C-?>"
     map! <F34> <M-BS>
     map  <Nul> <C-Space>
     map! <Nul> <C-Space>
-    " NOTE: Once a map prefix is entered, the above mapping doesn't work, i.e.
-    " <Nul><Nul> becomes <C-Space><Nul>. Currently I use non-prefix <C-Space>
-    " for this mapping only.
-    map! <C-Space><Nul> <C-Space><C-Space>
 
     " :h undercurl
     let &t_Cs = "\e[4:3m"
