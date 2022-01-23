@@ -88,6 +88,10 @@ fc-cache -fv
   ```
   gsettings set org.gnome.Terminal.Legacy.Settings headerbar false
   ```
+* gnome tab bar height
+  ```
+  cd ~/.config/gtk-3.0 && ln -s ~/dots/.config/gtk-3.0/gtk.css
+  ```
 * [gnome terminal theme](https://unix.stackexchange.com/questions/448811/how-to-export-a-gnome-terminal-profile)
     1. make a profile
     2. dump `dconf dump /org/gnome/terminal/legacy/profiles:/ > gnome-terminal-profiles.dconf`
@@ -150,7 +154,7 @@ sudo usermod -aG docker $USER
 ```
 
 ## etc
-* `aptitude` good for resolving broken package issues
+* `aptitude upgrade --full-resolver` good for resolving broken package issues
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -168,9 +172,16 @@ bat cache --build
   ```
 * pip kdewallet https://stackoverflow.com/q/64570510
 
+# 21.10
+* remove snap firefox and use deb firefox (slow & firenvim support)
+
+# 22.04
+* remove ntfs-3g and use linux native ntfs? (kernel 5.15?)
+
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard
 * https://mug896.github.io/awk-script/index.html https://mug896.github.io/bash-shell/quotes.html
+* https://mywiki.wooledge.org/BashPitfalls
 * login shell
     * what's the point? https://unix.stackexchange.com/a/324391
     * `~/.bash_profile`, `~/.profile`, `~/.bashrc` https://superuser.com/a/789465
