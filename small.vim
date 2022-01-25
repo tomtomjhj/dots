@@ -159,8 +159,12 @@ if !has('gui_running') && !has('nvim')
         exe 'noremap  <M-'.c.'>' c
         exe 'noremap! <M-'.c.'>' c
     endfor
-  " <M-BS>, <C-space> are not :set-able. So there is no nice way to use them
-  " in multi-char mapping that that both vim and nvim understand.
+    " NOTE: "set <C-M-j>=\<Esc>\<NL>" breaks stuff. So use <C-M-n> instead.
+    exe "set <C-M-n>=\<Esc>\<C-n>"
+    exe "set <C-M-k>=\<Esc>\<C-k>"
+    exe "set <C-M-l>=\<Esc>\<C-l>"
+    " <M-BS>, <C-space> are not :set-able. So there is no nice way to use them
+    " in multi-char mapping that both vim and nvim understand.
     exe "set <F34>=\<Esc>\<C-?>"
     map! <F34> <M-BS>
     map  <Nul> <C-Space>
@@ -462,6 +466,7 @@ function! s:markdown() abort
     exe 'syn region markdownBold matchgroup=markdownBoldDelimiter start="\w\@<!__\S\@=" end="\S\@<=__\w\@!\|^$" skip="\\_" contains=markdownLineStart,markdownItalic,@Spell' . l:concealends
     exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\*\*\*\S\@=" end="\S\@<=\*\*\*\|^$" skip="\\\*" contains=markdownLineStart,@Spell' . l:concealends
     exe 'syn region markdownBoldItalic matchgroup=markdownBoldItalicDelimiter start="\w\@<!___\S\@=" end="\S\@<=___\w\@!\|^$" skip="\\_" contains=markdownLineStart,@Spell' . l:concealends
+    exe 'syn region markdownStrike matchgroup=markdownStrikeDelimiter start="\~\~\S\@=" end="\S\@<=\~\~\|^$" contains=markdownLineStart,@Spell' . l:concealends
 
     syn region markdownCode matchgroup=markdownCodeDelimiter start="`" end="`\|^$" skip="``"
     syn region markdownCode matchgroup=markdownCodeDelimiter start="``" end="``\|^$" skip="```"
@@ -526,6 +531,9 @@ function! s:markdown() abort
     hi def link markdownBoldDelimiter         markdownBold
     hi def link markdownBoldItalic            htmlBoldItalic
     hi def link markdownBoldItalicDelimiter   markdownBoldItalic
+    hi def link markdownStrike                htmlStrike
+    hi def link markdownStrikeDelimiter       markdownStrike
+
     hi def link markdownCodeDelimiter         Delimiter
 
     hi def link markdownEscape                Special
@@ -919,7 +927,7 @@ noremap <leader>do :diffget<CR>
 
 " clipboard.
 inoremap <C-v> <C-g>u<C-r><C-p>+
-xnoremap <leader>y "+y
+noremap <leader>y "+y
 
 noremap <leader>fn 2<C-g>
 
@@ -1214,7 +1222,9 @@ let g:flog_permanent_default_arguments = { 'date': 'short', }
 
 augroup git-custom | au!
     " TODO: Very slow and doesn't fold each hunk.
-    au FileType git,fugitive,gitcommit nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
+    au FileType git,fugitive,gitcommit
+        \ nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
+        \|silent! unmap <buffer> *
     au User FugitiveObject,FugitiveIndex silent! unmap <buffer> *
     au FileType floggraph silent! nunmap <buffer> <Tab>
 augroup END
@@ -1452,7 +1462,7 @@ inoremap <expr> <M-/> "\<C-G>u" . <SID>commentary_insert()
 " }}} }}}
 
 " vinegar {{{
-" https://github.com/tpope/vim-vinegar/blob/43576e84d3034bccb1216f39f51ed36d945d7b96/plugin/vinegar.vim
+" https://github.com/tpope/vim-vinegar/blob/bb1bcddf43cfebe05eb565a84ab069b357d0b3d6/plugin/vinegar.vim
 let s:vinegar_dotfiles = '\(^\|\s\s\)\zs\.\S\+'
 
 let s:vinegar_escape = 'substitute(escape(v:val, ".$~"), "*", ".*", "g")'
@@ -1547,7 +1557,7 @@ endfunction
 function! s:vinegar_setup_vinegar() abort
   if !exists('s:vinegar_netrw_up')
     let orig = maparg('-', 'n')
-    if orig =~? '^<plug>'
+    if orig =~? '^<plug>' && orig !=# '<Plug>VinegarUp'
       let s:vinegar_netrw_up = 'execute "normal \'.substitute(orig, ' *$', '', '').'"'
     elseif orig =~# '^:'
       " :exe "norm! 0"|call netrw#LocalBrowseCheck(<SNR>123_NetrwBrowseChgDir(1,'../'))<CR>
