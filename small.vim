@@ -291,15 +291,15 @@ else
     endfunction
 endif
 
-func! ShortRelPath()
-    let name = expand('%')
+function! ShortRelPath()
+    let name = bufname()
     if empty(name)
         return empty(&buftype) ? '[No Name]' : &buftype ==# 'nofile' ? '[Scratch]' : ''
     elseif isdirectory(name)
-        return pathshorten(fnamemodify(name[:-2], ":~")) . '/'
+        return pathshorten(fnamemodify(name, ":~"))
     endif
     return pathshorten(fnamemodify(name, ":~:."))
-endfunc
+endfunction
 
 function! UpdateGitStatus(buf)
     let bufname = fnamemodify(bufname(a:buf), ':p')
@@ -1174,6 +1174,13 @@ let g:netrw_fastbrowse = 0
 let g:netrw_clipboard = 0
 nnoremap <silent><C-w>es :Hexplore<CR>
 nnoremap <silent><C-w>ev :Vexplore!<CR>
+augroup netrw-custom | au!
+    au FileType netrw call s:netrw()
+augroup END
+function! s:netrw() abort
+    silent! nunmap <buffer> <C-L>
+    nmap <buffer> <leader><C-L> <Plug>NetrwRefresh
+endfunction
 
 " https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
 function! GXBrowse(url)
