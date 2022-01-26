@@ -23,7 +23,7 @@
 	cp = cherry-pick
 [user]
 	email = tomtomjhj@gmail.com
-	name = Jaehwang Jerry Jung
+	name = Jaehwang Jung
 [core]
 	editor = nvim
 	# default: FRX
