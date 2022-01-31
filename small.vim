@@ -926,7 +926,7 @@ noremap <leader>dp :diffput<CR>
 noremap <leader>do :diffget<CR>
 
 " clipboard.
-inoremap <C-v> <C-g>u<C-r><C-p>+
+inoremap <C-v> <C-g>u<C-r><C-o>+
 noremap <leader>y "+y
 
 noremap <leader>fn 2<C-g>
@@ -1585,7 +1585,7 @@ endfunction
 " }}}
 
 " surround {{{
-" https://github.com/tpope/vim-surround/blob/f51a26d3710629d031806305b6c8727189cd1935/plugin/surround.vim
+" https://github.com/tpope/vim-surround/blob/baf89ad26488f6a7665d51b986f5c7ad2d22b30b/plugin/surround.vim
 " Input functions {{{2
 
 function! s:surround_getchar()
@@ -1937,8 +1937,8 @@ function! s:surround_insert(...) " {{{2
   return "\<Del>"
 endfunction " }}}2
 
-function! s:surround_reindent() " {{{2
-  if exists("b:surround_indent") ? b:surround_indent : (!exists("g:surround_indent") || g:surround_indent)
+function! s:surround_reindent() abort " {{{2
+  if get(b:, 'surround_indent', get(g:, 'surround_indent', 1)) && (!empty(&equalprg) || !empty(&indentexpr) || &cindent || &smartindent || &lisp)
     silent norm! '[=']
   endif
 endfunction " }}}2
