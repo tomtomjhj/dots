@@ -6,6 +6,7 @@
 	co = checkout
 	lg = log --all --decorate --oneline --graph
 	lgc = log --decorate --oneline --graph
+	lp = log -p
 	st = status
 	hs = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
 	hsp = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
@@ -15,7 +16,12 @@
 	hscs = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
 	df = diff
 	dfc = diff --cached
-	dt = difftool
+	# TODO: can't alias without subcommand? ("empty alias")
+	# dt = -c core.pager=delta
+	# https://github.com/git/git/blob/2b9c1209706bc2ef0ab09fb0bdc7d405e225ce8b/contrib/completion/git-completion.bash#L26-L30
+	#                  vvvv must hardcode subcommand to make completion work? $@ didn't work..
+	dt = "!f() { : git diff ; cd \"${GIT_PREFIX:-.}\"; git -c core.pager=delta \"$@\"; }; f"
+	#                      ^ this space is necessary to make completion work
 	rb = rebase
 	sm = submodule
 	smu = submodule update --init
@@ -48,3 +54,15 @@
 	fetchJobs = 0
 [pull]
 	ff = only
+[delta]
+# NOTE
+# * Don't set core.pager=delta by default. See alias.dt.
+# * delta only works for log -p. Need support for custom log format and graph
+#   * https://github.com/dandavison/delta/pull/633
+#   * https://github.com/dandavison/delta/issues/141
+	line-numbers = true
+	syntax-theme = zenburn # can't use bat theme?
+	file-decoration-style = ul ol
+	hunk-header-decoration-style =
+	# navigate = true
+# vim:set noet sw=8 ts=8 cms=#\ %s:
