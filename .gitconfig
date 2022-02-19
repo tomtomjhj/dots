@@ -6,6 +6,7 @@
 	co = checkout
 	lg = log --all --decorate --oneline --graph
 	lgc = log --decorate --oneline --graph
+	lgall = "!git lg $(git fsck --no-reflog | awk '/dangling commit/ {print $3}')"
 	lp = log -p
 	st = status
 	hs = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
