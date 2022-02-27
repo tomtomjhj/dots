@@ -296,10 +296,13 @@ else
 endif
 
 function! ShortRelPath()
+    if &filetype ==# 'netrw'
+        return pathshorten(fnamemodify(b:netrw_curdir, ":~"))
+    endif
     let name = bufname()
     if empty(name)
         return empty(&buftype) ? '[No Name]' : &buftype ==# 'nofile' ? '[Scratch]' : ''
-    elseif isdirectory(name)
+    elseif isdirectory(name) " NOTE: https://github.com/vim/vim/issues/9099
         return pathshorten(fnamemodify(name, ":~"))
     endif
     return pathshorten(fnamemodify(name, ":~:."))
