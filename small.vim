@@ -84,7 +84,7 @@ if exists('+completepopup')
 endif
 set path=.,,
 
-set ignorecase smartcase
+set ignorecase smartcase tagcase=followscs
 set hlsearch incsearch
 
 set noerrorbells novisualbell t_vb=
@@ -473,6 +473,8 @@ function! s:markdown() abort
 
     syn region markdownCode matchgroup=markdownCodeDelimiter start="`" end="`\|^$" skip="``"
     syn region markdownCode matchgroup=markdownCodeDelimiter start="``" end="``\|^$" skip="```"
+    syn region markdownCode matchgroup=markdownCodeDelimiter start="\$\S\@=" end="\S\@<=\$\|^$" skip="\\\$"
+    syn region markdownCode matchgroup=markdownCodeDelimiter start="\$\$" end="\$\$\|^$" skip="\\\$"
     syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="\z(`\{3,\}\).*$" end="\z1\ze\s*$"
     syn region markdownCodeBlock matchgroup=markdownCodeDelimiter start="\z(\~\{3,\}\).*$" end="\z1\ze\s*$"
 
@@ -493,7 +495,7 @@ function! s:markdown() abort
       endfor
     endif
 
-    syn match markdownEscape "\\[][\\`*_{}()<>#+.!-]"
+    syn match markdownEscape "\\[][\\`$*_{}()<>#+.!-]"
 
     hi def link markdownH1                    htmlH1
     hi def link markdownH2                    htmlH2
@@ -670,8 +672,8 @@ let g:tex_no_error = 1
 " }}}
 
 " search & files {{{
-nnoremap <silent>* :call Star(0)\|set hlsearch<CR>
-nnoremap <silent>g* :call Star(1)\|set hlsearch<CR>
+nnoremap <silent>* :<C-u>call Star(0)\|set hlsearch<CR>
+nnoremap <silent>g* :<C-u>call Star(1)\|set hlsearch<CR>
 vnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
 vnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
 let g:search_mode = get(g:, 'search_mode', '/')
@@ -1229,6 +1231,7 @@ augroup git-custom | au!
         \ nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
     au User FugitiveObject,FugitiveIndex silent! unmap <buffer> *
+    au User FugitiveChanged if &ft ==# 'floggraph' | call flog#populate_graph_buffer() | endif
     au FileType floggraph silent! nunmap <buffer> <Tab>
 augroup END
 " }}}
