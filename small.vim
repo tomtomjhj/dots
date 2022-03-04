@@ -299,7 +299,7 @@ function! ShortRelPath()
     if &filetype ==# 'netrw'
         return pathshorten(fnamemodify(b:netrw_curdir, ":~"))
     endif
-    let name = bufname()
+    let name = bufname('%')
     if empty(name)
         return empty(&buftype) ? '[No Name]' : &buftype ==# 'nofile' ? '[Scratch]' : ''
     elseif isdirectory(name) " NOTE: https://github.com/vim/vim/issues/9099
@@ -732,7 +732,7 @@ function! Grep(query, ...) abort
     if a:0
         let dir = a:1
     elseif opts =~ '3'
-        let dir = s:git_root(empty(bufname()) ? getcwd() : bufname())
+        let dir = s:git_root(empty(bufname('%')) ? getcwd() : bufname('%'))
     elseif &grepprg ==# 'internal'
         let dir = '**'
     endif
@@ -772,7 +772,7 @@ function! Files(...) abort
     silent doautocmd QuickFixCmdPre Files
     let opts = string(v:count)
     if opts =~ '3'
-        let root = s:git_root(empty(bufname()) ? getcwd() : bufname())
+        let root = s:git_root(empty(bufname('%')) ? getcwd() : bufname('%'))
         " NOTE: add -co to include untracked files (n.b. may not enumerate each file)
         let files = s:system('git -C '.root.' ls-files --exclude-standard')
         call map(files, "'".root."/'.v:val")
