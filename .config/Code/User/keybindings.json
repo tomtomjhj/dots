@@ -1,0 +1,13 @@
+// Place your key bindings in this file to override the defaultsauto[]
+[
+    {
+        "key": "ctrl+n",
+        "command": "editor.action.triggerSuggest",
+        "when": "editorHasCompletionItemProvider && textInputFocus && !editorReadonly"
+    },
+    {
+      "key": "ctrl+space",
+      "command": "extension.vim_ctrl+space",
+      "when": "editorTextFocus && vim.active && vim.use<C-space> && !inDebugRepl" // && vim.mode != 'Insert'
+    }
+]
