@@ -674,8 +674,8 @@ let g:tex_no_error = 1
 " search & files {{{
 nnoremap <silent>* :<C-u>call Star(0)\|set hlsearch<CR>
 nnoremap <silent>g* :<C-u>call Star(1)\|set hlsearch<CR>
-vnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
-vnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
+xnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
+xnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
 let g:search_mode = get(g:, 'search_mode', '/')
 func! Star(g)
     let @c = expand('<cword>')
@@ -795,12 +795,12 @@ nnoremap <expr> j                     v:count ? 'j' : 'gj'
 nnoremap <expr> k                     v:count ? 'k' : 'gk'
 nnoremap <expr> J                     v:count ? 'j' : 'gj'
 nnoremap <expr> K                     v:count ? 'k' : 'gk'
-vnoremap <expr> j mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
-vnoremap <expr> k mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
+xnoremap <expr> j mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
+xnoremap <expr> k mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 onoremap <expr> j mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
 onoremap <expr> k mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
-vnoremap <expr> J mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
-vnoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
+xnoremap <expr> J mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
+xnoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 onoremap <expr> J mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
 onoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 noremap <leader>J J
@@ -972,9 +972,9 @@ xnoremap <silent> & :&&<cr>
 
 " set nrformats+=alpha
 noremap  <M-+> <C-a>
-vnoremap <M-+> g<C-a>
+xnoremap <M-+> g<C-a>
 noremap  <M--> <C-x>
-vnoremap <M--> g<C-x>
+xnoremap <M--> g<C-x>
 
 nnoremap <C-j> <C-W>j
 nnoremap <C-k> <C-W>k
