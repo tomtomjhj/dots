@@ -14,8 +14,11 @@ RUN mkdir -p /usr/share/man/man1
 
 RUN apt-get update -q
 
-RUN apt-get install -qqy -o=Dpkg::Use-Pty=0 git curl
+RUN apt-get install -qqy -o=Dpkg::Use-Pty=0 git curl wget
 RUN apt-get install -qqy -o=Dpkg::Use-Pty=0 bibtool
+# RUN apt-get install -qqy -o=Dpkg::Use-Pty=0 ghostscript fig2ps
+# RUN apt-get install -qqy -o=Dpkg::Use-Pty=0 graphviz
+# RUN apt-get install -qqy -o=Dpkg::Use-Pty=0 inkscape
 
 RUN curl -s https://api.github.com/repos/jgm/pandoc/releases/latest | grep -o "https.*amd64.deb" | wget -O pandoc.deb -qi - && \
     dpkg -i pandoc.deb && rm pandoc.deb
