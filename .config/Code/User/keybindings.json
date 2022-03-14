@@ -1,5 +1,7 @@
 // Place your key bindings in this file to override the defaultsauto[]
 [
+    // vim stuff {{{
+    // Hack for digraph with <C-Space>.
     {
         "key": "ctrl+n",
         "command": "editor.action.triggerSuggest",
@@ -9,5 +11,91 @@
       "key": "ctrl+space",
       "command": "extension.vim_ctrl+space",
       "when": "editorTextFocus && vim.active && vim.use<C-space> && !inDebugRepl" // && vim.mode != 'Insert'
+    },
+    // }}}
+
+    // coq stuff {{{
+    {
+      "key": "ctrl+alt+l",
+      "command": "-extension.coq.query.locate",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "ctrl+alt+j",
+      "command": "extension.coq.stepForward",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "alt+down",
+      "command": "-extension.coq.stepForward",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "ctrl+alt+j",
+      "command": "extension.coq.stepForward",
+      "when": "resourceScheme == 'coq-view'"
+    },
+    {
+      "key": "alt+down",
+      "command": "-extension.coq.stepForward",
+      "when": "resourceScheme == 'coq-view'"
+    },
+    {
+      "key": "ctrl+alt+k",
+      "command": "extension.coq.stepBackward",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "alt+up",
+      "command": "-extension.coq.stepBackward",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "ctrl+alt+k",
+      "command": "-extension.coq.query.searchAbout",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "ctrl+alt+k",
+      "command": "extension.coq.stepBackward",
+      "when": "resourceScheme == 'coq-view'"
+    },
+    {
+      "key": "alt+up",
+      "command": "-extension.coq.stepBackward",
+      "when": "resourceScheme == 'coq-view'"
+    },
+    {
+      "key": "ctrl+alt+l",
+      "command": "extension.coq.interpretToPoint",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "alt+right",
+      "command": "-extension.coq.interpretToPoint",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "ctrl+alt+l",
+      "command": "extension.coq.interpretToPoint",
+      "when": "resourceScheme == 'coq-view'"
+    },
+    {
+      "key": "alt+right",
+      "command": "-extension.coq.interpretToPoint",
+      "when": "resourceScheme == 'coq-view'"
+    },
+    // CoqJumpToEnd
+    {
+      "key": ", .",
+      "command": "extension.coq.moveCursorToFocus",
+      "when": "editorTextFocus && editorLangId == 'coq'"
+    },
+    {
+      "key": "ctrl+alt+.",
+      "command": "-extension.coq.moveCursorToFocus",
+      "when": "editorTextFocus && editorLangId == 'coq'"
     }
+    // }}}
 ]
+// vim:set ft=jsonc fdm=marker:

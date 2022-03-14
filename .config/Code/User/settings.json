@@ -4,13 +4,22 @@
     "editor.fontSize": 12,
     "editor.minimap.enabled": false,
     "editor.occurrencesHighlight": false,
+    "editor.renderFinalNewline": false,
     "editor.unicodeHighlight.ambiguousCharacters": false,
 
     "extensions.ignoreRecommendations": true,
 
+    // Files that I definitely won't open in vscode. The best would be to exclude using .gitignore file with toggling, but both are not supported in vscode.
+    "files.exclude": {
+        "**/.{lia,nia}.cache": true,
+        "**/.*.aux": true,
+        "**/*.glob": true,
+        "**/*.vo{,k,s}": true
+    },
     "files.insertFinalNewline": true,
 
-    "vim.foldfix": true,
+
+    "vim.foldfix": true, // TODO: doesn't fix <C-u>, zj, ...
     "vim.highlightedyank.enable": true,
     "vim.hlsearch": true,
     "vim.joinspaces": false,
@@ -41,10 +50,15 @@
         {"before": ["Y"], "after": ["y", "$"]},
         {"before": ["<leader>", "q"], "commands": ["workbench.action.closeActiveEditor"]},
         {"before": ["<leader>", "w"], "commands": ["workbench.action.files.save"]},
-    ],
-    "vim.normalModeKeyBindings": [
-        // TODO: https://github.com/VSCodeVim/Vim/issues/2713
+        // TODO: It's impossible to `map <M-;> <Plug>Sneak_,`.
+        // * Mapping <M- is not supported. https://github.com/VSCodeVim/Vim/issues/2713
+        // * VSCodeVim does not provide a vscode command that corresponds to `<Plug>Sneak_,` (interpreted internally?) or `,` (unlike some of other keyes, e.g. "extension.vim_ctrl+space").
+        // Also note that `<Plug>Sneak_,` is mappable with nore. (This is actually vim behavior since 8.2.4498).
         // {"before": ["<M-;>"], "after": [","]},
+        {"before": ["<leader>", ";"], "after": [","]},
+
+        // TODO: star/visualstar without jump
+        // {"before": ["*"], "after": [???]},
     ],
     "vim.visualModeKeyBindingsNonRecursive": [
         {"before": ["J"], "after": ["j"]},
@@ -57,7 +71,15 @@
     //     {"before": ["<M-n>"], "after": ["<Down>"]},
     // ]
 
-    "generic-input-methods.input-methods": [
+
+    "coq.moveCursorToFocus": false, //
+    // NOTE: ProofView literally unusable
+    // * It's a special window that I can't put cursor on.
+    // * Everything is highlighted in bright foreground color and I couldn't figure out how to un-highlight it.
+    // * Output window (where query command result is displayed) doesn't have vim mode..
+
+
+    "generic-input-methods.input-methods": [ /// {{{
         {
             "name": "Iris Math",
             "commandName": "text.math",
@@ -231,8 +253,11 @@
             ]
         }
     ],
+    // }}}
 
     // below are settings that are frequently modified during runtime
     "window.zoomLevel": 2,
     "editor.wordWrap": "on",
+    "workbench.colorTheme": "Default Light+",
 }
+// vim:set ft=jsonc fdm=marker:
