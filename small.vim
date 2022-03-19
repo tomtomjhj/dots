@@ -376,9 +376,6 @@ function! s:markdown() abort
     runtime! syntax/html.vim
     unlet! b:current_syntax
 
-    syn include @markdownYaml syntax/yaml.vim
-    unlet! b:current_syntax
-
     if !exists('g:markdown_fenced_languages')
       let g:markdown_fenced_languages = []
     endif
@@ -388,7 +385,7 @@ function! s:markdown() abort
         continue
       endif
       syn case match
-      exe 'syn include @markdownHighlight'.l:ft.' syntax/'.l:ft.'.vim'
+      exe 'syn include @markdownHighlight_'.l:ft.' syntax/'.l:ft.'.vim'
       unlet! b:current_syntax
       let l:done_include[l:ft] = 1
     endfor
@@ -441,10 +438,6 @@ function! s:markdown() abort
     syn match markdownRule "\* *\* *\*[ *]*$" contained
     syn match markdownRule "- *- *-[ -]*$" contained
 
-    " NOTE: Front matter delimiter should be prioritized over rule. Also it's not
-    " contained in markdownBlock cluster.
-    syn region markdownYamlFrontMatter matchgroup=markdownFrontMatterDelimiter start="\%^---$" end="^\(---\|\.\.\.\)$" contains=@markdownYaml
-
     syn match markdownLineBreak " \{2,\}$"
 
     syn region markdownIdDeclaration matchgroup=markdownLinkDelimiter start="^ \{0,3\}!\=\[" end="\]:" oneline keepend nextgroup=markdownUrl skipwhite
@@ -481,18 +474,22 @@ function! s:markdown() abort
     syn match markdownFootnote "\[^[^\]]\+\]"
     syn match markdownFootnoteDefinition "^\[^[^\]]\+\]:"
 
-    if main_syntax ==# 'markdown'
-      let l:done_include = {}
-      for l:type in g:markdown_fenced_languages
-        if has_key(l:done_include, l:type)
-          continue
-        endif
-        let l:name = matchstr(l:type,'[^=]*')
-        let l:ft = matchstr(l:type,'[^=]*$')
-        exe 'syn region markdownHighlight'.l:ft.' matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\)\s*\%({.\{-}\.\)\='.l:name.'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.l:ft . l:concealends
-        exe 'syn region markdownHighlight'.l:ft.' matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\)\s*\%({.\{-}\.\)\='.l:name.'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight'.l:ft . l:concealends
-        let l:done_include[l:type] = 1
-      endfor
+    let l:done_include = {}
+    for l:type in g:markdown_fenced_languages
+      if has_key(l:done_include, l:type)
+        continue
+      endif
+      let l:name = matchstr(l:type,'[^=]*')
+      let l:ft = matchstr(l:type,'[^=]*$')
+      exe 'syn region markdownHighlight_'.l:ft.' matchgroup=markdownCodeDelimiter start="^\s*\z(`\{3,\}\)\s*\%({.\{-}\.\)\='.l:name.'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight_'.l:ft . l:concealends
+      exe 'syn region markdownHighlight_'.l:ft.' matchgroup=markdownCodeDelimiter start="^\s*\z(\~\{3,\}\)\s*\%({.\{-}\.\)\='.l:name.'}\=\S\@!.*$" end="^\s*\z1\ze\s*$" keepend contains=@markdownHighlight_'.l:ft . l:concealends
+      let l:done_include[l:type] = 1
+    endfor
+
+    if get(b:, 'markdown_yaml_head', get(g:, 'markdown_yaml_head', main_syntax ==# 'markdown'))
+      syn include @markdownYamlTop syntax/yaml.vim
+      unlet! b:current_syntax
+      syn region markdownYamlHead start="\%^---$" end="^\%(---\|\.\.\.\)\s*$" keepend contains=@markdownYamlTop,@Spell
     endif
 
     syn match markdownEscape "\\[][\\`$*_{}()<>#+.!-]"
@@ -515,7 +512,6 @@ function! s:markdown() abort
     hi def link markdownListMarker            htmlTagName
     hi def link markdownBlockquote            Comment
     hi def link markdownRule                  PreProc
-    hi def link markdownFrontMatterDelimiter  Delimiter
 
     hi def link markdownFootnote              Typedef
     hi def link markdownFootnoteDefinition    Typedef
