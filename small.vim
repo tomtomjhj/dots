@@ -141,7 +141,9 @@ augroup END
 
 " fix terminal vim problems {{{
 if !has('gui_running') && !has('nvim')
-    silent! !stty -ixon > /dev/null 2>/dev/null
+    if !has('patch-8.2.0852')
+        silent! !stty -ixon > /dev/null 2>/dev/null
+    endif
     " term=tmux-256color messes up ctrl-arrows
     if $TERM =~ '\(tmux\|screen\)-256' | set term=xterm-256color | endif
     " set to xterm in tmux, which doesn't support window resizing with mouse
