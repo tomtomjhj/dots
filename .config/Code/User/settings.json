@@ -18,6 +18,8 @@
     },
     "files.insertFinalNewline": true,
 
+    "telemetry.telemetryLevel": "crash",
+
 
     "vim.foldfix": true, // TODO: doesn't fix <C-u>, zj, ...
     "vim.highlightedyank.enable": true,
@@ -32,11 +34,13 @@
     "vim.whichwrap": "b,s,<,>,[,],h,l",
 
     "vim.insertModeKeyBindingsNonRecursive": [
+        {"before": ["<C-q>"], "after":["<Esc>"]},
         {"before": ["<C-j>"], "commands":["cursorWordEndRight"]},
         {"before": ["<C-k>"], "commands":["cursorWordEndLeft"]},
         {"before": ["<C-Space>"], "after":["<C-k>"]}, // NOTE: see keybindings.json "ctrl+space" (originally mapped to editor.action.triggerSuggest; and allow ctrl+space in insert mode)
     ],
     "vim.normalModeKeyBindingsNonRecursive": [
+        {"before": ["<C-q>"], "after":["<Nop>"]},
         // https://github.com/VSCodeVim/Vim/issues/1490
         {"before": ["u"], "commands": ["undo"]},
         {"before": ["C-r"], "commands": ["redo"]},
@@ -44,6 +48,8 @@
         {"before": ["<C-Space>"], "after": ["<C-u>"]},
         {"before": ["J"], "after": ["j"]},
         {"before": ["<leader>", "J"], "after": ["J"]},
+        {"before": ["H"], "after": ["h"]},
+        {"before": ["L"], "after": ["l"]},
         {"before": ["<leader>", "<CR>"], "commands": [":nohlsearch"]},
         {"before": ["<leader>", "s", "w"], "commands": [":set wrap!"]},
         {"before": ["x"], "after": ["\"", "_", "x"]},
@@ -63,6 +69,8 @@
     "vim.visualModeKeyBindingsNonRecursive": [
         {"before": ["J"], "after": ["j"]},
         {"before": ["<leader>", "J"], "after": ["J"]},
+        {"before": ["H"], "after": ["h"]},
+        {"before": ["L"], "after": ["l"]},
         {"before": ["x"], "after": ["\"", "_", "x"]},
     ],
     // NOTE: c_<Up> doesn't behave like vim's
@@ -260,4 +268,4 @@
     "editor.wordWrap": "on",
     "workbench.colorTheme": "Default Light+",
 }
-// vim:set ft=jsonc fdm=marker:
+// vim:set ft=jsonc fdm=marker cms=//\ %s:
