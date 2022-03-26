@@ -1589,7 +1589,7 @@ endfunction
 " }}}
 
 " surround {{{
-" https://github.com/tpope/vim-surround/blob/baf89ad26488f6a7665d51b986f5c7ad2d22b30b/plugin/surround.vim
+" https://github.com/tpope/vim-surround/blob/9857a874632d1b983a7f4b1c85e3d15990c8b101/plugin/surround.vim
 " Input functions {{{2
 
 function! s:surround_getchar()
@@ -1948,6 +1948,8 @@ function! s:surround_reindent() abort " {{{2
 endfunction " }}}2
 
 function! s:surround_dosurround(...) " {{{2
+  let sol_save = &startofline
+  set startofline
   let scount = v:count1
   let char = (a:0 ? a:1 : s:surround_inputtarget())
   let spc = ""
@@ -1969,6 +1971,9 @@ function! s:surround_dosurround(...) " {{{2
   if a:0 > 1
     let newchar = a:2
     if newchar == "\<Esc>" || newchar == "\<C-C>" || newchar == ""
+      if !sol_save
+        set nostartofline
+      endif
       return s:surround_beep()
     endif
   endif
@@ -1995,6 +2000,9 @@ function! s:surround_dosurround(...) " {{{2
   if keeper == ""
     call setreg('"',original,otype)
     let &clipboard = cb_save
+    if !sol_save
+      set nostartofline
+    endif
     return ""
   endif
   let oldline = getline('.')
@@ -2058,6 +2066,9 @@ function! s:surround_dosurround(...) " {{{2
     silent! call s:repeat_set("\<Plug>Dsurround".char,scount)
   else
     silent! call s:repeat_set("\<Plug>C".(a:0 > 2 && a:3 ? "S" : "s")."urround".char.newchar.s:surround_input,scount)
+  endif
+  if !sol_save
+    set nostartofline
   endif
 endfunction " }}}2
 
