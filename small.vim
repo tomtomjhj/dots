@@ -156,7 +156,7 @@ if !has('gui_running') && !has('nvim')
     " Fortunately, they are not important and can be disabled.
     set t_IS= t_RF= t_RB= t_SC= t_ts= t_Cs= " uses <Esc>]
     set t_RS= " uses <Esc>P and <ESC>\
-    for c in ['+', '-', '/', '0', ';', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
+    for c in ['+', '-', '/', '0', ';', 'c', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
         exe 'set <M-'.c.'>='."\<Esc>".c
         exe 'noremap  <M-'.c.'>' c
         exe 'noremap! <M-'.c.'>' c
@@ -930,7 +930,7 @@ noremap <leader>do :diffget<CR>
 
 " clipboard.
 inoremap <C-v> <C-g>u<C-r><C-o>+
-noremap <leader>y "+y
+noremap <M-c> "+y
 
 noremap <leader>fn 2<C-g>
 
