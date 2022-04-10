@@ -558,9 +558,13 @@ function! s:markdown() abort
     setlocal formatlistpat=^\\s*\\d\\+\\.\\s\\+\\\|^\\s*[-*+]\\s\\+\\\|^\\[^\\ze[^\\]]\\+\\]:\\&^.\\{4\\}
 
     if exists('b:undo_ftplugin')
-      let b:undo_ftplugin .= "|setl cms< com< fo< flp<"
+      let b:undo_ftplugin .= "|setl cms< com< fo< flp< et< ts< sts< sw<"
     else
-      let b:undo_ftplugin = "setl cms< com< fo< flp<"
+      let b:undo_ftplugin = "setl cms< com< fo< flp< et< ts< sts< sw<"
+    endif
+
+    if get(g:, 'markdown_recommended_style', 1)
+      setlocal expandtab tabstop=4 softtabstop=4 shiftwidth=4
     endif
 
     if !exists("g:no_plugin_maps") && !exists("g:no_markdown_maps")
@@ -1348,7 +1352,7 @@ endif
 
 " comments {{{
 " Commentary: {{{2
-" https://github.com/tpope/vim-commentary/blob/627308e30639be3e2d5402808ce18690557e8292/plugin/commentary.vim
+" https://github.com/tpope/vim-commentary/blob/3654775824337f466109f00eaf6759760f65be34/plugin/commentary.vim
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
         \ &commentstring, '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')), '%s', 1)
@@ -1454,7 +1458,6 @@ xmap gc  <Plug>Commentary
 nmap gc  <Plug>Commentary
 omap gc  <Plug>Commentary
 nmap gcc <Plug>CommentaryLine
-nmap cgc <Plug>ChangeCommentary
 nmap gcu <Plug>Commentary<Plug>Commentary
 " }}}2
 " Etc: {{{2
@@ -1589,7 +1592,7 @@ endfunction
 " }}}
 
 " surround {{{
-" https://github.com/tpope/vim-surround/blob/9857a874632d1b983a7f4b1c85e3d15990c8b101/plugin/surround.vim
+" https://github.com/tpope/vim-surround/blob/81fc0ec460dd8b25a76346e09aecdbca2677f1a7/plugin/surround.vim
 " Input functions {{{2
 
 function! s:surround_getchar()
@@ -1904,7 +1907,7 @@ function! s:surround_insert(...) " {{{2
   let cb_save = &clipboard
   set clipboard-=unnamed clipboard-=unnamedplus
   let reg_save = @@
-  call setreg('"',"\r",'v')
+  call setreg('"',"\032",'v')
   call s:surround_wrapreg('"',char,"",linemode)
   " If line mode is used and the surrounding consists solely of a suffix,
   " remove the initial newline.  This fits a use case of mine but is a
@@ -1935,7 +1938,7 @@ function! s:surround_insert(...) " {{{2
     call s:surround_reindent()
   endif
   norm! `]
-  call search('\r','bW')
+  call search("\032",'bW')
   let @@ = reg_save
   let &clipboard = cb_save
   return "\<Del>"
