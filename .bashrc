@@ -288,7 +288,9 @@ alias ....='cd ../../..'
 alias ssh='TERM=xterm-256color ssh'
 alias tmux='tmux -2u'
 alias ta='tmux attach'
-alias hx='history -d -1' # or `history -d -2--1`
+alias hx='history -d -1'  # Delete last command from history (assuming that this command itself is ignored from history); `history -d -2--1`
+alias hxx='history -d -2' # Delete 2nd last command. Useful for "wrong command → fixed command → remove wrong command"
+hfence() { history -a; history -c; history -r; }
 man () { /usr/bin/man "$@" | nvim +Man!; }
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
