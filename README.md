@@ -41,7 +41,7 @@
     * https://github.com/neovim/neovim/issues/14350
     * https://github.com/tmux/tmux/issues/2216 https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys
 
-# Things to run (20.04)
+# Ubuntu setup
 
 ## ppas
 ```sh
@@ -56,7 +56,9 @@ sudo add-apt-repository ppa:libreoffice/ppa
 sudo ubuntu-drivers install
 ```
 
-## 한글 nimf
+## 한글
+
+### nimf
 ```bash
 sudo rm -f /etc/apt/sources.list.d/hamonikr.list
 curl -sL https://pkg.hamonikr.org/add-hamonikr.apt | sudo -E bash -
@@ -65,6 +67,9 @@ im-config -n nimf
 ```
 * libhangul → add ESC to "shortcuts from Korean to system keyboard" so that esc in vim resets to en
 * set "hooking GDK key events" https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
+
+### kime
+* Ran `im-config -n kime` on Wayland but doesn't work at all <https://github.com/Riey/kime/issues/559>?
 
 ## capslock
 ```bash
@@ -120,7 +125,10 @@ fc-cache -fv
        use-theme-transparency=false
        ```
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
-    * https://github.com/bluz71/vim-nightfly-guicolors/blob/master/terminal_themes/gnome-terminal-nightfly.sh
+    * gnome-terminal colorscheme installer
+        * <https://github.com/Mayccoll/Gogh/blob/master/apply-colors.sh#L655>
+            * How are `BACKGROUND_COLOR` and etc different from the 16 colors? Maybe fg/bg applied when no color specified. cursor: only terminal knows this...? Vim's Cursor vs. this cursor?
+        * https://github.com/bluz71/vim-nightfly-guicolors/blob/master/terminal_themes/gnome-terminal-nightfly.sh
 * disable `ctrl-alt-d` https://askubuntu.com/a/177994 TODO dconf-editor
 
 ## firefox
@@ -140,10 +148,10 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 
 ## tex
 * [Dockerfile](./docker/texlive/Dockerfile)
-* NOTE: `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
+* (fixed in 22.04) NOTE: `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
 
 ## wayland stuff
-* **TODO** screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
+* (fixed in 21.10) screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
 
 ## docker
 * https://docs.docker.com/engine/install/ubuntu/
@@ -165,18 +173,57 @@ cd ~/.config && ln -s ~/dots/.config/bat
 bat cache --build
 ```
 
-# 21.04
+## after `do-release-upgrade`
+
+### 21.04
 * fix opam https://github.com/ocaml/opam/issues/3708
   ```
   opam install ocaml.4.11.1 ocaml-system.4.11.1 --yes --unlock-base
   ```
 * pip kdewallet https://stackoverflow.com/q/64570510
 
-# 21.10
+### 21.10
 * remove snap firefox and use deb firefox (slow & firenvim support)
 
-# 22.04
+### 22.04
 * remove ntfs-3g and use linux native ntfs? (kernel 5.15?)
+    * ??? <https://www.reddit.com/r/linux/comments/uca3fu/ntfs3_driver_is_orphan_already_what_we_do/>
+* `opam upgrade ocaml-system -y`
+* reinstall interception and nimf
+* get back ctrl-shift-prtsc <https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/5208>
+  ```bash
+  sudo apt install gnome-screenshot
+  # sh -c 'gnome-screenshot -ac' # broken: https://gitlab.gnome.org/GNOME/gnome-screenshot/-/issues/66
+  # add this to custom shortcut ... NOTE: && is meaningless because gnome-screenshot exits with 0 even if screenshot is not taken...
+  sh -c 'gnome-screenshot -af /tmp/screenshot.png && xclip /tmp/screenshot.png -selection clipboard -target image/png; rm /tmp/screenshot.png'
+  ```
+
+#### firefox
+snap firefox literally unusable (literally)
+* firenvim
+* 한글 input
+    * nimf, kime doesn't work with snap
+    * ibus: broken as usual
+* ignores per-monitor scale factor on wayland
+* ignores system theme stuff (e.g. gnome accent color)
+
+install deb package
+<https://ubuntuhandbook.org/index.php/2022/04/install-firefox-deb-ubuntu-22-04/>
+```bash
+sudo snap remove firefox
+sudo add-apt-repository ppa:mozillateam/ppa
+sudo tee /etc/apt/preferences.d/mozillateamppa << 'EOF'
+Package: firefox*
+Pin: release o=LP-PPA-mozillateam
+Pin-Priority: 501
+EOF
+sudo apt install firefox
+```
+
+#### can't login to Wi-Fi with PEAP, MSCHAPv2
+TODO
+<https://bugs.launchpad.net/ubuntu/+source/wpa/+bug/1958267>
+<https://bugzilla.redhat.com/show_bug.cgi?id=2072070#c24>
 
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard
@@ -221,6 +268,11 @@ bat cache --build
     * pdf print quality bad
     * j/k is not like arrow up/down https://github.com/mozilla/pdf.js/issues/7019
 * firefox pdf dark mode https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375
+* 98
+    * why is this an improvement??? https://www.reddit.com/r/firefox/comments/t9h0og/comment/hzvfyxi/?utm_source=share&utm_medium=web2x&context=3
+    * see also: https://www.reddit.com/r/firefox/comments/t9hk42/comment/hzu6uq1/?utm_source=share&utm_medium=web2x&context=3
+* `accessibility.typeaheadfind.prefillwithselection = false` to disable "ctrl-f prefill with clipboard"
+
 
 # Tips
 * gnome shell `alt-F2`
