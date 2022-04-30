@@ -352,6 +352,10 @@ function! s:c_cpp() abort
     syn clear cDefine
     syn region	cDefine		matchgroup=PreProc start="^\s*\zs\(%:\|#\)\s*\(define\|undef\)\>" skip="\\$" end="$" keepend contains=ALLBUT,@cPreProcGroup,@Spell
     hi! link cDefine NONE
+
+    setlocal shiftwidth=2
+    setlocal commentstring=//%s
+    setlocal path+=/usr/include
 endfunction
 " }}}
 
@@ -670,6 +674,7 @@ endfunction
 
 let g:lisp_rainbow = 1
 let g:vimsyn_embed = 'l' " NOTE: only loads $VIMRUNTIME/syntax/lua.vim
+let g:tex_flavor = 'latex'
 let g:tex_no_error = 1
 " }}}
 
@@ -1187,8 +1192,9 @@ endfunction
 let g:netrw_home = &undodir . '..'
 let g:netrw_fastbrowse = 0
 let g:netrw_clipboard = 0
-nnoremap <silent><C-w>es :Hexplore<CR>
-nnoremap <silent><C-w>ev :Vexplore!<CR>
+nmap <leader>- <Plug>VinegarUp
+nmap <C-w>es   <Plug>VinegarSplitUp
+nmap <C-w>ev   <Plug>VinegarVerticalSplitUp
 augroup netrw-custom | au!
     au FileType netrw call s:netrw()
 augroup END
@@ -1482,7 +1488,6 @@ endif
 unlet! s:vinegar_netrw_up
 
 nnoremap <silent> <Plug>VinegarUp :call <SID>vinegar_opendir('edit')<CR>
-nmap <leader>- <Plug>VinegarUp
 
 nnoremap <silent> <Plug>VinegarTabUp :call <SID>vinegar_opendir('tabedit')<CR>
 nnoremap <silent> <Plug>VinegarSplitUp :call <SID>vinegar_opendir('split')<CR>
@@ -2383,6 +2388,8 @@ hi! diffRemoved  ctermfg=203 guifg=#ff5f5f
 hi! link helpHyperTextJump Underlined
 hi! link helpOption Underlined
 
+hi! link luaFunction Keyword
+
 hi! link markdownCode String
 hi! link markdownCodeBlock String
 hi! link markdownHeadingDelimiter Keyword
@@ -2397,6 +2404,8 @@ hi! link shShellVariables Identifier
 hi! link shSpecial Constant
 hi! link shSpecialDQ shSpecial
 hi! link shSpecialSQ shSpecial
+
+hi! link texZone Special
 
 hi! link vimCommentTitle Title
 " }}}
