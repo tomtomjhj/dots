@@ -221,9 +221,19 @@ sudo apt install firefox
 ```
 
 #### can't login to Wi-Fi with PEAP, MSCHAPv2
-TODO
 <https://bugs.launchpad.net/ubuntu/+source/wpa/+bug/1958267>
-<https://bugzilla.redhat.com/show_bug.cgi?id=2072070#c24>
+
+Downgrade to the version used in 21.10.
+```bash
+wget http://kr.archive.ubuntu.com/ubuntu/pool/main/w/wpa/wpasupplicant_2.9.0-21build1_amd64.deb
+sudo dpkg -i wpasupplicant_2.9.0-21build1_amd64.deb
+sudo tee /etc/apt/preferences.d/wpasupplicant << 'EOF'
+Package: wpasupplicant
+Pin: version 2:2.9.0-21build1
+Pin-Priority: 501
+EOF
+```
+TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
 
 # stuff
 * https://github.com/cyrus-and/gdb-dashboard
