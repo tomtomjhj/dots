@@ -87,6 +87,13 @@ fc-cache -fv
 ```
 * https://repolinux.wordpress.com/2013/03/10/find-out-fallback-font-used-by-fontconfig-for-a-certain-character/
 * http://eosrei.net/articles/2016/02/changing-default-fallback-subsitution-fonts-linux
+* Making texlive fonts available to fontconfig <https://wiki.archlinux.org/title/TeX_Live#Making_fonts_available_to_Fontconfig>.
+    * This may cause some pain; e.g. `texlive-fonts-extra` in old texlive contains weird version of Source Serif, which messes up docs.rs fonts in Firefox.
+      Undoing:
+      ```bash
+      sudo rm /etc/fonts/conf.d/09-texlive-fonts.conf
+      sudo fc-cache -fsv
+      ```
 
 ## gnome
 * [make gnome terminal title bar small](https://www.reddit.com/r/gnome/comments/b3l1c9/gnometerminal_title_bar_is_huge_in_332/)
@@ -148,7 +155,10 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 
 ## tex
 * [Dockerfile](./docker/texlive/Dockerfile)
-* (fixed in 22.04) NOTE: `texlive-fonts-extra` contains wrong version of Source Serif, which messes up docs.rs fonts in Firefox
+* minimal-ish? installation
+  ```bash
+  sudo apt install texlive-science texlive-xetex texlive-lang-korean texlive-publishers texlive-fonts-extra
+  ```
 
 ## wayland stuff
 * (fixed in 21.10) screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
