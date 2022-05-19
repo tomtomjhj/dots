@@ -179,32 +179,36 @@ endif
 " }}}
 
 " gui settings {{{
-if has('nvim')
-    augroup NvimUI | au!
-        au UIEnter * if exists('g:GuiLoaded') | call SetupNvimQt() | endif
-    augroup END
-    function! SetupNvimQt() abort
+function! s:SetupGUI() abort
+    set guifont=Source\ Code\ Pro:h12
+    nmap <C--> <Cmd>FontSize -v:count1<CR>
+    nmap <C-+> <Cmd>FontSize v:count1<CR>
+    nmap <C-=> <Cmd>FontSize v:count1<CR>
+    command! -nargs=1 FontSize call s:FontSize(<args>)
+    function! s:FontSize(delta)
+        let new_size = matchstr(&guifont, '\d\+') + a:delta
+        let new_size = (new_size < 1) ? 1 : ((new_size > 100) ? 100 : new_size)
+        let &guifont = substitute(&guifont, '\d\+', '\=new_size', '')
+    endfunction
+
+    if has('gui_running') " gvim
+        set guioptions=i
+        set guicursor+=a:blinkon0
+        if g:os ==# 'Windows'
+            set guifont=Source_Code_Pro:h12:cANSI:qDRAFT
+        elseif g:os ==# 'Linux'
+            set guifont=Source\ Code\ Pro\ 12
+        endif
+    elseif exists('g:GuiLoaded') " nvim-qt
         GuiTabline 0
         GuiPopupmenu 0
-        GuiFont Source Code Pro:h13
-        func! FontSize(delta)
-            let [name, size] = matchlist(g:GuiFont, '\v(.*:h)(\d+)')[1:2]
-            let new_size = str2nr(size) + a:delta
-            exe 'GuiFont ' . name . new_size
-        endfunc
-        map <silent><C--> :<C-u>call FontSize(-v:count1)<CR>
-        map <silent><C-+> :<C-u>call FontSize(v:count1)<CR>
-        map <silent><C-=> :<C-u>call FontSize(v:count1)<CR>
-    endfunction
-elseif has('gui_running')
-    set guioptions=i
-    set guicursor+=a:blinkon0
-    if g:os ==# 'Windows'
-        set guifont=Source_Code_Pro:h12:cANSI:qDRAFT
-    elseif g:os ==# 'Linux'
-        set guifont=Source\ Code\ Pro\ 12
     endif
-    command! -nargs=1 FontSize let &guifont = substitute(&guifont, '\d\+', '\=eval(submatch(0)+<args>)', 'g')
+endfunction
+
+if has('nvim')
+    au UIEnter * ++once if v:event.chan | call s:SetupGUI() | endif
+elseif has('gui_running')
+    call s:SetupGUI()
 endif
 " }}}
 
