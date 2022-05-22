@@ -160,6 +160,20 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
   sudo apt install texlive-science texlive-xetex texlive-lang-korean texlive-publishers texlive-fonts-extra
   ```
 
+## pandoc
+```bash
+curl -s https://api.github.com/repos/jgm/pandoc/releases/latest | grep -o "https.*amd64.deb" | wget -O pandoc.deb -qi - && sudo dpkg -i pandoc.deb && rm pandoc.deb
+# or get nightly build from https://github.com/jgm/pandoc/actions?query=workflow%3ANightly
+
+cd $HOME/.local/share
+ln -s $HOME/dots/.local/share/pandoc
+cd pandoc
+
+curl -LSs https://github.com/pandoc/lua-filters/releases/latest/download/lua-filters.tar.gz | tar -zvxf -
+mv lua-filters/filters .
+rm -rf lua-filters
+```
+
 ## wayland stuff
 * (fixed in 21.10) screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
 
