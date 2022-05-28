@@ -727,7 +727,7 @@ command! -nargs=? Files call Files(<f-args>)
 
 if executable('rg')
     " --vimgrep is like vimgrep /pat/g
-    let &grepprg = 'rg --column --line-number --no-heading --smart-case'
+    let &grepprg = "rg --hidden --glob '!**/.git/**' --column --line-number --no-heading --smart-case"
     set grepformat^=%f:%l:%c:%m
 elseif executable('egrep')
     let &grepprg = 'egrep -nrI $* /dev/null'
@@ -788,7 +788,7 @@ function! Files(...) abort
         let files = s:system('git -C '.root.' ls-files --exclude-standard')
         call map(files, "'".root."/'.v:val")
     else
-        let cmd = (&grepprg =~# '^rg') ? 'rg --files' : 'find . -type f'
+        let cmd = (&grepprg =~# '^rg') ? "rg --hidden --glob '!**/.git/**' --files" : 'find . -type f'
         let files = s:system(cmd)
     endif
     if a:0
