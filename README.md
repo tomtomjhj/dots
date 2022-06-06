@@ -185,6 +185,25 @@ rm -rf lua-filters
 sudo usermod -aG docker $USER
 ```
 
+## obsidian
+<https://forum.obsidian.md/t/meta-post-linux-tips-tricks-solutions-to-common-problems/6291/3>
+<https://forum.obsidian.md/t/gnome-desktop-installer/499>
+
+```bash
+curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest | grep -o "https.*AppImage" | tail -n 1 | wget -O $HOME/.local/bin/obsidian -qi - && chmod +x $HOME/.local/bin/obsidian
+
+tee ~/.local/share/applications/obsidian.desktop << EOF
+[Desktop Entry]
+Type=Application
+Name=Obsidian
+Exec=${HOME}/.local/bin/obsidian
+Icon=obsidian
+StartupWMClass=obsidian
+MimeType=x-scheme-handler/obsidian;
+EOF
+update-desktop-database ~/.local/share/applications
+```
+
 ## etc
 * `aptitude upgrade --full-resolver` good for resolving broken package issues
 
@@ -222,26 +241,40 @@ bat cache --build
   sh -c 'gnome-screenshot -af /tmp/screenshot.png && xclip /tmp/screenshot.png -selection clipboard -target image/png; rm /tmp/screenshot.png'
   ```
 
+issues
+* Click on a top bar component (e.g. power on/off menu) → "click" state is maintained when cursor is moved to other component. Very annoying when using volume slider.
+
 #### firefox
 snap firefox literally unusable (literally)
 * firenvim
 * 한글 input
     * nimf, kime doesn't work with snap
     * ibus: broken as usual
+    * see <https://www.facebook.com/groups/ubuntu.ko/posts/4999290446775429/?comment_id=4999304873440653>
 * ignores per-monitor scale factor on wayland
 * ignores system theme stuff (e.g. gnome accent color)
+    * `snap install gtk-commons-themes`?
 
 install deb package
 <https://ubuntuhandbook.org/index.php/2022/04/install-firefox-deb-ubuntu-22-04/>
 ```bash
-sudo snap remove firefox
+sudo snap remove --purge firefox
 sudo add-apt-repository ppa:mozillateam/ppa
-sudo tee /etc/apt/preferences.d/mozillateamppa << 'EOF'
+sudo apt install -t 'o=LP-PPA-mozillateam' firefox
+
+sudo tee /etc/apt/preferences.d/firefox << 'EOF'
 Package: firefox*
 Pin: release o=LP-PPA-mozillateam
-Pin-Priority: 501
+Pin-Priority: 1001
+
+Package: firefox*
+Pin: release o=Ubuntu*
+Pin-Priority: -1
 EOF
-sudo apt install firefox
+
+sudo tee /etc/apt/apt.conf.d/51unattended-upgrades-firefox << EOF
+Unattended-Upgrade::Allowed-Origins:: "LP-PPA-mozillateam:${distro_codename}";
+EOF
 ```
 
 #### can't login to Wi-Fi with PEAP, MSCHAPv2
@@ -259,19 +292,8 @@ EOF
 ```
 TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
 
-# stuff
+# note, tips
 * https://github.com/cyrus-and/gdb-dashboard
-* https://mug896.github.io/awk-script/index.html https://mug896.github.io/bash-shell/quotes.html
-* https://mywiki.wooledge.org/BashPitfalls
-* login shell
-    * what's the point? https://unix.stackexchange.com/a/324391
-    * `~/.bash_profile`, `~/.profile`, `~/.bashrc` https://superuser.com/a/789465
-    * tmux
-        * why login shell? https://superuser.com/q/968942
-        * can make it run non-login shell https://wiki.archlinux.org/title/tmux#Start_a_non-login_shell
-    * gnome-shell
-        * Can't refresh `~/.profile`. Must re-login https://unix.stackexchange.com/a/2963
-        * (21.04) re-login to Xorg doesn't run `~/.profile`??
 * less
     * run `lesskey lesskey`
     * https://github.com/gwsw/less/issues/188 `<C-w>` doesn't work either.. Use `<C-M-H>`
@@ -279,8 +301,11 @@ TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
     * display the search at the bottom? highlight the current search differently?
 * ignore
   ```
+  ## .gitignore
+  _opam
+
   ## .ignore
-  !_opam/
+  !_opam
 
   ## _opam/.ignore
   *
@@ -289,6 +314,29 @@ TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
   !lib/coq/user-contrib/**/*.v
   lib/coq/user-contrib/Ltac2
   ```
+* gnome shell `alt-F2`
+* troubleshooting slow boot (after removing swap partition)
+    * diagnosis
+        * `sudo journalctl -b`
+        * `systemd-analyze` (very slow kernel stuff)
+        * `dmesg` doesn't show some messages??
+        * removed `quiet splash` from grub config to see all the messages from kernel
+            * `Gave up waiting for suspend/resume device`
+    * remove the removed swap partition from `/etc/fstab` https://askubuntu.com/a/744478
+    * remove the resume device stuff `sudo rm /etc/initramfs-tools/conf.d/resume && sudo update-initramfs -u` https://askubuntu.com/a/1126353
+* archiving: put the ignore file in the dir for `--exclude-vcs-ignores` and exlucde the ignore file itself; remove ownership
+  ```bash
+  tar czvf $NAME.tar.gz \
+      --exclude-vcs-ignores --exclude=.gitignore \
+      --owner=0 --group=0 \
+      $NAME
+  # BSD tar doesn't support --ower stuff. GNU and BSD both support --numeric-owner.
+  ```
+* ripgrep
+    * `rg --hidden --glob '!**/.git/**'`: do not ignore dot files but respect ignore files
+    * `-U` (multiline): `\s` includes `\n`
+* TODO: I'm using .bash_history + fzf `<C-R>` as command bookmark. Find a proper way to bookmark (find using fzf) and use history as history. <https://github.com/junegunn/fzf/wiki/examples>.
+
 
 ## firefox
 * ctrl-f is broken
@@ -306,42 +354,52 @@ TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
     * why is this an improvement??? https://www.reddit.com/r/firefox/comments/t9h0og/comment/hzvfyxi/?utm_source=share&utm_medium=web2x&context=3
     * see also: https://www.reddit.com/r/firefox/comments/t9hk42/comment/hzu6uq1/?utm_source=share&utm_medium=web2x&context=3
 * `accessibility.typeaheadfind.prefillwithselection = false` to disable "ctrl-f prefill with clipboard"
+* `browser.fullscreen.autohide = false` to show tabs in fullscreen mode
 
 
-# Tips
-* gnome shell `alt-F2`
-* troubleshooting slow boot (after removing swap partition)
-    * diagnosis
-        * `sudo journalctl -b`
-        * `systemd-analyze` (very slow kernel stuff)
-        * `dmesg` doesn't show some messages??
-        * removed `quiet splash` from grub config to see all the messages from kernel
-            * `Gave up waiting for suspend/resume device`
-    * remove the removed swap partition from `/etc/fstab` https://askubuntu.com/a/744478
-    * remove the resume device stuff `sudo rm /etc/initramfs-tools/conf.d/resume && sudo update-initramfs -u` https://askubuntu.com/a/1126353
+## shell, bash, shell script
+* resource
+    * https://mug896.github.io/bash-shell/quotes.html
+    * https://mywiki.wooledge.org/BashPitfalls
+    * https://github.com/dylanaraps/pure-sh-bible
+    * https://mug896.github.io/awk-script/index.html
+* login shell
+    * what's the point? https://unix.stackexchange.com/a/324391
+    * `~/.bash_profile`, `~/.profile`, `~/.bashrc` https://superuser.com/a/789465
+    * tmux
+        * why login shell? https://superuser.com/q/968942
+        * can make it run non-login shell https://wiki.archlinux.org/title/tmux#Start_a_non-login_shell
+    * gnome-shell
+        * Can't refresh `~/.profile`. Must re-login https://unix.stackexchange.com/a/2963
+        * (21.04) re-login to Xorg doesn't run `~/.profile`??
+* `[ -t 0 ]` (used in `~/.opam/opam-init/init.sh`) checks if stdin is open. Note that this is false for gnome-shell.
 * logging stderr to file with timestamp, using process substitution
   ```bash
   cmd 2> >(while read line; do echo "$(date -Iseconds) $line"; done > log)
   ```
     * TODO: how does bash interact with the subprocess's stdout/stderr?
-* archiving: put the ignore file in the dir for `--exclude-vcs-ignores` and exlucde the ignore file itself; remove ownership
-  ```bash
-  tar czvf $NAME.tar.gz \
-      --exclude-vcs-ignores --exclude=.gitignore \
-      --owner=0 --group=0 \
-      $NAME
-  # BSD tar doesn't support --ower stuff. GNU and BSD both support --numeric-owner.
-  ```
 
 ## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
-* `git pull --autostash`
+* `git pull --rebase --autostash`
 * https://github.com/mhagger/git-imerge
 * git reflog
-* git `--follow`?
+* getting info from git log/diff
+    * `-M[<n>], --find-renames[=<n>]`, `-C[<n>], --find-copies[=<n>]` (+ `-C -C`, `-C -C -C`). Also applicable to git blame.
+        * hack to force copy detection <https://stackoverflow.com/a/46484848>
     * `-D, --irreversible-delete`
-    * `-M[<n>], --find-renames[=<n>]`
+    * `log --follow a-single-file`: history of a file, detecting rename and copy
+    * patch search
+        * `-G pat`: grep
+        * `-S pat [--pickaxe-regex]`: change in number of occurrences
+    * <https://stackoverflow.com/questions/29468273/why-git-blame-does-not-follow-renames>
 * `git apply --reject --whitespace=fix`
 * git files absolute dir `git -C "$ROOT" ls-files | awk -v R="$ROOT" '{ print R "/" $0 }'`
 * `git reset --merge` to abort `stash pop` https://stackoverflow.com/a/60444590
 * `git diff --check`
+* `man gitrevisions(7)`
+    * range `<rev>`: commits reachable from `<rev>` (i.e. ancestors)
+    * range `^<rev>`: commits not reachable from `<rev>` (i.e. ancestors)
+    * range `^main feature` (= `main..feature`):
+* <https://stackoverflow.com/questions/39665570/why-can-two-git-worktrees-not-check-out-the-same-branch>
+* `git push -u origin my_ref:remote_branch`
