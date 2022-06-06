@@ -9,12 +9,12 @@
 	lgall = "!git lg $(git fsck --no-reflog | awk '/dangling commit/ {print $3}')"
 	lp = log -p
 	st = status
-	hs = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
-	hsp = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
-	hss = log --all --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
-	hsc = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
-	hscp = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
-	hscs = log --graph --topo-order --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
+	hs = log --all --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
+	hsp = log --all --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
+	hss = log --all --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
+	hsc = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
+	hscp = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
+	hscs = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
 	df = diff
 	dfc = diff --cached
 	# TODO: can't alias without subcommand? ("empty alias")

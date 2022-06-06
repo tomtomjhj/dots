@@ -84,7 +84,8 @@ if exists('+completepopup')
 endif
 set path=.,,
 
-set ignorecase smartcase tagcase=followscs
+set ignorecase smartcase
+if has('patch-7.4.2230') | set tagcase=followscs | endif
 set hlsearch incsearch
 
 set noerrorbells novisualbell t_vb=
@@ -344,6 +345,7 @@ augroup END
 augroup Languages | au!
     " NOTE: 'syntax-loading'
     au FileType c,cpp call s:c_cpp()
+    au FileType lua setlocal shiftwidth=2
     au FileType markdown call s:markdown()
     au FileType pandoc setlocal filetype=markdown
     au FileType python call s:python()
@@ -677,7 +679,6 @@ endfunction
 " }}}
 
 let g:lisp_rainbow = 1
-let g:vimsyn_embed = 'l' " NOTE: only loads $VIMRUNTIME/syntax/lua.vim
 let g:tex_flavor = 'latex'
 let g:tex_no_error = 1
 " }}}
@@ -1196,6 +1197,7 @@ endfunction
 let g:netrw_home = &undodir . '..'
 let g:netrw_fastbrowse = 0
 let g:netrw_clipboard = 0
+let g:netrw_dirhistmax = 0
 nmap <leader>- <Plug>VinegarUp
 nmap <C-w>es   <Plug>VinegarSplitUp
 nmap <C-w>ev   <Plug>VinegarVerticalSplitUp
@@ -1293,6 +1295,9 @@ endfunction
 nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
 function! Text2Magic(text)
     return escape(a:text, '\.*$^~[]')
+endfunction
+function! Text2VeryMagic(str) abort
+    return escape(a:str, '!#$%&()*+,-./:;<=>?@[\]^{|}~')
 endfunction
 function! Wildignore2exclude() abort
     let exclude = copy(g:wildignore_files)
