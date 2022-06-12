@@ -349,6 +349,7 @@ augroup Languages | au!
     au FileType markdown call s:markdown()
     au FileType pandoc setlocal filetype=markdown
     au FileType python call s:python()
+    au FileType vim setlocal formatoptions-=c
     au FileType xml setlocal formatoptions-=r " very broken: <!--<CR> → <!--\n--> █
 augroup END
 
@@ -361,6 +362,7 @@ function! s:c_cpp() abort
 
     setlocal shiftwidth=2
     setlocal commentstring=//%s
+    silent! setlocal formatoptions+=/ " 8.2.4907
     setlocal path+=/usr/include
 endfunction
 " }}}
@@ -1021,7 +1023,9 @@ inoreabbrev <expr> \date\ strftime('%F')
 " }}}
 
 " pairs {{{
-xmap aa a%
+let g:surround_indent = 0
+let g:surround_{char2nr('c')} = "/* \r */"
+let g:surround_{char2nr('m')} = "(* \r *)"
 
 inoremap <expr> ( MuPairsOpen('(', ')')
 inoremap <expr> ) MuPairsClose('(', ')')
@@ -1029,7 +1033,7 @@ inoremap <expr> [ MuPairsOpen('[', ']')
 inoremap <expr> ] MuPairsClose('[', ']')
 inoremap <expr> { MuPairsOpen('{', '}')
 inoremap <expr> } MuPairsClose('{', '}')
-inoremap <expr> <CR> (match(getline('.'), '\w') >= 0 ? "\<C-G>u" : "") . MuPairsCR()
+inoremap <expr> <CR> (match(getline('.'), '\k') >= 0 ? "\<C-G>u" : "") . MuPairsCR()
 inoremap <expr> <BS> MuPairsBS()
 inoremap <expr> " MuPairsDumb('"')
 inoremap <expr> ' MuPairsDumb("'")
@@ -1194,7 +1198,7 @@ endfunction
 " }}}
 
 " Explorers {{{
-let g:netrw_home = &undodir . '..'
+let g:netrw_home = simplify(&undodir . '..')
 let g:netrw_fastbrowse = 0
 let g:netrw_clipboard = 0
 let g:netrw_dirhistmax = 0
@@ -1366,8 +1370,7 @@ endif
 " }}}
 
 " comments {{{
-" Commentary: {{{2
-" https://github.com/tpope/vim-commentary/blob/3654775824337f466109f00eaf6759760f65be34/plugin/commentary.vim
+" https://github.com/tomtomjhj/vim-commentary/blob/853bc981c99c16b402639144987a1a6a2c8b7efc/plugin/commentary.vim
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
         \ &commentstring, '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')), '%s', 1)
@@ -1414,7 +1417,7 @@ function! s:commentary_go(...) abort
   let lines = []
   for lnum in range(lnum1,lnum2)
     let line = getline(lnum)
-    if strlen(r) > 2 && l.r !~# '\\'
+    if strlen(r) > 2 && l.r !~# '\\' && r !~# '\V*)\|-}\||#'
       let line = substitute(line,
             \'\M' . substitute(l, '\ze\S\s*$', '\\zs\\d\\*\\ze', '') . '\|' . substitute(r, '\S\zs', '\\zs\\d\\*\\ze', ''),
             \'\=substitute(submatch(0)+1-uncomment,"^0$\\|^-\\d*$","","")','g')
@@ -1462,26 +1465,27 @@ function! s:commentary_textobject(inner) abort
   endif
 endfunction
 
+function! s:commentary_insert()
+  let [l, r] = s:commentary_surroundings()
+  return l . r . repeat("\<C-G>U\<Left>", strchars(r))
+endfunction
+
 command! -range -bar -bang Commentary call s:commentary_go(<line1>,<line2>,<bang>0)
 xnoremap <expr>   <Plug>Commentary     <SID>commentary_go()
 nnoremap <expr>   <Plug>Commentary     <SID>commentary_go()
 nnoremap <expr>   <Plug>CommentaryLine <SID>commentary_go() . '_'
 onoremap <silent> <Plug>Commentary        :<C-U>call <SID>commentary_textobject(get(v:, 'operator', '') ==# 'c')<CR>
 nnoremap <silent> <Plug>ChangeCommentary c:<C-U>call <SID>commentary_textobject(1)<CR>
+inoremap <expr>   <Plug>CommentaryInsert <SID>commentary_insert()
 
 xmap gc  <Plug>Commentary
 nmap gc  <Plug>Commentary
 omap gc  <Plug>Commentary
 nmap gcc <Plug>CommentaryLine
 nmap gcu <Plug>Commentary<Plug>Commentary
-" }}}2
-" Etc: {{{2
-function! s:commentary_insert()
-  let [l, r] = s:commentary_surroundings()
-  return l . r . repeat("\<C-G>U\<Left>", strchars(r))
-endfunction
-inoremap <expr> <M-/> "\<C-G>u" . <SID>commentary_insert()
-" }}} }}}
+
+imap <M-/> <C-G>u<Plug>CommentaryInsert
+" }}}
 
 " vinegar {{{
 " https://github.com/tpope/vim-vinegar/blob/bb1bcddf43cfebe05eb565a84ab069b357d0b3d6/plugin/vinegar.vim
@@ -1606,7 +1610,7 @@ endfunction
 " }}}
 
 " surround {{{
-" https://github.com/tpope/vim-surround/blob/81fc0ec460dd8b25a76346e09aecdbca2677f1a7/plugin/surround.vim
+" https://github.com/tomtomjhj/vim-surround/blob/2782330aae5f5ce572df2030a513c84211b93062/plugin/surround.vim
 " Input functions {{{2
 
 function! s:surround_getchar()
@@ -1656,7 +1660,7 @@ endfunction
 
 " }}}2
 
-" Wrapping functions {{{2
+" Wrapping/unwrapping functions {{{2
 
 function! s:surround_extractbefore(str)
   if a:str =~ '\r'
@@ -1672,6 +1676,23 @@ function! s:surround_extractafter(str)
   else
     return matchstr(a:str,'\n\zs.*')
   endif
+endfunction
+
+if exists('*trim')
+  function! s:surround_trim(txt) abort
+    return trim(a:txt)
+  endfunction
+else
+  function! s:surround_trim(txt) abort
+    return substitute(a:txt, '\%(^\s\+\|\s\+$\)', '', 'g')
+  endfunction
+endif
+
+function! s:surround_customsurroundings(char, b, trim) abort
+  let all    = s:surround_process(get(a:b ? b: : g:, 'surround_'.char2nr(a:char)))
+  let before = s:surround_extractbefore(all)
+  let after  = s:surround_extractafter(all)
+  return a:trim ? [s:surround_trim(before), s:surround_trim(after)] : [before, after]
 endfunction
 
 function! s:surround_fixindent(str,spc)
@@ -1747,13 +1768,9 @@ function! s:surround_wrap(string,char,type,removed,special)
     let before = ''
     let after  = ''
   elseif exists("b:surround_".char2nr(newchar))
-    let all    = s:surround_process(b:surround_{char2nr(newchar)})
-    let before = s:surround_extractbefore(all)
-    let after  =  s:surround_extractafter(all)
+    let [before, after] = s:surround_customsurroundings(newchar, 1, 0)
   elseif exists("g:surround_".char2nr(newchar))
-    let all    = s:surround_process(g:surround_{char2nr(newchar)})
-    let before = s:surround_extractbefore(all)
-    let after  =  s:surround_extractafter(all)
+    let [before, after] = s:surround_customsurroundings(newchar, 0, 0)
   elseif newchar ==# "p"
     let before = "\n"
     let after  = "\n\n"
@@ -1905,6 +1922,43 @@ function! s:surround_wrapreg(reg,char,removed,special)
   let new = s:surround_wrap(orig,a:char,type,a:removed,a:special)
   call setreg(a:reg,new,type)
 endfunction
+
+function! s:surround_escape(str) abort
+  return escape(a:str, '!#$%&()*+,-./:;<=>?@[\]^{|}~')
+endfunction
+
+function! s:surround_deletecustom(char, b, count) abort
+  let [before, after] = s:surround_customsurroundings(a:char, a:b, 1)
+  let [before_pat, after_pat] = ['\v\C'.s:surround_escape(before), '\v\C'.s:surround_escape(after)]
+  let found = searchpair(before_pat, '', after_pat, 'bcW')
+  if found <= 0
+    return ['','']
+  endif
+  " Handle count/nesting only for asymmetric surroundings
+  if before !=# after
+    for _ in range(a:count - 1)
+      let found = searchpair(before_pat, '', after_pat, 'bW')
+      if found <= 0
+        return ['','']
+      endif
+    endfor
+  endif
+  norm! v
+  if before ==# after
+    call search(before_pat, 'ceW')
+    let found = search(after_pat, 'eW')
+  else
+    let found = searchpair(before_pat, '', after_pat, 'W')
+    call search(after_pat, 'ceW')
+  endif
+  if found <= 0
+    exe "norm! \<Esc>"
+    return ['','']
+  endif
+  norm! d
+  return [before, after]
+endfunction
+
 " }}}2
 
 function! s:surround_insert(...) " {{{2
@@ -1978,11 +2032,12 @@ function! s:surround_dosurround(...) " {{{2
     let char = strpart(char,1)
     let spc = 1
   endif
-  if char == 'a'
-    let char = '>'
-  endif
-  if char == 'r'
-    let char = ']'
+  if !exists("b:surround_".char2nr(char)) && !exists("g:surround_".char2nr(char))
+    if char == 'a'
+      let char = '>'
+    elseif char == 'r'
+      let char = ']'
+    endif
   endif
   let newchar = ""
   if a:0 > 1
@@ -2003,6 +2058,10 @@ function! s:surround_dosurround(...) " {{{2
   let strcount = (scount == 1 ? "" : scount)
   if char == '/'
     exe 'norm! '.strcount.'[/d'.strcount.']/'
+  elseif exists("b:surround_".char2nr(char))
+    let [before, after] = s:surround_deletecustom(char, 1, scount)
+  elseif exists("g:surround_".char2nr(char))
+    let [before, after] = s:surround_deletecustom(char, 0, scount)
   elseif char =~# '[[:punct:][:space:]]' && char !~# '[][(){}<>"''`]'
     exe 'norm! T'.char
     if getline('.')[col('.')-1] == char
@@ -2024,7 +2083,10 @@ function! s:surround_dosurround(...) " {{{2
   endif
   let oldline = getline('.')
   let oldlnum = line('.')
-  if char ==# "p"
+  if exists("b:surround_".char2nr(char)) || exists("g:surround_".char2nr(char))
+    call setreg('"', before.after, "c")
+    let keeper = substitute(substitute(keeper,'\v\C^'.s:surround_escape(before).'\s=','',''), '\v\C\s='.s:surround_escape(after).'$', '','')
+  elseif char ==# "p"
     call setreg('"','','V')
   elseif char ==# "s" || char ==# "w" || char ==# "W"
     " Do nothing
