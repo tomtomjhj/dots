@@ -1,5 +1,12 @@
 if &compatible | set nocompatible | endif
 
+if !has('nvim')
+    let g:loaded_getscriptPlugin = 1
+    let g:loaded_rrhelper = 1
+    let g:loaded_logiPat = 1
+endif
+let g:loaded_spellfile_plugin = 1
+
 " set runtimepath above this line for correct ftdetect
 if exists("did_load_filetypes") | filetype off | endif
 filetype plugin indent on
@@ -42,7 +49,7 @@ set mouse=a
 set number
 set ruler showcmd
 set foldcolumn=1 foldnestmax=5
-set scrolloff=2 sidescrolloff=2 sidescroll=1 nostartofline
+set scrolloff=2 sidescrolloff=2 sidescroll=1 startofline
 set showtabline=1
 set laststatus=2
 
@@ -947,6 +954,7 @@ noremap <leader>do :diffget<CR>
 " clipboard.
 inoremap <C-v> <C-g>u<C-r><C-o>+
 noremap <M-c> "+y
+nnoremap <silent> yY :let _view = winsaveview() \| exe 'keepjumps keepmarks norm ggVG"+y' \| call winrestview(_view) \| unlet _view<cr>
 
 noremap <leader>fn 2<C-g>
 
@@ -975,6 +983,8 @@ xnoremap u <nop>
 
 noremap x "_x
 
+nnoremap gV `[v`]
+
 noremap <M-y> "py
 noremap <M-p> "pp
 noremap <M-P> "pP
@@ -997,8 +1007,6 @@ nnoremap <C-l> <C-W>l
 
 command! -count Wfh setlocal winfixheight | if <count> | exe "normal! z".<count>."\<CR>" | endif
 
-noremap <leader>q :<C-u>q<CR>
-noremap q, :<C-u>q<CR>
 nnoremap <leader>w :<C-u>up<CR>
 nnoremap ZAQ :<C-u>qa!<CR>
 cnoreabbrev <expr> W <SID>cabbrev('W', 'w')
@@ -1240,17 +1248,15 @@ nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
 " }}}
 
 " git {{{
-let g:flog_default_arguments = { 'max_count': 512, 'all': 1, }
-let g:flog_permanent_default_arguments = { 'date': 'short', }
-
 augroup git-custom | au!
     " TODO: Very slow and doesn't fold each hunk.
     au FileType git,fugitive,gitcommit
         \ nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
-    au User FugitiveObject,FugitiveIndex silent! unmap <buffer> *
-    au User FugitiveChanged if &ft ==# 'floggraph' | call flog#populate_graph_buffer() | endif
-    au FileType floggraph silent! nunmap <buffer> <Tab>
+        \|map <buffer> <localleader>* <Plug>fugitive:*
+    au User FugitiveObject,FugitiveIndex
+        \ silent! unmap <buffer> *
+        \|map <buffer> <localleader>* <Plug>fugitive:*
 augroup END
 " }}}
 
