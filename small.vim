@@ -45,7 +45,9 @@ endif
 " }}}
 
 " Basic {{{
-set mouse=a
+set encoding=utf-8
+
+set mouse=nvi
 set number
 set ruler showcmd
 set foldcolumn=1 foldnestmax=5
@@ -61,14 +63,13 @@ set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA
 set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
-set wrap linebreak breakindent showbreak=>\ 
+set wrap linebreak breakindent showbreak=↪\ 
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
 
 let $LANG='en'
 set langmenu=en
-set encoding=utf-8
 set spelllang=en,cjk
 
 let mapleader = "\<Space>"
@@ -225,16 +226,16 @@ let s:has_stl_expand_expr = has('patch-8.2.2854') || has('nvim-0.5')
 if s:has_stl_expand_expr
     let s:statusline = [
                 \ '%{%StatuslineHighlight1()%}', '%( %{StatuslineMode()} %)',
-                \ '%{%StatuslineHighlight2()%}', '%( %{ShortRelPath()} %)',
-                \ '%{%StatuslineHighlight3()%}', '%m%r%w', '%{get(b:,"git_status","")}',
+                \ '%{%StatuslineHighlight2()%}', '%( %{STLTitle()} %)',
+                \ '%{%StatuslineHighlight3()%}', '%( %m%r%w%{get(b:,"git_status","")}%)',
                 \ '%=',
                 \ '%{%StatuslineHighlight3()%}', ' %3p%% ',
                 \ '%{%StatuslineHighlight2()%}', ' %3l:%-2c ']
 else
     let s:statusline = [
                 \ '%( %{StatuslineMode()} %)',
-                \ '%#STLModeNormal2#', '%( %{ShortRelPath()} %)',
-                \ '%#STLModeNormal3#', '%m%r%w', '%{get(b:,"git_status","")}',
+                \ '%#STLModeNormal2#', '%( %{STLTitle()} %)',
+                \ '%#STLModeNormal3#', '%m%r%w', '%( %m%r%w%{get(b:,"git_status","")}%)',
                 \ '%=',
                 \ '%#STLModeNormal3#', ' %3p%% ',
                 \ '%#STLModeNormal2#', ' %3l:%-2c ']
@@ -309,17 +310,33 @@ else
     endfunction
 endif
 
-function! ShortRelPath()
-    if &filetype ==# 'netrw'
-        return pathshorten(fnamemodify(b:netrw_curdir, ":~"))
+function! STLTitle() abort
+    let bt = &buftype
+    let ft = &filetype
+    let bname = bufname('%')
+    " NOTE: bt=quickfix,help decides filetype
+    if bt is# 'quickfix'
+        " NOTE: getwininfo() to differentiate quickfix window and location window
+        return get(w:, 'quickfix_title', ':')
+    elseif bt is# 'help'
+        return fnamemodify(bname, ':t')
+    elseif bt is# 'terminal'
+        return has('nvim') ? '!' . matchstr(bname, 'term://\f\{-}//\d\+:\zs.*') : bname
+    elseif bname =~# '^fugitive://'
+        let [obj, gitdir] = FugitiveParse(bname)
+        let matches = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
+        return pathshorten(fnamemodify(gitdir, ":~:h")) . ' ' . matches[1][:9] . matches[2]
+    elseif get(b:, 'fugitive_type', '') is# 'temp'
+        return pathshorten(fnamemodify(bname, ":~:.")) . ' :Git ' . join(FugitiveResult(bname)['args'], ' ')
+    elseif ft is# 'gl'
+        return ':GL' . join([''] + b:gl_args, ' ')
+    elseif empty(bname)
+        return empty(bt) ? '[No Name]' : bt is# 'nofile' ? '[Scratch]' : '?'
+    elseif isdirectory(bname) " NOTE: https://github.com/vim/vim/issues/9099
+        return pathshorten(fnamemodify(bname, ":~")) . '/'
+    else
+        return pathshorten(fnamemodify(bname, ":~:."))
     endif
-    let name = bufname('%')
-    if empty(name)
-        return empty(&buftype) ? '[No Name]' : &buftype ==# 'nofile' ? '[Scratch]' : ''
-    elseif isdirectory(name) " NOTE: https://github.com/vim/vim/issues/9099
-        return pathshorten(fnamemodify(name, ":~"))
-    endif
-    return pathshorten(fnamemodify(name, ":~:."))
 endfunction
 
 function! UpdateGitStatus(buf)
@@ -331,7 +348,7 @@ function! UpdateGitStatus(buf)
         if !v:shell_error
             let status = s:system(git . ' status --porcelain ' . shellescape(bufname))
             let status = empty(status) ? '' : status[0][:1]
-            let status = ' [' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
+            let status = '[' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
         endif
     endif
     call setbufvar(a:buf, 'git_status', status)
@@ -668,12 +685,10 @@ function! s:markdown() abort
     " s:markdown() {{{
     setlocal foldlevel=6
 
-    " too intrusive
+    " <> pair is too intrusive
     setlocal matchpairs-=<:>
-    " $VIMRUNTIME/ftplugin/html.vim:31 → remove `<:>,`
-    if b:match_words[:3] ==# '<:>,'
-        let b:match_words = b:match_words[4:]
-    endif
+    " Set from $VIMRUNTIME/ftplugin/html.vim
+    let b:match_words = substitute(b:match_words, '<:>,', '', '')
     " }}}
 endfunction
 " }}}
@@ -1247,17 +1262,33 @@ endfunction
 nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
 " }}}
 
-" git {{{
+" Git. See also plugin/git.vim {{{
 augroup git-custom | au!
-    " TODO: Very slow and doesn't fold each hunk.
+    au FileType diff
+        \ nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
     au FileType git,fugitive,gitcommit
-        \ nnoremap <buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
+        \ nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
         \|map <buffer> <localleader>* <Plug>fugitive:*
     au User FugitiveObject,FugitiveIndex
         \ silent! unmap <buffer> *
         \|map <buffer> <localleader>* <Plug>fugitive:*
+    " TODO: diff mapping for gitcommit
 augroup END
+
+" See also:
+" - https://github.com/sgeb/vim-diff-fold/blob/master/ftplugin/diff.vim
+" - https://vim.fandom.com/wiki/Folding_for_diff_files
+function! GitDiffFoldExpr(lnum)
+    let line = getline(a:lnum)
+    if line =~# '^diff'
+        return '>1'
+    elseif line =~# '^@@'
+        return '>2'
+    else
+        return '='
+    endif
+endfunction
 " }}}
 
 " etc util {{{
@@ -1616,7 +1647,7 @@ endfunction
 " }}}
 
 " surround {{{
-" https://github.com/tomtomjhj/vim-surround/blob/2782330aae5f5ce572df2030a513c84211b93062/plugin/surround.vim
+" https://github.com/tomtomjhj/vim-surround/blob/320d3203a3f49ef2fe263874153de766b09cdd84/plugin/surround.vim
 " Input functions {{{2
 
 function! s:surround_getchar()
@@ -1936,7 +1967,9 @@ endfunction
 function! s:surround_deletecustom(char, b, count) abort
   let [before, after] = s:surround_customsurroundings(a:char, a:b, 1)
   let [before_pat, after_pat] = ['\v\C'.s:surround_escape(before), '\v\C'.s:surround_escape(after)]
-  let found = searchpair(before_pat, '', after_pat, 'bcW')
+  " searchpair()'s 'c' flag matches both start and end.
+  " Append '\zs' to the closer pattern so that it doesn't match the closer on the cursor.
+  let found = searchpair(before_pat, '', after_pat.'\zs', 'bcW')
   if found <= 0
     return ['','']
   endif
