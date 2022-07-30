@@ -6,6 +6,7 @@
 	co = checkout
 	lg = log --all --decorate --oneline --graph
 	lgc = log --decorate --oneline --graph
+	# TODO: probably `git lg HEAD@{1} HEAD@{2} .... HEAD@{N}` is good enough
 	lgall = "!git lg $(git fsck --no-reflog | awk '/dangling commit/ {print $3}')"
 	lp = log -p
 	st = status
@@ -55,6 +56,8 @@
 	fetchJobs = 0
 [pull]
 	ff = only
+# [rerere]
+# 	enabled = true
 [delta]
 # NOTE
 # * Don't set core.pager=delta by default. See alias.dt.

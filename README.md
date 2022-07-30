@@ -40,6 +40,7 @@
     * https://vimhelp.org/vim_faq.txt.html#faq-20.5 https://vimhelp.org/map.txt.html#modifyOtherKeys
     * https://github.com/neovim/neovim/issues/14350
     * https://github.com/tmux/tmux/issues/2216 https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys
+* https://github.com/camdencheek/fre
 
 # Ubuntu setup
 
@@ -393,6 +394,9 @@ TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
         * `-G pat`: grep
         * `-S pat [--pickaxe-regex]`: change in number of occurrences
     * <https://stackoverflow.com/questions/29468273/why-git-blame-does-not-follow-renames>
+    * Use `git show` for better merge commit diff <https://stackoverflow.com/questions/45253550>
+* `git log -L`
+    * `:{range}Gclog`
 * `git apply --reject --whitespace=fix`
 * git files absolute dir `git -C "$ROOT" ls-files | awk -v R="$ROOT" '{ print R "/" $0 }'`
 * `git reset --merge` to abort `stash pop` https://stackoverflow.com/a/60444590
@@ -403,3 +407,7 @@ TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
     * range `^main feature` (= `main..feature`):
 * <https://stackoverflow.com/questions/39665570/why-can-two-git-worktrees-not-check-out-the-same-branch>
 * `git push -u origin my_ref:remote_branch`
+* `git-rebase(1)` REBASING MERGES
+* `git-rerere`
+    * https://stackoverflow.com/questions/49500943/what-is-git-rerere-and-how-does-it-work#comment86015280_49501436
+    * not very accuate??

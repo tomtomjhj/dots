@@ -47,6 +47,7 @@ alias df='df -h'                          # human-readable sizes
 alias free='free -m'                      # show sizes in MB
 alias more=less
 
+# can be slow  over ssh -X
 xhost +local:root > /dev/null 2>&1
 
 # https://stackoverflow.com/a/53655744
@@ -216,9 +217,6 @@ alias e="emacs -nw"
 alias g=git
 alias gti=git
 alias py=python3
-alias pyi="python3 -i"
-alias rgi="rg -i"
-alias rgv="rg -g '*.v'"
 # TODO: use `shopt -s autocd`?
 alias ..='cd ..'
 alias ...='cd ../..'
