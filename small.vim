@@ -222,56 +222,24 @@ endif
 " }}}
 
 " Statusline {{{
-let s:has_stl_expand_expr = has('patch-8.2.2854') || has('nvim-0.5')
-if s:has_stl_expand_expr
-    let s:statusline = [
-                \ '%{%StatuslineHighlight1()%}', '%( %{StatuslineMode()} %)',
-                \ '%{%StatuslineHighlight2()%}', '%( %{STLTitle()} %)',
-                \ '%{%StatuslineHighlight3()%}', '%( %m%r%w%{get(b:,"git_status","")}%)',
-                \ '%=',
-                \ '%{%StatuslineHighlight3()%}', ' %3p%% ',
-                \ '%{%StatuslineHighlight2()%}', ' %3l:%-2c ']
-else
-    let s:statusline = [
-                \ '%( %{StatuslineMode()} %)',
-                \ '%#STLModeNormal2#', '%( %{STLTitle()} %)',
-                \ '%#STLModeNormal3#', '%m%r%w', '%( %m%r%w%{get(b:,"git_status","")}%)',
-                \ '%=',
-                \ '%#STLModeNormal3#', ' %3p%% ',
-                \ '%#STLModeNormal2#', ' %3l:%-2c ']
-endif
-let &statusline = join(s:statusline, '')
-unlet s:statusline
-
-if s:has_stl_expand_expr
-    let s:stl_mode_hl = {
-                \ 'n' :     '%#STLModeNormal1#',
-                \ 'i' :     '%#STLModeInsert1#',
-                \ 'R' :     '%#STLModeReplace#',
-                \ 'v' :     '%#STLModeVisual#',
-                \ 'V' :     '%#STLModeVisual#',
-                \ "\<C-v>": '%#STLModeVisual#',
-                \ 'c' :     '%#STLModeCmdline1#',
-                \ 's' :     '%#STLModeVisual#',
-                \ 'S' :     '%#STLModeVisual#',
-                \ "\<C-s>": '%#STLModeVisual#',
-                \ 't':      '%#STLModeInsert1#',}
-
-    function! StatuslineHighlight1()
-        return get(s:stl_mode_hl, mode(), '')
-    endfunction
-    function! StatuslineHighlight2()
-        if g:actual_curwin != win_getid() | return '%#STLModeNormal2#' | endif
-        return mode() =~# '^[it]' ? '%#STLModeInsert2#' : mode() =~# '^c' ? '%#STLModeCmdline2#' : '%#STLModeNormal2#'
-    endfunction
-    function! StatuslineHighlight3()
-        if g:actual_curwin != win_getid() | return '%#STLModeNormal3#' | endif
-        return mode() =~# '^[it]' ? '%#STLModeInsert3#' : mode() =~# '^c' ? '%#STLModeCmdline3#' : '%#STLModeNormal3#'
-    endfunction
-endif
-
+let s:has_statusline_winid = has('patch-8.1.1372') || has('nvim-0.5')
+let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
+let s:stl_active_hl = {
+            \ 'n' :     ['%#STLModeNormal1#' , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ 'i' :     ['%#STLModeInsert1#' , '%#STLModeInsert2#' , '%#STLModeInsert3#' , '%#STLModeInsert4#' , ],
+            \ 'R' :     ['%#STLModeReplace#' , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ 'v' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ 'V' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ "\<C-v>": ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ 'c' :     ['%#STLModeCmdline1#', '%#STLModeCmdline2#', '%#STLModeCmdline3#', '%#STLModeCmdline4#', ],
+            \ 's' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ 'S' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ "\<C-s>": ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
+            \ 't':      ['%#STLModeInsert1#' , '%#STLModeInsert2#' , '%#STLModeInsert3#' , '%#STLModeInsert4#' , ],
+            \}
+let s:stl_inactive_hl = [''                  , '%#STLInactive2#'   , '%#STLInactive3#'   , '%#STLInactive4#' , ]
 function! StatuslineHighlightInit()
-    if s:has_stl_expand_expr
+    if s:has_statusline_winid
         hi! StatusLine guibg=#303030 ctermbg=236 gui=bold cterm=bold
     else
         hi! StatusLine guibg=#303030 ctermbg=236 gui=bold,inverse cterm=bold,inverse
@@ -281,16 +249,23 @@ function! StatuslineHighlightInit()
     hi! StatusLineTermNC guibg=#262626 ctermbg=235 gui=none cterm=none
 
     hi! STLModeNormal1  guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
-    hi! STLModeNormal2                            guibg=#626262 ctermbg=241
-    hi! STLModeNormal3                            guibg=#303030 ctermbg=236
+    hi! STLModeNormal2  guifg=#ffffff ctermfg=231 guibg=#626262 ctermbg=241
+    hi! STLModeNormal3  guifg=#bcbcbc ctermfg=250 guibg=#303030 ctermbg=236
+    hi! STLModeNormal4  guifg=#585858 ctermfg=240 guibg=#d0d0d0 ctermbg=252
     hi! STLModeVisual   guifg=#870000 ctermfg=88  guibg=#ff8700 ctermbg=208 gui=bold cterm=bold
     hi! STLModeReplace  guifg=#ffffff ctermfg=231 guibg=#df0000 ctermbg=160 gui=bold cterm=bold
     hi! STLModeInsert1  guifg=#005f5f ctermfg=23  guibg=#ffffff ctermbg=231 gui=bold cterm=bold
     hi! STLModeInsert2  guifg=#ffffff ctermfg=231 guibg=#0087af ctermbg=31
-    hi! STLModeInsert3  guifg=#ffffff ctermfg=231 guibg=#005f87 ctermbg=24
+    hi! STLModeInsert3  guifg=#afd7ff ctermfg=153 guibg=#005f87 ctermbg=24
+    hi! STLModeInsert4  guifg=#005f5f ctermfg=23  guibg=#87dfff ctermbg=117
     hi! STLModeCmdline1 guifg=#262626 ctermfg=235 guibg=#ffffff ctermbg=231 gui=bold cterm=bold
     hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
     hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
+    hi! STLModeCmdline4 guifg=#585858 ctermfg=240 guibg=#ffffff ctermbg=231
+
+    hi! STLInactive2  guifg=#8a8a8a ctermfg=245 guibg=#262626 ctermbg=235
+    hi! STLInactive3  guifg=#8a8a8a ctermfg=245 guibg=#303030 ctermbg=236
+    hi! STLInactive4  guifg=#262626 ctermfg=235 guibg=#606060 ctermbg=241
 
     hi! TabLine      cterm=NONE ctermfg=NONE ctermbg=241 gui=NONE guibg=#626262
     hi! TabLineFill  cterm=NONE ctermbg=238 gui=NONE guibg=#444444
@@ -298,17 +273,35 @@ function! StatuslineHighlightInit()
 endfunction
 call StatuslineHighlightInit()
 
-let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
-if has('patch-8.1.1372') || has('nvim-0.5')
-    function! StatuslineMode()
-        if g:actual_curwin != win_getid() | return '' | endif
-        return get(s:stl_mode_map, mode(), '')
+if s:has_statusline_winid
+    function! STLFunc() abort
+        let [hl1, hl2, hl3, hl4] = g:statusline_winid is# win_getid() ? s:stl_active_hl[mode()[:0]] : s:stl_inactive_hl
+        return join([ hl1, '%( %{STLMode(' . winnr() . ')} %)',
+                    \ hl2, '%( %w%q%h%)%( %{STLTitle()} %)',
+                    \ hl3, '%( %m%r%{get(b:,"git_status","")}%)',
+                    \ '%=',
+                    \ hl2, ' %3p%% ',
+                    \ hl4, ' %3l:%-2c '
+                    \], '')
     endfunction
 else
-    function! StatuslineMode()
-        return get(s:stl_mode_map, mode(), '')
+    function! STLFunc() abort
+        return join([ '%( %{STLMode(' . winnr() . ')} %)',
+                    \ '%#STLModeNormal2#', '%( %w%q%h%)%( %{STLTitle()} %)',
+                    \ '%#STLModeNormal3#', '%( %m%r%{get(b:,"git_status","")}%)',
+                    \ '%=',
+                    \ '%#STLModeNormal2#', ' %3p%% ',
+                    \ '%#STLModeNormal4#', ' %3l:%-2c '
+                    \], '')
     endfunction
 endif
+
+" This should run in %{} context so that the winnr() returns the window whose statusline is being evaluated.
+" https://github.com/vim/vim/issues/4406#issuecomment-495496763
+" For some unknown reason, win_getid() doesn't work for this trick.
+function! STLMode(wn) abort
+    return a:wn is# winnr() ? s:stl_mode_map[mode()[:0]] : ''
+endfunction
 
 function! STLTitle() abort
     let bt = &buftype
@@ -353,6 +346,9 @@ function! UpdateGitStatus(buf)
     endif
     call setbufvar(a:buf, 'git_status', status)
 endfunction
+
+set statusline=%!STLFunc()
+let g:qf_disable_statusline = 1
 
 augroup Statusline | au!
     if g:os !=# 'Windows' " too slow on windows
