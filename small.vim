@@ -1033,9 +1033,6 @@ cnoreabbrev <expr> tsf <SID>cabbrev('tsf', "tab sf**/<Left><Left><Left>")
 nnoremap <leader>cx :tabclose<CR>
 nnoremap <leader>td :tab split<CR>
 nnoremap <leader>tt :tabedit<CR>
-nnoremap <leader>cd :cd <c-r>=expand("%:p:h")<cr>/
-nnoremap <leader>e  :e! <c-r>=expand("%:p:h")<cr>/
-nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>fe :e!<CR>
 
 inoreabbrev <expr> \date\ strftime('%F')
@@ -1217,21 +1214,6 @@ endfunction
 " }}}
 
 " Explorers {{{
-let g:netrw_home = simplify(&undodir . '..')
-let g:netrw_fastbrowse = 0
-let g:netrw_clipboard = 0
-let g:netrw_dirhistmax = 0
-nmap <leader>- <Plug>VinegarUp
-nmap <C-w>es   <Plug>VinegarSplitUp
-nmap <C-w>ev   <Plug>VinegarVerticalSplitUp
-augroup netrw-custom | au!
-    au FileType netrw call s:netrw()
-augroup END
-function! s:netrw() abort
-    silent! nunmap <buffer> <C-L>
-    nmap <buffer> <leader><C-L> <Plug>NetrwRefresh
-endfunction
-
 " https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
 function! GXBrowse(url)
     let redir = '>&/dev/null'
@@ -1256,6 +1238,46 @@ function! CursorURL() abort
     return matchstr(expand('<cWORD>'), s:url_regex)
 endfunction
 nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
+
+let g:netrw_home = simplify(&undodir . '..')
+let g:netrw_fastbrowse = 0
+let g:netrw_clipboard = 0
+let g:netrw_dirhistmax = 0
+nnoremap <silent><leader>- :<C-u>call <SID>explore_bufdir('Explore')<CR>
+nnoremap <silent><C-w>es   :<C-u>call <SID>explore_bufdir('Hexplore')<CR>
+nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore!')<CR>
+nnoremap <silent><C-w>et   :<C-u>call <SID>explore_bufdir('Texplore')<CR>
+nnoremap <leader>cd :cd <Plug>BufDir/
+nnoremap <leader>e  :e! <Plug>BufDir/
+nnoremap <leader>te :tabedit <Plug>BufDir/
+function! s:netrw() abort
+    silent! nunmap <buffer> <C-L>
+    nmap <buffer> <leader><C-L> <Plug>NetrwRefresh
+endfunction
+function! s:explore_bufdir(cmd) abort
+    let name = expand('%:t')
+    exe a:cmd BufDir()
+    call s:vinegar_seek(name)
+endfunction
+
+augroup netrw-custom | au!
+    au FileType netrw call s:netrw()
+augroup END
+
+noremap! <Plug>BufDir <C-r><C-r>=BufDir()<CR>
+function! BufDir(...) abort
+    let b = a:0 ? a:1 : bufnr('')
+    let bname = bufname(b)
+    let ft = getbufvar(b, '&filetype')
+    if ft is# 'fugitive'
+        return fnamemodify(FugitiveGitDir(b), ':h')
+    elseif bname =~# '^fugitive://'
+        return fnamemodify(FugitiveReal(bname), ':h')
+    else
+        " NOTE: If `isdirectory(bname)`, `:p` appends a path separator. This is removed by `:h`.
+        return fnamemodify(bname, ':p:h')
+    endif
+endfunction
 " }}}
 
 " Git. See also plugin/git.vim {{{
