@@ -247,7 +247,7 @@ test -r /home/jjh/.opam/opam-init/complete.sh && . /home/jjh/.opam/opam-init/com
 test -r /home/jjh/.opam/opam-init/env_hook.sh && . /home/jjh/.opam/opam-init/env_hook.sh > /dev/null 2> /dev/null || true
 
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
-if [ -z "$TMUX"  ]; then
+if [ -z "$TMUX"  ] && [ -z "$VIM" ]; then
   detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
   if [ $detached == 0 ]; then
     tmux new-session
