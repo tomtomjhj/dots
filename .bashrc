@@ -243,8 +243,8 @@ export FZF_DEFAULT_OPTS="--bind alt-a:select-all,alt-d:deselect-all,alt-t:toggle
 stty -ixon
 
 # https://github.com/ocaml/opam/issues/4201
-test -r /home/jjh/.opam/opam-init/complete.sh && . /home/jjh/.opam/opam-init/complete.sh > /dev/null 2> /dev/null || true
-test -r /home/jjh/.opam/opam-init/env_hook.sh && . /home/jjh/.opam/opam-init/env_hook.sh > /dev/null 2> /dev/null || true
+test -r "${HOME}/.opam/opam-init/complete.sh" && . "${HOME}/.opam/opam-init/complete.sh" > /dev/null 2> /dev/null || true
+test -r "${HOME}/.opam/opam-init/env_hook.sh" && . "${HOME}/.opam/opam-init/env_hook.sh" > /dev/null 2> /dev/null || true
 
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
 if [ -z "$TMUX"  ] && [ -z "$VIM" ]; then

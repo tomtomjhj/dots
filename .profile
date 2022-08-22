@@ -32,7 +32,7 @@ else
 fi
 
 # https://github.com/ocaml/opam/issues/4201
-test -r /home/jjh/.opam/opam-init/variables.sh && . /home/jjh/.opam/opam-init/variables.sh > /dev/null 2> /dev/null || true
+test -r "${HOME}/.opam/opam-init/variables.sh" && . "${HOME}/.opam/opam-init/variables.sh" > /dev/null 2> /dev/null || true
 
 export MANOPT='--nh --nj'
 
