@@ -190,9 +190,12 @@ endif
 " gui settings {{{
 function! s:SetupGUI() abort
     set guifont=Source\ Code\ Pro:h12
-    nmap <C--> <Cmd>FontSize -v:count1<CR>
-    nmap <C-+> <Cmd>FontSize v:count1<CR>
-    nmap <C-=> <Cmd>FontSize v:count1<CR>
+    nnoremap <silent> <C--> :<C-u>FontSize -v:count1<CR>
+    if has('gui_running')
+        nnoremap <silent> <C-_> :<C-u>FontSize -v:count1<CR>
+    endif
+    nnoremap <silent> <C-+> :<C-u>FontSize v:count1<CR>
+    nnoremap <silent> <C-=> :<C-u>FontSize v:count1<CR>
     command! -nargs=1 FontSize call s:FontSize(<args>)
     function! s:FontSize(delta)
         let new_size = matchstr(&guifont, '\d\+') + a:delta
