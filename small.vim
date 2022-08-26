@@ -1180,12 +1180,14 @@ function! s:PreviewQf(linenr) abort
     let l:entry = s:GetQfEntry(a:linenr)
     if empty(l:entry) | return | endif
     let l:listed = buflisted(l:entry.bufnr)
-    if s:PreviewBufnr() == l:entry.bufnr
-        noautocmd wincmd P
+    if s:PreviewBufnr() != l:entry.bufnr
+        execute 'keepjumps pedit' bufname(l:entry.bufnr)
+    endif
+    noautocmd wincmd P
+    if l:entry.lnum > 0
         execute l:entry.lnum
     else
-        execute 'keepjumps pedit +'.l:entry.lnum bufname(l:entry.bufnr)
-        noautocmd wincmd P
+        call search(l:entry.pattern, 'w')
     endif
     normal! zz
     setlocal cursorline nofoldenable
