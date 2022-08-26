@@ -242,15 +242,6 @@ let s:stl_active_hl = {
             \}
 let s:stl_inactive_hl = [''                  , '%#STLInactive2#'   , '%#STLInactive3#'   , '%#STLInactive4#' , ]
 function! StatuslineHighlightInit()
-    if s:has_statusline_winid
-        hi! StatusLine guibg=#303030 ctermbg=236 gui=bold cterm=bold
-    else
-        hi! StatusLine guibg=#303030 ctermbg=236 gui=bold,inverse cterm=bold,inverse
-    endif
-    hi! StatusLineNC     guibg=#262626 ctermbg=235 gui=none cterm=none
-    hi! StatusLineTerm   guibg=#303030 ctermbg=236 gui=bold cterm=bold
-    hi! StatusLineTermNC guibg=#262626 ctermbg=235 gui=none cterm=none
-
     hi! STLModeNormal1  guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
     hi! STLModeNormal2  guifg=#ffffff ctermfg=231 guibg=#626262 ctermbg=241
     hi! STLModeNormal3  guifg=#bcbcbc ctermfg=250 guibg=#303030 ctermbg=236
@@ -265,14 +256,11 @@ function! StatuslineHighlightInit()
     hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
     hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
     hi! STLModeCmdline4 guifg=#585858 ctermfg=240 guibg=#ffffff ctermbg=231
+    hi! STLModeFallback                           guibg=#303030 ctermbg=236 gui=bold,inverse cterm=bold,inverse
 
     hi! STLInactive2  guifg=#8a8a8a ctermfg=245 guibg=#262626 ctermbg=235
     hi! STLInactive3  guifg=#8a8a8a ctermfg=245 guibg=#303030 ctermbg=236
     hi! STLInactive4  guifg=#262626 ctermfg=235 guibg=#606060 ctermbg=241
-
-    hi! TabLine      cterm=NONE ctermfg=NONE ctermbg=241 gui=NONE guibg=#626262
-    hi! TabLineFill  cterm=NONE ctermbg=238 gui=NONE guibg=#444444
-    " TabLineSel
 endfunction
 call StatuslineHighlightInit()
 
@@ -289,7 +277,7 @@ if s:has_statusline_winid
     endfunction
 else
     function! STLFunc() abort
-        return join([ '%( %{STLMode(' . winnr() . ')} %)',
+        return join([ '%#STLModeFallback#', '%( %{STLMode(' . winnr() . ')} %)',
                     \ '%#STLModeNormal2#', '%( %w%q%h%)%( %{STLTitle()} %)',
                     \ '%#STLModeNormal3#', '%( %m%r%{get(b:,"git_status","")}%)',
                     \ '%=',
@@ -2509,6 +2497,13 @@ hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline
 hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
 exe 'hi! SpellBad cterm=undercurl ctermbg=NONE guisp=#ff5f5f' . (has('patch-8.2.0863') ? ' ctermul=203' : '')
 exe 'hi! SpellCap cterm=undercurl ctermbg=NONE guisp=#ffaf5f' . (has('patch-8.2.0863') ? ' ctermul=215' : '')
+hi! StatusLine   guibg=#303030 ctermbg=236 gui=bold cterm=bold
+hi! StatusLineNC guibg=#262626 ctermbg=235 gui=none cterm=none
+hi! link StatusLineTerm StatusLine
+hi! link StatusLineTermNC StatusLineNC
+hi! TabLine      cterm=NONE ctermfg=NONE ctermbg=241 gui=NONE guibg=#626262
+hi! TabLineFill  cterm=NONE ctermbg=238 gui=NONE guibg=#444444
+" TabLineSel
 hi! Title        term=bold cterm=bold ctermfg=150 gui=bold guifg=#afd787
 hi! Visual       ctermbg=241 guibg=#626262
 
