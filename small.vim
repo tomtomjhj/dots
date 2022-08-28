@@ -12,7 +12,7 @@ if exists("did_load_filetypes") | filetype off | endif
 filetype plugin indent on
 
 " OS stuff {{{
-let g:os = (has('win64') || has('win32') || has('win16')) ? 'Windows' : substitute(system('uname'), '\n', '', '')
+let g:os = (has('win64') || has('win32') || has('win16')) ? 'Windows' : systemlist('uname')[0]
 
 if g:os ==# 'Windows'
     " :h shell-powershell
@@ -328,9 +328,9 @@ function! UpdateGitStatus(buf)
     let status = ''
     if !empty(bufname) && getbufvar(a:buf, '&modifiable') && empty(getbufvar(a:buf, '&buftype'))
         let git = 'git -C '.fnamemodify(bufname, ':h')
-        let rev_parse = s:system(git . ' rev-parse --abbrev-ref HEAD')[0]
+        let rev_parse = systemlist(git . ' rev-parse --abbrev-ref HEAD')[0]
         if !v:shell_error
-            let status = s:system(git . ' status --porcelain ' . shellescape(bufname))
+            let status = systemlist(git . ' status --porcelain ' . shellescape(bufname))
             let status = empty(status) ? '' : status[0][:1]
             let status = '[' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
         endif
@@ -797,11 +797,11 @@ function! Files(...) abort
     if opts =~ '3'
         let root = s:git_root(empty(bufname('%')) ? getcwd() : bufname('%'))
         " NOTE: add -co to include untracked files (n.b. may not enumerate each file)
-        let files = s:system('git -C '.root.' ls-files --exclude-standard')
+        let files = systemlist('git -C '.root.' ls-files --exclude-standard')
         call map(files, "'".root."/'.v:val")
     else
         let cmd = (&grepprg =~# '^rg') ? "rg --hidden --glob '!**/.git/**' --files" : 'find . -type f'
-        let files = s:system(cmd)
+        let files = systemlist(cmd)
     endif
     if a:0
         call filter(files, 'match(v:val, a:1) >= 0')
@@ -1319,7 +1319,7 @@ endif
 function! s:git_root(file_or_dir) abort
     let file_or_dir = fnamemodify(expand(a:file_or_dir), ':p')
     let dir = isdirectory(file_or_dir) ? file_or_dir : fnamemodify(file_or_dir, ':h')
-    let output = s:system('git -C '.dir.' rev-parse --show-toplevel')[0]
+    let output = systemlist('git -C '.dir.' rev-parse --show-toplevel')[0]
     if v:shell_error | throw output | endif
     return output
 endfunction
@@ -1332,9 +1332,6 @@ else
         return setqflist(map(a:files, '{"filename": v:val, "lnum": 1}')) " can't go to last cursor pos in these versions
     endfunction
 endif
-function! s:system(cmd) abort
-    return split(system(a:cmd), '\n', 0)
-endfunction
 " escape cmdline-special and shell stuff for commands that run shell command
 function! s:cmdshellescape(text) abort
     return escape(shellescape(a:text), '#%')
