@@ -92,8 +92,7 @@ if exists('+completepopup')
 endif
 set path=.,,
 
-set ignorecase smartcase
-if has('patch-7.4.2230') | set tagcase=followscs | endif
+set ignorecase smartcase tagcase=match
 set hlsearch incsearch
 
 set noerrorbells novisualbell t_vb=
@@ -374,7 +373,7 @@ function! s:c_cpp() abort
     setlocal shiftwidth=2
     setlocal commentstring=//%s
     silent! setlocal formatoptions+=/ " 8.2.4907
-    setlocal path+=/usr/include
+    setlocal path+=include,/usr/include
 endfunction
 " }}}
 
@@ -2487,7 +2486,7 @@ hi! Todo         cterm=bold,reverse ctermfg=218 ctermbg=NONE gui=bold,reverse gu
 hi! link Conceal Special
 hi! DiffAdd      ctermbg=22 guibg=#284028
 hi! DiffChange   ctermbg=234 guibg=#1c1c1c
-hi! DiffDelete   ctermfg=203 ctermbg=16 guifg=#ff5f5f guibg=#000000
+hi! DiffDelete   cterm=NONE ctermfg=203 ctermbg=NONE gui=NONE guifg=#ff5f5f guibg=NONE
 hi! DiffText     cterm=NONE ctermbg=60 gui=NONE guibg=#484060
 hi! VertSplit    cterm=NONE ctermbg=16 ctermfg=252 gui=NONE guibg=#000000 guifg=#d0d0d0
 hi! Folded       ctermfg=252 ctermbg=16 guifg=#d0d0d0 guibg=#000000
