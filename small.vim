@@ -1356,13 +1356,21 @@ function! Wildignore2exclude() abort
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
 
-function! Execute(cmd, mods) abort
-    let output = s:execute(a:cmd)
+function! TempBuf(mods, ...) abort
     exe a:mods 'new'
-    setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
-    call setline(1, split(output, "\n"))
+    setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile nomodeline
+    if a:0
+        call setline(1, a:1)
+    endif
 endfunction
-command! -nargs=* -complete=command Execute silent call Execute(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
+function! Execute(cmd, mods) abort
+    call TempBuf(a:mods, split(s:execute(a:cmd), "\n"))
+endfunction
+function! WriteC(cmd, mods) range abort
+    call TempBuf(a:mods, systemlist(a:cmd, getline(a:firstline, a:lastline)))
+endfunction
+command! -nargs=* -complete=command Execute call Execute(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
+command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
