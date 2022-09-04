@@ -732,6 +732,8 @@ nnoremap <leader>gw :<C-u>Grep <C-R>=GrepInput(expand('<cword>'),1)<CR>
 nnoremap <C-f>      :<C-u>Files<space>
 nnoremap <leader>hh :<C-u>History<space>
 
+" NOTE: To include space in query, escape the space ('\ ').
+" NOTE: '%' in query should be escaped. `-complete=dir` expands cmdline-special.
 command! -nargs=* -complete=dir Grep call Grep(<f-args>)
 command! -nargs=? History call History(<f-args>)
 command! -nargs=? Files call Files(<f-args>)
@@ -746,10 +748,9 @@ else
     set grepprg=internal
 endif
 function! Grep(query, ...) abort
-    " NOTE: escape the space ('\ ') to include space in query
     let opts = string(v:count)
     let options = (&grepprg =~# '^egrep') ? Wildignore2exclude() : ''
-    let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : s:cmdshellescape(a:query)
+    let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : shellescape(a:query, 1)
     let dir = '.'
     if a:0
         let dir = a:1
@@ -779,7 +780,7 @@ func! GrepInput(raw, word)
     else
         let query = substitute(query[2:], '\v\\([~/])', '\1', 'g')
     endif
-    return escape(query, ' \#%') " for <f-args> and cmdline-special
+    return escape(query, ' \#%') " for <f-args> and cmdline-special expansion by `-complete=dir`
 endfunc
 function! History(...) abort
     silent doautocmd QuickFixCmdPre History
@@ -1331,10 +1332,6 @@ else
         return setqflist(map(a:files, '{"filename": v:val, "lnum": 1}')) " can't go to last cursor pos in these versions
     endfunction
 endif
-" escape cmdline-special and shell stuff for commands that run shell command
-function! s:cmdshellescape(text) abort
-    return escape(shellescape(a:text), '#%')
-endfunction
 function! s:cabbrev(lhs, rhs) abort
     return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
 endfunction
@@ -1350,8 +1347,8 @@ endfunction
 function! Wildignore2exclude() abort
     let exclude = copy(g:wildignore_files)
     let exclude_dir = copy(g:wildignore_dirs)
-    call map(exclude, 's:cmdshellescape(v:val)')
-    call map(exclude_dir, 's:cmdshellescape(v:val)')
+    call map(exclude, 'shellescape(v:val, 1)')
+    call map(exclude_dir, 'shellescape(v:val, 1)')
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
 
