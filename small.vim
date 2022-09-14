@@ -1334,6 +1334,10 @@ else
         return setqflist(map(a:files, '{"filename": v:val, "lnum": 1}')) " can't go to last cursor pos in these versions
     endfunction
 endif
+" Expands cmdline-special
+function! s:expand_cmdline_special(txt) abort
+    return substitute(a:txt, '\v\\@<!(\%|#%(\<?\d+|#)?)', '\=expand(submatch(1))', 'g')
+endfunction
 function! s:cabbrev(lhs, rhs) abort
     return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
 endfunction
@@ -1365,10 +1369,14 @@ function! Execute(cmd, mods) abort
     call TempBuf(a:mods, split(s:execute(a:cmd), "\n"))
 endfunction
 function! WriteC(cmd, mods) range abort
-    call TempBuf(a:mods, systemlist(a:cmd, getline(a:firstline, a:lastline)))
+    call TempBuf(a:mods, systemlist(s:expand_cmdline_special(a:cmd), getline(a:firstline, a:lastline)))
+endfunction
+function! Bang(cmd, mods) abort
+    call TempBuf(a:mods, systemlist(s:expand_cmdline_special(a:cmd)))
 endfunction
 command! -nargs=* -complete=command Execute call Execute(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
 command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
+command! -nargs=* -complete=shellcmd Bang call Bang(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
