@@ -139,7 +139,9 @@ augroup BasicSetup | au!
     let &pumheight = min([&window/4, 20])
     au VimResized * let &pumheight = min([&window/4, 20])
     if has('nvim')
-        au TermOpen * setlocal nonumber norelativenumber foldcolumn=0
+        au TermOpen *        setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no
+    elseif has('##TerminalWinOpen')
+        au TerminalWinOpen * setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no
     endif
     if has('nvim-0.5')
         au TextYankPost * silent! lua vim.highlight.on_yank()
