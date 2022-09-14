@@ -58,7 +58,7 @@ set laststatus=2
 set shiftwidth=4
 set expandtab smarttab
 set autoindent
-set formatoptions+=jn
+set formatoptions+=jn formatoptions-=c
 set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
 set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
@@ -100,7 +100,7 @@ set shortmess+=Ic shortmess-=S
 set belloff=all
 
 set history=1000
-set viminfo=!,'150,<50,s30,h,r/tmp,rterm://,rfugitive://
+set viminfo=!,'150,<50,s30,h,r/tmp,r/run,rterm://,rfugitive://,rfern://,rman://
 set updatetime=1234
 set backup undofile noswapfile
 if has('nvim')
@@ -366,11 +366,12 @@ augroup Languages | au!
 augroup END
 
 " c, cpp {{{
+let c_no_comment_fold = 1
 function! s:c_cpp() abort
     " don't highlight the #define content
     syn clear cDefine
     syn region	cDefine		matchgroup=PreProc start="^\s*\zs\(%:\|#\)\s*\(define\|undef\)\>" skip="\\$" end="$" keepend contains=ALLBUT,@cPreProcGroup,@Spell
-    hi! link cDefine NONE
+    hi! def link cDefine NONE
 
     setlocal shiftwidth=2
     setlocal commentstring=//%s
@@ -696,13 +697,19 @@ let g:tex_no_error = 1
 " }}}
 
 " search & files {{{
+" search_mode: which command last set @/?
+" `*`, `v_*` without moving the cursor. Reserve @c for the raw original text
+" NOTE: Can't repeat properly if ins-special-special is used. Use q-recording.
 nnoremap <silent>* :<C-u>call Star(0)\|set hlsearch<CR>
 nnoremap <silent>g* :<C-u>call Star(1)\|set hlsearch<CR>
 xnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
 xnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
+" set hlsearch inside the function doesn't work? Maybe :h function-search-undo?
+" NOTE: word boundary is syntax property -> may not match in other ft buffers
 let g:search_mode = get(g:, 'search_mode', '/')
 func! Star(g)
     let @c = expand('<cword>')
+    " <cword> can be non-keyword
     if match(@c, '\k') == -1
         let g:search_mode = 'v'
         let @/ = Text2Magic(@c)
@@ -889,7 +896,14 @@ function! MuSneakReset() abort
 endfunction
 " }}}
 
+" TODO: (special char -> non-blank, non-keyword), user-defined (paren -> pair?)
+" s-word: (a keyword | repetition of non-paren special char | a paren | whitespace)
 let g:sword = '\v(\k+|([^[:alnum:]_[:blank:](){}[\]<>''"`$])\2*|[(){}[\]<>''"`$]|\s+)'
+"                     %(\k|[()[\]{}<>[:blank:]$])@!(.)\1*
+" NOTE: \v(<|>) works well for word chars, but not for non-word chars 𝓥s
+" '\v(<|>|[^[:alnum:]_[:blank:]])', '\k\+\|[[:punct:]]\|\s\+'
+
+" Jump past a sword. Assumes `set whichwrap+=]` for i_<Right>
 inoremap <silent><C-j> <C-r>=SwordJumpRight()<CR><Right>
 inoremap <silent><C-k> <C-r>=SwordJumpLeft()<CR>
 func! SwordJumpRight()
@@ -906,7 +920,7 @@ endfunc
 cnoremap <C-j> <S-Right>
 cnoremap <C-k> <S-Left>
 
-inoremap <expr> <C-u> match(getline('.'), '\S') >= 0 ? "\<C-g>u<C-u>" : "<C-u>"
+inoremap <expr> <C-u> match(getline('.'), '\S') >= 0 ? '<C-g>u<C-u>' : '<C-u>'
 " Delete a single character of other non-blank chars
 inoremap <silent><expr><C-w>  FineGrainedICtrlW(0)
 " Like above, but first consume whitespace
@@ -960,6 +974,7 @@ inoremap <C-v> <C-g>u<C-r><C-o>+
 noremap <M-c> "+y
 nnoremap <silent> yY :let _view = winsaveview() \| exe 'keepjumps keepmarks norm ggVG"+y' \| call winrestview(_view) \| unlet _view<cr>
 
+" buf/filename
 noremap <leader>fn 2<C-g>
 
 noremap <F1> <Esc>
@@ -974,6 +989,8 @@ noremap! <C-M-q> <C-q>
 cnoremap <M-p> <Up>
 cnoremap <M-n> <Down>
 
+" disable annoying q and Q (use c_CTRL-F and gQ) and streamline record/execute
+" TODO: q quits hit-enter and *starts recording* unlike q of more-prompt → open a vim issue
 noremap q: :
 noremap q <nop>
 noremap <M-q> q
@@ -982,13 +999,16 @@ if exists('*reg_recording')
 endif
 noremap Q @q
 
+" v_u mistake is  hard to notice. Use gu instead (works for visual mode too).
 nnoremap U <nop>
 xnoremap u <nop>
 
+" delete without clearing regs
 noremap x "_x
 
 nnoremap gV `[v`]
 
+" repetitive pastes using designated register @p
 noremap <M-y> "py
 noremap <M-p> "pp
 noremap <M-P> "pP
@@ -1148,6 +1168,7 @@ endfunction
 if has('nvim')
     tnoremap <M-[> <C-\><C-n>
     tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+    command! -nargs=? Terminal <mods> split | exe "terminal" <q-args> | startinsert
 endif
 " }}}
 
