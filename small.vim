@@ -45,6 +45,9 @@ endif
 " }}}
 
 " Basic {{{
+command! -nargs=1 Noremap exe 'nnoremap' <q-args> | exe 'xnoremap' <q-args> | exe 'onoremap' <q-args> 
+command! -nargs=1 Map exe 'nmap' <q-args> | exe 'xmap' <q-args> | exe 'omap' <q-args>
+
 set encoding=utf-8
 
 set mouse=nvi
@@ -73,13 +76,13 @@ set langmenu=en
 set spelllang=en,cjk
 
 let mapleader = "\<Space>"
-noremap <Space> <Nop>
+Noremap <Space> <Nop>
 let maplocalleader = ","
-noremap , <Nop>
-noremap <M-;> ,
+Noremap , <Nop>
+Noremap <M-;> ,
 " scrolling with only left hand
-noremap <C-Space> <C-u>
-noremap <Space><Space> <C-d>
+Noremap <C-Space> <C-u>
+Noremap <Space><Space> <C-d>
 " digraph
 noremap! <C-Space> <C-k>
 
@@ -835,11 +838,11 @@ xnoremap <expr> J mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
 xnoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 onoremap <expr> J mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
 onoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
-noremap <leader>J J
-noremap <expr> H v:count ? 'H' : 'h'
-noremap <expr> L v:count ? 'L' : 'l'
+Noremap <leader>J J
+Noremap <expr> H v:count ? 'H' : 'h'
+Noremap <expr> L v:count ? 'L' : 'l'
 
-noremap <M-0> ^w
+Noremap <M-0> ^w
 
 " sneak {{{
 " TODO: support visual mode
@@ -966,16 +969,16 @@ nnoremap <leader>sp :set paste! paste?<CR>
 nnoremap <leader>sw :setlocal wrap! wrap?<CR>
 nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
 
-noremap <leader>dp :diffput<CR>
-noremap <leader>do :diffget<CR>
+Noremap <leader>dp :diffput<CR>
+Noremap <leader>do :diffget<CR>
 
 " clipboard.
 inoremap <C-v> <C-g>u<C-r><C-o>+
-noremap <M-c> "+y
+Noremap <M-c> "+y
 nnoremap <silent> yY :let _view = winsaveview() \| exe 'keepjumps keepmarks norm ggVG"+y' \| call winrestview(_view) \| unlet _view<cr>
 
 " buf/filename
-noremap <leader>fn 2<C-g>
+nnoremap <leader>fn 2<C-g>
 
 noremap <F1> <Esc>
 inoremap <F1> <Esc>
@@ -991,27 +994,27 @@ cnoremap <M-n> <Down>
 
 " disable annoying q and Q (use c_CTRL-F and gQ) and streamline record/execute
 " TODO: q quits hit-enter and *starts recording* unlike q of more-prompt → open a vim issue
-noremap q: :
-noremap q <nop>
-noremap <M-q> q
+Noremap q: :
+Noremap q <nop>
+Noremap <M-q> q
 if exists('*reg_recording')
-    noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
+    Noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
 endif
-noremap Q @q
+Noremap Q @q
 
 " v_u mistake is  hard to notice. Use gu instead (works for visual mode too).
 nnoremap U <nop>
 xnoremap u <nop>
 
 " delete without clearing regs
-noremap x "_x
+Noremap x "_x
 
 nnoremap gV `[v`]
 
 " repetitive pastes using designated register @p
-noremap <M-y> "py
-noremap <M-p> "pp
-noremap <M-P> "pP
+Noremap <M-y> "py
+Noremap <M-p> "pp
+Noremap <M-P> "pP
 
 nnoremap Y y$
 onoremap <silent> ge :execute "normal! " . v:count1 . "ge<space>"<cr>
@@ -1019,9 +1022,9 @@ nnoremap <silent> & :&&<cr>
 xnoremap <silent> & :&&<cr>
 
 " set nrformats+=alpha
-noremap  <M-+> <C-a>
+Noremap  <M-+> <C-a>
 xnoremap <M-+> g<C-a>
-noremap  <M--> <C-x>
+Noremap  <M--> <C-x>
 xnoremap <M--> g<C-x>
 
 nnoremap <C-j> <C-W>j
@@ -1303,10 +1306,10 @@ augroup git-custom | au!
     au FileType git,fugitive,gitcommit
         \ nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
-        \|map <buffer> <localleader>* <Plug>fugitive:*
+        \|Map <buffer> <localleader>* <Plug>fugitive:*
     au User FugitiveObject,FugitiveIndex
         \ silent! unmap <buffer> *
-        \|map <buffer> <localleader>* <Plug>fugitive:*
+        \|Map <buffer> <localleader>* <Plug>fugitive:*
     " TODO: diff mapping for gitcommit
 augroup END
 
