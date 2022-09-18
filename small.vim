@@ -1275,7 +1275,8 @@ function! s:netrw() abort
 endfunction
 function! s:explore_bufdir(cmd) abort
     let name = expand('%:t')
-    exe a:cmd BufDir()
+    " <q-args>, -bar, -complete=dir
+    exe a:cmd escape(BufDir(), '|#%')
     call s:vinegar_seek(name)
 endfunction
 
@@ -1283,7 +1284,7 @@ augroup netrw-custom | au!
     au FileType netrw call s:netrw()
 augroup END
 
-noremap! <Plug>BufDir <C-r><C-r>=BufDir()<CR>
+noremap! <Plug>BufDir <C-r><C-r>=fnameescape(BufDir())<CR>
 function! BufDir(...) abort
     let b = a:0 ? a:1 : bufnr('')
     let bname = bufname(b)
