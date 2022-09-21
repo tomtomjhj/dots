@@ -279,6 +279,8 @@ EOF
 ```
 
 #### can't login to Wi-Fi with PEAP, MSCHAPv2
+Fixed on 2022-06-21.
+
 <https://bugs.launchpad.net/ubuntu/+source/wpa/+bug/1958267>
 
 Downgrade to the version used in 21.10.
@@ -291,7 +293,7 @@ Pin: version 2:2.9.0-21build1
 Pin-Priority: 501
 EOF
 ```
-TODO: delete `/etc/apt/preferences.d/wpasupplicant` when fixed
+Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
 
 # note, tips
 * https://github.com/cyrus-and/gdb-dashboard
