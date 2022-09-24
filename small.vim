@@ -157,23 +157,39 @@ if !has('gui_running') && !has('nvim')
     if !has('patch-8.2.0852')
         silent! !stty -ixon > /dev/null 2>/dev/null
     endif
-    " term=tmux-256color messes up ctrl-arrows
-    if $TERM =~ '\(tmux\|screen\)-256' | set term=xterm-256color | endif
-    " set to xterm in tmux, which doesn't support window resizing with mouse
-    set ttymouse=sgr
 
+    if $TERM ==# 'xterm-kitty'
+        " https://sw.kovidgoyal.net/kitty/faq/#using-a-color-theme-with-a-background-color-does-not-work-well-in-vim
+        set t_ut=
+    elseif $TERM =~# '\v(tmux|screen)-256'
+        " term=tmux-256color messes up ctrl-arrows
+        set term=xterm-256color
+        " set to xterm in tmux, which doesn't support window resizing with mouse
+        set ttymouse=sgr
+    endif
+
+    " Keys: {{{
     " NOTE: <M- keys can be affected by 'encoding'.
     " NOTE: Characters that come after <Esc> in terminal codes: [ ] P \ M O
     " (see term.c and `set termcap`)
-    " These terminal options (gnome-terminal) conflict with my <M- mappings.
+    let s:my_meta_keys = ['+', '-', '/', '0', ';', 'c', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
+    " These terminal options conflict with my <M- mappings.
     " Fortunately, they are not important and can be disabled.
-    set t_IS= t_RF= t_RB= t_SC= t_ts= t_Cs= " uses <Esc>]
+    set t_IS= t_RF= t_RB= t_SC= t_ts= " uses <Esc>]
     set t_RS= " uses <Esc>P and <ESC>\
-    for c in ['+', '-', '/', '0', ';', 'c', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
+    if $TERM ==# 'xterm-kitty'
+        set t_ds= " uses <Esc>]
+        " t_ke " uses <Esc>>
+        " t_ks " uses <Esc>=
+        " Setting <M-P> breaks stuff in kitty, even if there is no remaining termcap option using <Esc>P.
+        call remove(s:my_meta_keys, index(s:my_meta_keys, 'P'))
+    endif
+    for c in s:my_meta_keys
         exe 'set <M-'.c.'>='."\<Esc>".c
         exe 'noremap  <M-'.c.'>' c
         exe 'noremap! <M-'.c.'>' c
     endfor
+    unlet! s:my_meta_keys
     " NOTE: "set <C-M-j>=\<Esc>\<NL>" breaks stuff. So use <C-M-n> instead.
     exe "set <C-M-n>=\<Esc>\<C-n>"
     exe "set <C-M-k>=\<Esc>\<C-k>"
@@ -184,6 +200,7 @@ if !has('gui_running') && !has('nvim')
     map! <F34> <M-BS>
     map  <Nul> <C-Space>
     map! <Nul> <C-Space>
+    " }}}
 
     " :h undercurl
     let &t_Cs = "\e[4:3m"
