@@ -277,7 +277,6 @@ function! StatuslineHighlightInit()
     hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
     hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
     hi! STLModeCmdline4 guifg=#585858 ctermfg=240 guibg=#ffffff ctermbg=231
-    hi! STLModeFallback                           guibg=#303030 ctermbg=236 gui=bold,inverse cterm=bold,inverse
 
     hi! STLInactive2  guifg=#8a8a8a ctermfg=245 guibg=#262626 ctermbg=235
     hi! STLInactive3  guifg=#8a8a8a ctermfg=245 guibg=#303030 ctermbg=236
@@ -287,33 +286,35 @@ call StatuslineHighlightInit()
 
 if s:has_statusline_winid
     function! STLFunc() abort
-        let [hl1, hl2, hl3, hl4] = g:statusline_winid is# win_getid() ? s:stl_active_hl[mode()[:0]] : s:stl_inactive_hl
-        return join([ hl1, '%( %{STLMode(' . winnr() . ')} %)',
-                    \ hl2, '%( %w%q%h%)%( %{STLTitle()} %)',
-                    \ hl3, '%( %m%r%{get(b:,"git_status","")}%)',
-                    \ '%=',
-                    \ hl2, ' %3p%% ',
-                    \ hl4, ' %3l:%-2c '
-                    \], '')
+        if g:statusline_winid is# win_getid()
+            let m = mode()[0]
+            let [hl1, hl2, hl3, hl4] = s:stl_active_hl[m]
+            return join([ hl1, ' ' . s:stl_mode_map[m] . ' ',
+                        \ hl2, '%( %w%q%h%)%( %{STLTitle()}%) ',
+                        \ hl3, '%( %m%r%{get(b:,"git_status","")}%)',
+                        \ '%=',
+                        \ hl2, ' %3p%% ',
+                        \ hl4, ' %3l:%-2c '
+                        \], '')
+        else
+            let [hl1, hl2, hl3, hl4] = s:stl_inactive_hl
+            return join([ hl2, '%( %w%q%h%)%( %{STLTitle()}%) ',
+                        \ hl3, '%( %m%r%{get(b:,"git_status","")}%)',
+                        \ '%=',
+                        \ hl2, ' %3p%% ',
+                        \ hl4, ' %3l:%-2c '
+                        \], '')
+        endif
     endfunction
+    set statusline=%!STLFunc()
 else
-    function! STLFunc() abort
-        return join([ '%#STLModeFallback#', '%( %{STLMode(' . winnr() . ')} %)',
-                    \ '%#STLModeNormal2#', '%( %w%q%h%)%( %{STLTitle()} %)',
-                    \ '%#STLModeNormal3#', '%( %m%r%{get(b:,"git_status","")}%)',
-                    \ '%=',
-                    \ '%#STLModeNormal2#', ' %3p%% ',
-                    \ '%#STLModeNormal4#', ' %3l:%-2c '
-                    \], '')
-    endfunction
+    let &statusline = join([ '%( %w%q%h%)%( %{STLTitle()}%) ',
+                           \ '%( %m%r%{get(b:,"git_status","")}%)',
+                           \ '%=',
+                           \ ' %3p%% ',
+                           \ ' %3l:%-2c '
+                           \], '')
 endif
-
-" This should run in %{} context so that the winnr() returns the window whose statusline is being evaluated.
-" https://github.com/vim/vim/issues/4406#issuecomment-495496763
-" For some unknown reason, win_getid() doesn't work for this trick.
-function! STLMode(wn) abort
-    return a:wn is# winnr() ? s:stl_mode_map[mode()[:0]] : ''
-endfunction
 
 function! STLTitle() abort
     let bt = &buftype
@@ -359,7 +360,6 @@ function! UpdateGitStatus(buf)
     call setbufvar(a:buf, 'git_status', status)
 endfunction
 
-set statusline=%!STLFunc()
 let g:qf_disable_statusline = 1
 
 augroup Statusline | au!
