@@ -158,8 +158,6 @@ special: d
                 <string>markup.heading punctuation.definition.heading, entity.name.section</string>
                 <key>settings</key>
                 <dict>
-                    <key>fontStyle</key>
-                    <string></string>
                     <key>foreground</key>
                     <string>#0a000000</string>
                     <key>fontStyle</key>

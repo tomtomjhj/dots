@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+A minimal "colorscheme" that only uses 8 (line highlight), 7 (comment), f (fg).
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <!--
+        This theme is meant for users who configure their terminal with a base16
+        color theme. If you use a 256-color variant along with base16-shell, use
+        the bat theme base16-256 instead.
+
+        base16: https://github.com/chriskempson/base16
+        base16-shell: https://github.com/chriskempson/base16-shell
+
+        The colors in this theme are encoded as #RRGGBBAA where RR is an ANSI
+        palette number from 00 to 0f (the 8 colors and their bright versions),
+        and AA is the special value 00 to indicate this encoding is being used.
+        -->
+        <key>author</key>
+        <string>Template: Chris Kempson, Scheme: Jaehwang Jung</string>
+        <key>name</key>
+        <string>Base16</string>
+        <key>colorSpaceName</key>
+        <string>sRGB</string>
+        <key>settings</key>
+        <array>
+            <dict>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#0f000000</string>
+                    <key>lineHighlight</key>
+                    <string>#08000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Comments</string>
+                <key>scope</key>
+                <string>comment, punctuation.definition.comment</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#07000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Keywords</string>
+                <key>scope</key>
+                <string>keyword</string>
+                <key>settings</key>
+                <dict>
+                    <key>fontStyle</key>
+                    <string>bold</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Storage</string>
+                <key>scope</key>
+                <string>storage</string>
+                <key>settings</key>
+                <dict>
+                    <key>fontStyle</key>
+                    <string>bold</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Headings</string>
+                <key>scope</key>
+                <string>markup.heading punctuation.definition.heading, entity.name.section</string>
+                <key>settings</key>
+                <dict>
+                    <key>fontStyle</key>
+                    <string>bold</string>
+                </dict>
+            </dict>
+        </array>
+        <key>uuid</key>
+        <string>uuid</string>
+    </dict>
+</plist>
