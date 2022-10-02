@@ -382,7 +382,7 @@ augroup Languages | au!
     au FileType pandoc setlocal filetype=markdown
     au FileType python call s:python()
     au FileType vim setlocal formatoptions-=c
-    au FileType xml setlocal formatoptions-=r " very broken: <!--<CR> → <!--\n--> █
+    au FileType xml setlocal formatoptions-=r formatoptions-=o " very broken: <!--<CR> → <!--\n--> █
 augroup END
 
 " c, cpp {{{
@@ -771,14 +771,14 @@ if executable('rg')
     " --vimgrep is like vimgrep /pat/g
     let &grepprg = "rg --hidden --glob '!**/.git/**' --column --line-number --no-heading --smart-case"
     set grepformat^=%f:%l:%c:%m
-elseif executable('egrep')
-    let &grepprg = 'egrep -nrI $* /dev/null'
+elseif executable('grep')
+    let &grepprg = 'grep -EnrI $* /dev/null'
 else
     set grepprg=internal
 endif
 function! Grep(query, ...) abort
     let opts = string(v:count)
-    let options = (&grepprg =~# '^egrep') ? Wildignore2exclude() : ''
+    let options = (&grepprg =~# '^grep') ? Wildignore2exclude() : ''
     let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : shellescape(a:query, 1)
     let dir = '.'
     if a:0
@@ -960,9 +960,10 @@ func! FineGrainedICtrlW(finer)
             return "\<C-w>"
         endif
         let l:sts = &softtabstop
-        setlocal softtabstop=0
+        let l:vsts = exists('+varsofttabstop') ? &varsofttabstop : ''
+        silent! setlocal softtabstop=0 varsofttabstop=
         return repeat("\<BS>", l:idx)
-                    \ . "\<C-R>=FineGrainedICtrlWReset(".l:sts.")\<CR>"
+                    \ . "\<C-R>=FineGrainedICtrlWReset(".l:sts.", '".l:vsts."')\<CR>"
                     \ . (a:finer ? "" : "\<C-R>=MuPairsBS()\<CR>")
     elseif l:chars[-1] !~ '\k'
         return MuPairsBS()
@@ -970,8 +971,9 @@ func! FineGrainedICtrlW(finer)
         return "\<C-w>"
     endif
 endfunc
-function! FineGrainedICtrlWReset(sts) abort
+function! FineGrainedICtrlWReset(sts, vsts) abort
     let &l:softtabstop = a:sts
+    if exists('+varsofttabstop') | let &l:varsofttabstop = a:vsts | endif
     return ''
 endfunc
 " }}}
@@ -2514,6 +2516,10 @@ augroup END
 
 " colorscheme {{{
 set background=dark
+" vim < 8.0.0616 may override 'background' when Normal is defined,
+" which reloads the colorscheme (which in this case is default).
+" So Normal should be defined first.
+hi! Normal       ctermbg=233 guibg=#121212 ctermfg=255 guifg=#eeeeee
 
 " :h group-name
 hi! Comment      term=NONE ctermfg=108 guifg=#87af87
@@ -2544,7 +2550,6 @@ hi! IncSearch    cterm=bold,underline,reverse gui=bold,underline,reverse
 hi! LineNr       ctermfg=250 guifg=#bcbcbc
 hi! MatchParen   cterm=bold,underline ctermfg=231 ctermbg=67 gui=bold,underline guifg=#ffffff guibg=#5f87af
 hi! NonText      ctermfg=242 gui=NONE guifg=#6c6c6c
-hi! Normal       ctermbg=233 guibg=#121212 ctermfg=255 guifg=#eeeeee
 hi! NormalFloat  ctermbg=235 guibg=#262626
 hi! Pmenu        ctermbg=16 ctermfg=252 guibg=#000000 guifg=#d0d0d0
 hi! PmenuSel     ctermbg=241 ctermfg=231 guibg=#626262 guifg=#ffffff
@@ -2552,8 +2557,8 @@ hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline
 hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
 exe 'hi! SpellBad cterm=undercurl ctermbg=NONE guisp=#ff5f5f' . (has('patch-8.2.0863') ? ' ctermul=203' : '')
 exe 'hi! SpellCap cterm=undercurl ctermbg=NONE guisp=#ffaf5f' . (has('patch-8.2.0863') ? ' ctermul=215' : '')
-hi! StatusLine   guibg=#303030 ctermbg=236 gui=bold cterm=bold
-hi! StatusLineNC guibg=#262626 ctermbg=235 gui=none cterm=none
+hi! StatusLine   ctermfg=233 guifg=#121212 ctermbg=252 guibg=#d0d0d0 gui=bold cterm=bold
+hi! StatusLineNC ctermfg=16 guifg=#000000 ctermbg=241 guibg=#626262 gui=none cterm=none
 hi! link StatusLineTerm StatusLine
 hi! link StatusLineTermNC StatusLineNC
 hi! TabLine      cterm=NONE ctermfg=NONE ctermbg=241 gui=NONE guibg=#626262
