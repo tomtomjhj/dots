@@ -48,6 +48,7 @@ endif
 command! -nargs=1 Noremap exe 'nnoremap' <q-args> | exe 'xnoremap' <q-args> | exe 'onoremap' <q-args> 
 command! -nargs=1 Map exe 'nmap' <q-args> | exe 'xmap' <q-args> | exe 'omap' <q-args>
 
+if has('vim_starting')
 set encoding=utf-8
 
 set mouse=nvi
@@ -132,6 +133,7 @@ set modeline " debian unsets this
 set exrc secure
 if has('nvim-0.3.2') || has("patch-8.1.0360")
     set diffopt+=algorithm:histogram,indent-heuristic
+endif
 endif
 
 augroup BasicSetup | au!
@@ -777,7 +779,7 @@ function! Files(...) abort
     if opts =~ '3'
         let root = s:git_root(empty(bufname('%')) ? getcwd() : bufname('%'))
         " NOTE: add -co to include untracked files (n.b. may not enumerate each file)
-        let files = systemlist('git -C '.root.' ls-files --exclude-standard')
+        let files = systemlist('git -C ' . shellescape(root) . ' ls-files --exclude-standard')
         call map(files, "'".root."/'.v:val")
     else
         let cmd = (&grepprg =~# '^rg') ? "rg --hidden --glob '!**/.git/**' --files" : 'find . -type f'
@@ -1316,7 +1318,7 @@ endif
 function! s:git_root(file_or_dir) abort
     let file_or_dir = fnamemodify(expand(a:file_or_dir), ':p')
     let dir = isdirectory(file_or_dir) ? file_or_dir : fnamemodify(file_or_dir, ':h')
-    let output = systemlist('git -C '.dir.' rev-parse --show-toplevel')[0]
+    let output = systemlist('git -C ' . shellescape(dir) . ' rev-parse --show-toplevel')[0]
     if v:shell_error | throw output | endif
     return output
 endfunction
@@ -2517,6 +2519,7 @@ hi! TabLineFill  cterm=NONE ctermbg=238 gui=NONE guibg=#444444
 " TabLineSel
 hi! Title        term=bold cterm=bold ctermfg=150 gui=bold guifg=#afd787
 hi! Visual       ctermbg=241 guibg=#626262
+hi! WildMenu     cterm=bold ctermfg=NONE ctermbg=241 gui=bold guifg=NONE guibg=#626262
 
 " Filetypes:
 hi! diffAdded    ctermfg=150 guifg=#afd787
