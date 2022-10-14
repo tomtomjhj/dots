@@ -245,81 +245,37 @@ elseif has('gui_running')
 endif
 " }}}
 
-" Statusline {{{
-let s:has_statusline_winid = has('patch-8.1.1372') || has('nvim-0.5')
-let s:stl_mode_map = {'n' : 'N ', 'i' : 'I ', 'R' : 'R ', 'v' : 'V ', 'V' : 'VL', "\<C-v>": 'VB', 'c' : 'C ', 's' : 'S ', 'S' : 'SL', "\<C-s>": 'SB', 't': 'T '}
-let s:stl_active_hl = {
-            \ 'n' :     ['%#STLModeNormal1#' , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ 'i' :     ['%#STLModeInsert1#' , '%#STLModeInsert2#' , '%#STLModeInsert3#' , '%#STLModeInsert4#' , ],
-            \ 'R' :     ['%#STLModeReplace#' , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ 'v' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ 'V' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ "\<C-v>": ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ 'c' :     ['%#STLModeCmdline1#', '%#STLModeCmdline2#', '%#STLModeCmdline3#', '%#STLModeCmdline4#', ],
-            \ 's' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ 'S' :     ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ "\<C-s>": ['%#STLModeVisual#'  , '%#STLModeNormal2#' , '%#STLModeNormal3#' , '%#STLModeNormal4#' , ],
-            \ 't':      ['%#STLModeInsert1#' , '%#STLModeInsert2#' , '%#STLModeInsert3#' , '%#STLModeInsert4#' , ],
-            \}
-let s:stl_inactive_hl = [''                  , '%#STLInactive2#'   , '%#STLInactive3#'   , '%#STLInactive4#' , ]
-function! StatuslineHighlightInit()
-    hi! STLModeNormal1  guifg=#005f00 ctermfg=22  guibg=#afdf00 ctermbg=148 gui=bold cterm=bold
-    hi! STLModeNormal2  guifg=#ffffff ctermfg=231 guibg=#626262 ctermbg=241
-    hi! STLModeNormal3  guifg=#bcbcbc ctermfg=250 guibg=#303030 ctermbg=236
-    hi! STLModeNormal4  guifg=#585858 ctermfg=240 guibg=#d0d0d0 ctermbg=252
-    hi! STLModeVisual   guifg=#870000 ctermfg=88  guibg=#ff8700 ctermbg=208 gui=bold cterm=bold
-    hi! STLModeReplace  guifg=#ffffff ctermfg=231 guibg=#df0000 ctermbg=160 gui=bold cterm=bold
-    hi! STLModeInsert1  guifg=#005f5f ctermfg=23  guibg=#ffffff ctermbg=231 gui=bold cterm=bold
-    hi! STLModeInsert2  guifg=#ffffff ctermfg=231 guibg=#0087af ctermbg=31
-    hi! STLModeInsert3  guifg=#afd7ff ctermfg=153 guibg=#005f87 ctermbg=24
-    hi! STLModeInsert4  guifg=#005f5f ctermfg=23  guibg=#87dfff ctermbg=117
-    hi! STLModeCmdline1 guifg=#262626 ctermfg=235 guibg=#ffffff ctermbg=231 gui=bold cterm=bold
-    hi! STLModeCmdline2 guifg=#303030 ctermfg=236 guibg=#d0d0d0 ctermbg=252
-    hi! STLModeCmdline3 guifg=#303030 ctermfg=236 guibg=#8a8a8a ctermbg=245
-    hi! STLModeCmdline4 guifg=#585858 ctermfg=240 guibg=#ffffff ctermbg=231
+" statusline & tabline {{{
+let &statusline = join([ '%( %w%q%h%)%( %{STLTitle()}%) %<',
+                       \ '%( %m%r%{get(b:,"git_status","")}%)',
+                       \ '%=',
+                       \ ' %3p%% ',
+                       \ ' %3l:%-2c '
+                       \], '')
+set tabline=%!TALFunc()
+let g:qf_disable_statusline = 1
 
-    hi! STLInactive2  guifg=#8a8a8a ctermfg=245 guibg=#262626 ctermbg=235
-    hi! STLInactive3  guifg=#8a8a8a ctermfg=245 guibg=#303030 ctermbg=236
-    hi! STLInactive4  guifg=#262626 ctermfg=235 guibg=#606060 ctermbg=241
+function! TALFunc() abort
+    let s = ''
+    for i in range(tabpagenr('$'))
+        let s .= (i + 1 == tabpagenr()) ? '%#TabLineSel#' : '%#TabLine#'
+        let s .= '%' . (i + 1) . 'T ' . (i + 1) . ': %{TALLabel(' . (i + 1) . ')} '
+    endfor
+    let s .= '%T%#TabLineFill#'
+    return s
 endfunction
-call StatuslineHighlightInit()
 
-if s:has_statusline_winid
-    function! STLFunc() abort
-        if g:statusline_winid is# win_getid()
-            let m = mode()[0]
-            let [hl1, hl2, hl3, hl4] = s:stl_active_hl[m]
-            return join([ hl1, ' ' . s:stl_mode_map[m] . ' ',
-                        \ hl2, '%( %w%q%h%)%( %{STLTitle()}%) ',
-                        \ hl3, '%( %m%r%{get(b:,"git_status","")}%)',
-                        \ '%=',
-                        \ hl2, ' %3p%% ',
-                        \ hl4, ' %3l:%-2c '
-                        \], '')
-        else
-            let [hl1, hl2, hl3, hl4] = s:stl_inactive_hl
-            return join([ hl2, '%( %w%q%h%)%( %{STLTitle()}%) ',
-                        \ hl3, '%( %m%r%{get(b:,"git_status","")}%)',
-                        \ '%=',
-                        \ hl2, ' %3p%% ',
-                        \ hl4, ' %3l:%-2c '
-                        \], '')
-        endif
-    endfunction
-    set statusline=%!STLFunc()
-else
-    let &statusline = join([ '%( %w%q%h%)%( %{STLTitle()}%) ',
-                           \ '%( %m%r%{get(b:,"git_status","")}%)',
-                           \ '%=',
-                           \ ' %3p%% ',
-                           \ ' %3l:%-2c '
-                           \], '')
-endif
+function! TALLabel(n) abort
+    let buflist = tabpagebuflist(a:n)
+    let winnr = tabpagewinnr(a:n)
+    return STLTitle(buflist[winnr - 1])
+endfunction
 
-function! STLTitle() abort
-    let bt = &buftype
-    let ft = &filetype
-    let bname = bufname('%')
+function! STLTitle(...) abort
+    let b = a:0 ? a:1 : bufnr('')
+    let bt = getbufvar(b, '&buftype')
+    let ft = getbufvar(b, '&filetype')
+    let bname = bufname(b)
     " NOTE: bt=quickfix,help decides filetype
     if bt is# 'quickfix'
         " NOTE: getwininfo() to differentiate quickfix window and location window
@@ -332,10 +288,10 @@ function! STLTitle() abort
         let [obj, gitdir] = FugitiveParse(bname)
         let matches = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
         return pathshorten(fnamemodify(gitdir, ":~:h")) . ' ' . matches[1][:9] . matches[2]
-    elseif get(b:, 'fugitive_type', '') is# 'temp'
+    elseif getbufvar(b, 'fugitive_type', '') is# 'temp'
         return pathshorten(fnamemodify(bname, ":~:.")) . ' :Git ' . join(FugitiveResult(bname)['args'], ' ')
     elseif ft is# 'gl'
-        return ':GL' . join([''] + b:gl_args, ' ')
+        return ':GL' . join([''] + getbufvar(b, 'gl_args'), ' ')
     elseif empty(bname)
         return empty(bt) ? '[No Name]' : bt is# 'nofile' ? '[Scratch]' : '?'
     elseif isdirectory(bname) " NOTE: https://github.com/vim/vim/issues/9099
@@ -345,22 +301,18 @@ function! STLTitle() abort
     endif
 endfunction
 
-function! UpdateGitStatus(buf)
-    let bufname = fnamemodify(bufname(a:buf), ':p')
+function! UpdateGitStatus(buf) abort
+    let bname = fnamemodify(bufname(a:buf), ':p')
+    if !empty(getbufvar(a:buf, '&buftype')) || !filereadable(bname) | return | endif
     let status = ''
-    if !empty(bufname) && getbufvar(a:buf, '&modifiable') && empty(getbufvar(a:buf, '&buftype'))
-        let git = 'git -C '.fnamemodify(bufname, ':h')
-        let rev_parse = systemlist(git . ' rev-parse --abbrev-ref HEAD')[0]
-        if !v:shell_error
-            let status = systemlist(git . ' status --porcelain ' . shellescape(bufname))
-            let status = empty(status) ? '' : status[0][:1]
-            let status = '[' . rev_parse . (empty(status) ? '' : ':' . status) . ']'
-        endif
+    let git = 'git -C ' . shellescape(fnamemodify(bname, ':h'))
+    let rev_parse = systemlist(git . ' rev-parse --abbrev-ref HEAD')[0]
+    if !v:shell_error
+        let status = systemlist(git . ' status --porcelain ' . shellescape(bname))
+        let status = '[' . rev_parse . (empty(status) ? '' : ':' . status[0][:1]) . ']'
     endif
     call setbufvar(a:buf, 'git_status', status)
 endfunction
-
-let g:qf_disable_statusline = 1
 
 augroup Statusline | au!
     if g:os !=# 'Windows' " too slow on windows
@@ -369,7 +321,6 @@ augroup Statusline | au!
             au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
         endif
     endif
-    au ColorScheme * call StatuslineHighlightInit()
 augroup END
 " }}}
 
