@@ -143,11 +143,6 @@ augroup BasicSetup | au!
     endif
     let &pumheight = min([&window/4, 20])
     au VimResized * let &pumheight = min([&window/4, 20])
-    if has('nvim')
-        au TermOpen,WinEnter *           if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
-    elseif exists('##TerminalWinOpen')
-        au TerminalWinOpen,BufWinEnter * if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
-    endif
     if has('nvim-0.5')
         au TextYankPost * silent! lua vim.highlight.on_yank()
     endif
@@ -267,21 +262,20 @@ function! TALFunc() abort
     return s
 endfunction
 
-function! TALLabel(n) abort
-    let buflist = tabpagebuflist(a:n)
-    let winnr = tabpagewinnr(a:n)
-    return STLTitle(buflist[winnr - 1])
+function! TALLabel(t) abort
+    return STLTitle(win_getid(tabpagewinnr(a:t), a:t))
 endfunction
 
 function! STLTitle(...) abort
-    let b = a:0 ? a:1 : bufnr('')
+    let w = a:0 ? a:1 : win_getid()
+    let b = winbufnr(w)
     let bt = getbufvar(b, '&buftype')
     let ft = getbufvar(b, '&filetype')
     let bname = bufname(b)
     " NOTE: bt=quickfix,help decides filetype
     if bt is# 'quickfix'
         " NOTE: getwininfo() to differentiate quickfix window and location window
-        return get(w:, 'quickfix_title', ':')
+        return gettabwinvar(win_id2tabwin(w)[0], w, 'quickfix_title', ':')
     elseif bt is# 'help'
         return fnamemodify(bname, ':t')
     elseif bt is# 'terminal'
@@ -957,7 +951,8 @@ inoremap <F1> <Esc>
 nmap     <C-q> <Esc>
 cnoremap <C-q> <C-c>
 inoremap <C-q> <Esc>
-vnoremap <C-q> <Esc>
+xnoremap <C-q> <Esc>
+snoremap <C-q> <Esc>
 onoremap <C-q> <Esc>
 noremap! <C-M-q> <C-q>
 
@@ -1023,7 +1018,7 @@ nnoremap <leader>td :tab split<CR>
 nnoremap <leader>tt :tabedit<CR>
 nnoremap <leader>fe :e!<CR>
 
-inoreabbrev <expr> \date\ strftime('%F')
+inoreabbrev <expr> date strftime('%F')
 " }}}
 
 " pairs {{{
@@ -1143,8 +1138,18 @@ endfunction
 if has('nvim')
     tnoremap <M-[> <C-\><C-n>
     tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
-    command! -nargs=? Terminal <mods> split | exe "terminal" <q-args> | startinsert
+    command! -nargs=? T <mods> split | exe "terminal" <q-args> | if empty(<q-args>) | startinsert | endif
+else
+    command! -nargs=? T exe (has('patch-7.4.1898') ? '<mods>' : '') "terminal" <q-args>
 endif
+
+augroup terminal-custom | au!
+    if has('nvim')
+        au TermOpen,WinEnter *           if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
+    elseif exists('##TerminalWinOpen')
+        au TerminalWinOpen,BufWinEnter * if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
+    endif
+augroup END
 " }}}
 
 " quickfix, loclist, ... {{{
