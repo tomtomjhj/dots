@@ -79,9 +79,11 @@ im-config -n nimf
 * https://gitlab.com/interception/linux/plugins/dual-function-keys
 * https://gist.github.com/tanyuan/55bca522bf50363ae4573d4bdcf06e2e
 * kmonad?
+* <https://github.com/rvaiya/keyd>?
 
 ## font
 ```
+sudo apt install fonts-nanum
 ./fonts
 ln -s ~/dots/.config/fontconfig/fonts.conf ~/.config/fontconfig/fonts.conf
 fc-cache -fv
@@ -95,6 +97,11 @@ fc-cache -fv
       sudo rm /etc/fonts/conf.d/09-texlive-fonts.conf
       sudo fc-cache -fsv
       ```
+* Google docs: non-ascii 폰트 주의
+    * 한글 지원 안하는 폰트 사용하면 export 시 한글이 다 굴림으로 바뀜. 현재 Google docs에서 지원하는 한글 폰트 중 쓸만한 건 나눔 고딕 밖에 없음.
+        * `fonts-nanum` 패키지 설치했더라도 Google docs의 "Nanum Gothic"은 odp로 export 후 LibreOffice Impress에서 열 때 "font is not available and will be substituted"라고 나옴. 그런데 대부분 글자는 잘 표시됨 (`fc-match "Nanum Gothic"` 실행 시 `NanumGothic.ttf` 찾음). 그런데 Impress에서는 한글과 ascii char 간격이 훨씬 커서 여하간 레이아웃이 깨짐.
+    * Consolas는 설치하기 귀찮으니 그냥 Source Code Pro 사용할 것
+    * ∗ 같은 문자 지원하는 폰트 없는 듯
 
 ## gnome
 * [make gnome terminal title bar small](https://www.reddit.com/r/gnome/comments/b3l1c9/gnometerminal_title_bar_is_huge_in_332/)
@@ -339,6 +346,9 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
     * `rg --hidden --glob '!**/.git/**'`: do not ignore dot files but respect ignore files
     * `-U` (multiline): `\s` includes `\n`
 * TODO: I'm using .bash_history + fzf `<C-R>` as command bookmark. Find a proper way to bookmark (find using fzf) and use history as history. <https://github.com/junegunn/fzf/wiki/examples>.
+    * keymap for bookmark fzf
+    * a command for adding (n-th) last command to bookmark
+    * history doesn't need to be big
 
 
 ## firefox
@@ -366,6 +376,9 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
     * https://mywiki.wooledge.org/BashPitfalls
     * https://github.com/dylanaraps/pure-sh-bible
     * https://mug896.github.io/awk-script/index.html
+    * http://redsymbol.net/articles/unofficial-bash-strict-mode/
+        * NOTE: The argument for `IFS=$'\t\n'` is based on the "wrong" usage of `${arr[@]}` (without double quote)
+    * [Minimal safe Bash script template](https://gist.github.com/m-radzikowski/53e0b39e9a59a1518990e76c2bff8038)
 * login shell
     * what's the point? https://unix.stackexchange.com/a/324391
     * `~/.bash_profile`, `~/.profile`, `~/.bashrc` https://superuser.com/a/789465
@@ -381,12 +394,14 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
   cmd 2> >(while read line; do echo "$(date -Iseconds) $line"; done > log)
   ```
     * TODO: how does bash interact with the subprocess's stdout/stderr?
+* `find(1)` man page EXAMPLES section
 
 ## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
 * `git pull --rebase --autostash`
 * https://github.com/mhagger/git-imerge
 * git reflog
+    * git log -g
 * getting info from git log/diff
     * `-M[<n>], --find-renames[=<n>]`, `-C[<n>], --find-copies[=<n>]` (+ `-C -C`, `-C -C -C`). Also applicable to git blame.
         * hack to force copy detection <https://stackoverflow.com/a/46484848>
@@ -401,7 +416,8 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
     * `:{range}Gclog`
 * `git apply --reject --whitespace=fix`
 * git files absolute dir `git -C "$ROOT" ls-files | awk -v R="$ROOT" '{ print R "/" $0 }'`
-* `git reset --merge` to abort `stash pop` https://stackoverflow.com/a/60444590
+* `git reset --merge <commit>`: like `--hard`, but doesn't touch files with changes that are not added (diff between index and working tree)
+    * Can be used for aborting `stash pop` when there was changes in working tree. <https://stackoverflow.com/a/60444590>
 * `git diff --check`
 * `man gitrevisions(7)`
     * range `<rev>`: commits reachable from `<rev>` (i.e. ancestors)

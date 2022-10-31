@@ -16,6 +16,7 @@
 	hsc = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
 	hscp = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
 	hscs = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
+	rl = reflog --format='%C(yellow)%h%C(reset) %gd%C(auto)%d %C(green)%cr%C(reset) %gs (%s)'
 	df = diff
 	dfc = diff --cached
 	# TODO: can't alias without subcommand? ("empty alias")
@@ -45,6 +46,7 @@
 	helper = store
 [merge]
 	tool = vimdiff3
+	# zdiff3?
 	conflictstyle = diff3
 [difftool "vimdiff3"]
 	path = nvim
@@ -65,7 +67,9 @@
 #   * https://github.com/dandavison/delta/pull/633
 #   * https://github.com/dandavison/delta/issues/141
 	line-numbers = true
-	syntax-theme = zenburn # can't use bat theme?
+	syntax-theme = bw16
+	# TODO: make theme adapt to bg https://github.com/dandavison/delta/issues/447
+	# light = true
 	file-decoration-style = ul ol
 	hunk-header-decoration-style =
 	# navigate = true
