@@ -291,9 +291,9 @@ function! STLTitle(...) abort
     elseif empty(bname)
         return empty(bt) ? '[No Name]' : bt is# 'nofile' ? '[Scratch]' : '?'
     elseif isdirectory(bname) " NOTE: https://github.com/vim/vim/issues/9099
-        return pathshorten(fnamemodify(bname, ":~")) . '/'
+        return pathshorten(fnamemodify(simplify(bname), ":~")) . '/'
     else
-        return pathshorten(fnamemodify(bname, ":~:."))
+        return pathshorten(fnamemodify(simplify(bname), ":~:."))
     endif
 endfunction
 
@@ -1138,9 +1138,12 @@ endfunction
 if has('nvim')
     tnoremap <M-[> <C-\><C-n>
     tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
-    command! -nargs=? T <mods> split | exe "terminal" <q-args> | if empty(<q-args>) | startinsert | endif
+    command! -nargs=? -complete=shellcmd T <mods> split | exe "terminal" <q-args> | if empty(<q-args>) | startinsert | endif
 else
-    command! -nargs=? T exe (has('patch-7.4.1898') ? '<mods>' : '') "terminal" <q-args>
+    " NOTE: If 'hidden' is set and arg is provided, job finished + window closed doesn't wipe the buffer, in contrary to the doc:
+    " > When the job has finished and no changes were made to the buffer: closing the
+    " > window will wipe out the buffer.
+    command! -nargs=? -complete=shellcmd T exe <q-mods> "terminal" <q-args>
 endif
 
 augroup terminal-custom | au!
@@ -1431,7 +1434,7 @@ endif
 " }}}
 
 " comments {{{
-" https://github.com/tomtomjhj/vim-commentary/blob/853bc981c99c16b402639144987a1a6a2c8b7efc/plugin/commentary.vim
+" https://github.com/tomtomjhj/vim-commentary/blob/05b5bbad0d9c14c308f5cb3bc26975f41df7fcaa/plugin/commentary.vim
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
         \ &commentstring, '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')), '%s', 1)
@@ -1442,7 +1445,7 @@ function! s:commentary_strip_white_space(l,r,line) abort
   if l[-1:] ==# ' ' && stridx(a:line,l) == -1 && stridx(a:line,l[0:-2]) == 0
     let l = l[:-2]
   endif
-  if r[0] ==# ' ' && a:line[-strlen(r):] != r && a:line[1-strlen(r):] == r[1:]
+  if r[0] ==# ' ' && (' ' . a:line)[-strlen(r)-1:] != r && a:line[-strlen(r):] == r[1:]
     let r = r[1:]
   endif
   return [l, r]
