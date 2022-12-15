@@ -76,17 +76,6 @@ ex ()
 # Adapted from Ubuntu /etc/skel/.bashrc --------------------------------
 #
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
-shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=3210
-HISTFILESIZE=6543
-
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -213,12 +202,20 @@ alias ....='cd ../../..'
 alias ssh='TERM=xterm-256color ssh'
 alias tmux='tmux -2u'
 alias ta='tmux attach'
-alias hx='history -d -1'  # Delete last command from history (assuming that this command itself is ignored from history); `history -d -2--1`
-alias hxx='history -d -2' # Delete 2nd last command. Useful for "wrong command → fixed command → remove wrong command"
-hfence() { history -a; history -c; history -r; }
-alias hnoise='unset HISTFILE'
 man () { /usr/bin/man "$@" | nvim +Man!; }
 alias stage="$HOME/stage-git/stage"
+
+# History stuff
+shopt -s histappend
+# NOTE: erasedups doesn't guarantee nodup??
+HISTCONTROL=ignorespace:ignoredups:erasedups
+HISTIGNORE="?:??:???"
+HISTSIZE=2000
+HISTFILESIZE=4000
+alias hx='history -d -1'  # Delete last command from history (assuming that this command itself is ignored from history); `history -d -2--1`
+alias hxx='history -d -2' # Delete 2nd last command. Useful for "wrong command → fixed command → remove wrong command"
+alias hfence='history -a; history -n'
+alias hnoise='unset HISTFILE'
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 if [ -x "$(command -v fd)" ]; then
