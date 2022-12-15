@@ -68,9 +68,13 @@
 #   * https://github.com/dandavison/delta/issues/141
 	line-numbers = true
 	syntax-theme = bw16
-	# TODO: make theme adapt to bg https://github.com/dandavison/delta/issues/447
-	# light = true
 	file-decoration-style = ul ol
 	hunk-header-decoration-style =
 	# navigate = true
+# use --features/DELTA_FEATURE to control dark/light
+[delta "dark"]
+	light = false
+[delta "light"]
+	light = true
+
 # vim:set noet sw=8 ts=8 cms=#\ %s:
