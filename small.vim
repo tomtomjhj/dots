@@ -324,6 +324,7 @@ augroup END
 augroup Languages | au!
     " NOTE: 'syntax-loading'
     au FileType c,cpp call s:c_cpp()
+    au FileType cpp call s:cpp()
     au FileType lua setlocal shiftwidth=2
     au FileType markdown call s:markdown()
     au FileType pandoc setlocal filetype=markdown
@@ -344,6 +345,10 @@ function! s:c_cpp() abort
     setlocal commentstring=//%s
     silent! setlocal formatoptions+=/ " 8.2.4907
     setlocal path+=include,/usr/include
+endfunction
+function! s:cpp() abort
+    syn keyword cppStatement auto
+    syn keyword cppConstant this
 endfunction
 " }}}
 
@@ -579,7 +584,7 @@ function! s:markdown() abort
 
     function! MarkdownFold() abort
       let line = getline(v:lnum)
-      let hashes = matchstr(line, '^#\+')
+      let hashes = matchstr(line, '^#\+\(\s\|$\)\@=')
       let is_code = -1
       if !empty(hashes)
         let is_code = s:IsCodeBlock(v:lnum)
