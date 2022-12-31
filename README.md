@@ -69,6 +69,9 @@ im-config -n nimf
 * libhangul → add ESC to "shortcuts from Korean to system keyboard" so that esc in vim resets to en
 * set "hooking GDK key events" https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
 
+버그?
+* kitty, neovide 등에서 한/영 전환 안됨
+
 ### kime
 * Ran `im-config -n kime` on Wayland but doesn't work at all <https://github.com/Riey/kime/issues/559>?
 
@@ -82,12 +85,21 @@ im-config -n nimf
 * <https://github.com/rvaiya/keyd>?
 
 ## font
-```
+```sh
 sudo apt install fonts-nanum
 ./fonts
 ln -s ~/dots/.config/fontconfig/fonts.conf ~/.config/fontconfig/fonts.conf
 fc-cache -fv
 ```
+
+```sh
+sudo apt install ttfautohint
+git clone --depth 1 https://github.com/tomtomjhj/Iosevka
+cd Iosevka
+npm install
+# see private-build-plans.toml
+```
+
 * https://repolinux.wordpress.com/2013/03/10/find-out-fallback-font-used-by-fontconfig-for-a-certain-character/
 * http://eosrei.net/articles/2016/02/changing-default-fallback-subsitution-fonts-linux
 * Making texlive fonts available to fontconfig <https://wiki.archlinux.org/title/TeX_Live#Making_fonts_available_to_Fontconfig>.
@@ -218,7 +230,7 @@ update-desktop-database ~/.local/share/applications
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 cargo install ripgrep fd-find bat zoxide git-delta
-# ripgrep_all du-dust tokei cargo-cache
+# ripgrep_all du-dust tokei cargo-cache cargo-edit
 
 cd ~/.config && ln -s ~/dots/.config/bat
 bat cache --build
@@ -345,10 +357,14 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
 * ripgrep
     * `rg --hidden --glob '!**/.git/**'`: do not ignore dot files but respect ignore files
     * `-U` (multiline): `\s` includes `\n`
-* TODO: I'm using .bash_history + fzf `<C-R>` as command bookmark. Find a proper way to bookmark (find using fzf) and use history as history. <https://github.com/junegunn/fzf/wiki/examples>.
-    * keymap for bookmark fzf
-    * a command for adding (n-th) last command to bookmark
-    * history doesn't need to be big
+* bash `history` (man bash; SHELL BUILTIN COMMANDS)
+    * Some apps use it to get the current command e.g. `alert` alias, kitty, ...
+      These assume that commands are not ignored from history.
+    * Most stuff doesn't need to be persisted in .bash_history.
+    * <https://unix.stackexchange.com/questions/18212/bash-history-ignoredups-and-erasedups-setting-conflict-with-common-history>
+    * TODO: How to apply ignore rules only when writing to .bash_history?
+      Do something at `trap ... EXIT`?
+    * <https://superuser.com/questions/135651/how-can-i-add-a-command-to-the-bash-history-without-executing-it>
 
 
 ## firefox
@@ -379,6 +395,7 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
     * http://redsymbol.net/articles/unofficial-bash-strict-mode/
         * NOTE: The argument for `IFS=$'\t\n'` is based on the "wrong" usage of `${arr[@]}` (without double quote)
     * [Minimal safe Bash script template](https://gist.github.com/m-radzikowski/53e0b39e9a59a1518990e76c2bff8038)
+    * <https://explainshell.com/>
 * login shell
     * what's the point? https://unix.stackexchange.com/a/324391
     * `~/.bash_profile`, `~/.profile`, `~/.bashrc` https://superuser.com/a/789465
@@ -395,6 +412,11 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
   ```
     * TODO: how does bash interact with the subprocess's stdout/stderr?
 * `find(1)` man page EXAMPLES section
+* array
+    * output to array (bash ≥ 4.0)
+      ```
+      mapfile -t lines < <(command)
+      ```
 
 ## Git
 * To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
