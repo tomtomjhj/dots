@@ -565,10 +565,10 @@ function! s:markdown() abort
     endif
 
     if !exists("g:no_plugin_maps") && !exists("g:no_markdown_maps")
-      nnoremap <silent><buffer> [[ :<C-U>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "bsW")<CR>
-      nnoremap <silent><buffer> ]] :<C-U>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "sW")<CR>
-      xnoremap <silent><buffer> [[ :<C-U>exe "normal! gv"<Bar>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "bsW")<CR>
-      xnoremap <silent><buffer> ]] :<C-U>exe "normal! gv"<Bar>call search('\%(^#\{1,5\}\s\+\S\\|^\S.*\n^[=-]\+$\)', "sW")<CR>
+      nnoremap <silent><buffer> [[ :<C-U>call search('\%(^#\{1,5\}\(\s\\|$\)\\|^\S.*\n^[=-]\+$\)', "bsW")<CR>
+      nnoremap <silent><buffer> ]] :<C-U>call search('\%(^#\{1,5\}\(\s\\|$\)\\|^\S.*\n^[=-]\+$\)', "sW")<CR>
+      xnoremap <silent><buffer> [[ :<C-U>exe "normal! gv"<Bar>call search('\%(^#\{1,5\}\(\s\\|$\)\\|^\S.*\n^[=-]\+$\)', "bsW")<CR>
+      xnoremap <silent><buffer> ]] :<C-U>exe "normal! gv"<Bar>call search('\%(^#\{1,5\}\(\s\\|$\)\\|^\S.*\n^[=-]\+$\)', "sW")<CR>
       let b:undo_ftplugin .= '|sil! nunmap <buffer> [[|sil! nunmap <buffer> ]]|sil! xunmap <buffer> [[|sil! xunmap <buffer> ]]'
     endif
 
@@ -1170,11 +1170,31 @@ nnoremap <silent>[q :cprevious<CR>
 nnoremap <silent>]l :lnext<CR>
 nnoremap <silent>[l :lprevious<CR>
 
-" Like CTRL-W_<CR>, but with preview window and without messing up buffer list
-" NOTE: :chistory
-augroup Qf | au! * <buffer>
-    au Filetype qf nnoremap <buffer><silent> p :<C-u>call <SID>PreviewQf(line('.'))<CR>
-    au Filetype qf nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>
+" like cwindow, but don't jump to the window
+command! -bar -nargs=? CW call s:cwindow(0, <q-mods>, <q-args>)
+command! -bar -nargs=? LW call s:cwindow(1, <q-mods>, <q-args>)
+function! s:cwindow(loclist, mods, args) abort
+    let curwin = win_getid()
+    let view = winsaveview()
+    exe a:mods . (a:loclist ? ' lwindow' : ' cwindow') a:args
+    " jumped to qf/loc window. return.
+    if curwin != win_getid() && &buftype ==# 'quickfix'
+        wincmd p
+        call winrestview(view)
+    endif
+endfunction
+
+function s:qf() abort
+    setlocal nowrap
+    setlocal norelativenumber number
+    setlocal nobuflisted
+    " Like CTRL-W_<CR>, but with preview window and without messing up buffer list
+    nnoremap <buffer><silent> p :<C-u>call <SID>PreviewQf(line('.'))<CR>
+    nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>
+endfunction
+
+augroup qf-custom | au!
+    au FileType qf call s:qf()
 augroup END
 
 function! s:GetQfEntry(linenr) abort
