@@ -212,8 +212,15 @@ HISTCONTROL=ignorespace:ignoredups:erasedups
 HISTIGNORE="?:??:???"
 HISTSIZE=2000
 HISTFILESIZE=4000
-alias hx='history -d -1'  # Delete last command from history (assuming that this command itself is ignored from history); `history -d -2--1`
-alias hxx='history -d -2' # Delete 2nd last command. Useful for "wrong command → fixed command → remove wrong command"
+# Delete last command from history (assuming that this command itself is ignored from history); `history -d -2--1`
+alias hd='history -d -1'
+# M-C-h: Pop last command from history
+hpop() {
+    READLINE_LINE="$(HISTTIMEFORMAT= history 1 | sed 's/^[ ]*[0-9]*[ ]*//')"
+    history -d -1
+    READLINE_POINT=${#READLINE_LINE}
+}
+bind -x '"\e\C-h" : hpop'
 alias hfence='history -a; history -n'
 alias hnoise='unset HISTFILE'
 
