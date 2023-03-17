@@ -11,19 +11,6 @@ let g:loaded_spellfile_plugin = 1
 if exists("did_load_filetypes") | filetype off | endif
 filetype plugin indent on
 
-" OS stuff {{{
-let g:os = (has('win64') || has('win32') || has('win16')) ? 'Windows' : systemlist('uname')[0]
-
-if g:os ==# 'Windows'
-    " :h shell-powershell
-    set shell=powershell
-    let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
-    let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-    let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-    set shellquote= shellxquote=
-endif
-" }}}
-
 " stuff from sensible that are not in my settings {{{
 " https://github.com/tpope/vim-sensible/blob/2d9f34c09f548ed4df213389caa2882bfe56db58/plugin/sensible.vim
 syntax enable
@@ -112,7 +99,7 @@ if has('nvim')
     let s:backupdir = &backupdir
     let s:undodir = &undodir
 else
-    let s:dotvim = g:os ==# 'Windows' ? 'vimfiles' : '.vim'
+    let s:dotvim = has('win32') ? 'vimfiles' : '.vim'
     let s:backupdir = $HOME . '/' . s:dotvim . '/backup'
     let s:undodir = $HOME . '/' . s:dotvim . '/undo'
     unlet s:dotvim
@@ -209,7 +196,7 @@ endif
 function! s:SetupGUI() abort
     set guifont=Source\ Code\ Pro:h12
     nnoremap <silent> <C--> :<C-u>FontSize -v:count1<CR>
-    if has('gui_running')
+    if !has('nvim')
         nnoremap <silent> <C-_> :<C-u>FontSize -v:count1<CR>
     endif
     nnoremap <silent> <C-+> :<C-u>FontSize v:count1<CR>
@@ -221,12 +208,12 @@ function! s:SetupGUI() abort
         let &guifont = substitute(&guifont, '\d\+', '\=new_size', '')
     endfunction
 
-    if has('gui_running') " gvim
+    if !has('nvim')
         set guioptions=i
         set guicursor+=a:blinkon0
-        if g:os ==# 'Windows'
+        if has('win32')
             set guifont=Source_Code_Pro:h12:cANSI:qDRAFT
-        elseif g:os ==# 'Linux'
+        else
             set guifont=Source\ Code\ Pro\ 12
         endif
     elseif exists('g:GuiLoaded') " nvim-qt
@@ -236,7 +223,7 @@ function! s:SetupGUI() abort
 endfunction
 
 if has('nvim')
-    au UIEnter * ++once if v:event.chan | call s:SetupGUI() | endif
+    au UIEnter * ++once if has('nvim-0.9') ? has('gui_running') : v:event.chan | call s:SetupGUI() | endif
 elseif has('gui_running')
     call s:SetupGUI()
 endif
@@ -311,7 +298,7 @@ function! UpdateGitStatus(buf) abort
 endfunction
 
 augroup Statusline | au!
-    if g:os !=# 'Windows' " too slow on windows
+    if has('unix') " too slow on windows
         au BufReadPost,BufWritePost * call UpdateGitStatus(str2nr(expand('<abuf>')))
         if exists('*getbufinfo')
             au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
@@ -335,6 +322,8 @@ augroup END
 
 " c, cpp {{{
 let c_no_comment_fold = 1
+let c_no_bracket_error = 1
+let c_no_curly_error = 1
 function! s:c_cpp() abort
     " don't highlight the #define content
     syn clear cDefine
@@ -725,20 +714,16 @@ if executable('rg')
     set grepformat^=%f:%l:%c:%m
 elseif executable('grep')
     let &grepprg = 'grep -EnrI $* /dev/null'
-else
-    set grepprg=internal
 endif
 function! Grep(query, ...) abort
     let opts = string(v:count)
     let options = (&grepprg =~# '^grep') ? Wildignore2exclude() : ''
-    let query = (&grepprg ==# 'internal') ? ('/'.a:query.'/j') : shellescape(a:query, 1)
+    let query = shellescape(a:query, 1)
     let dir = '.'
     if a:0
         let dir = a:1
     elseif opts =~ '3'
         let dir = s:git_root(empty(bufname('%')) ? getcwd() : bufname('%'))
-    elseif &grepprg ==# 'internal'
-        let dir = '**'
     endif
     exe 'grep!' options query dir
     belowright cwindow
@@ -746,10 +731,6 @@ function! Grep(query, ...) abort
 endfunction
 func! GrepInput(raw, word)
     let query = a:raw
-    if &grepprg ==# 'internal' " assumes magic
-        let query = escape(query, '/ \')
-        return a:word ? '\<'.query.'\>' : query
-    endif
     if a:word
         let query = '\b'.query.'\b'
     elseif g:search_mode ==# 'n'
@@ -1140,6 +1121,15 @@ endfunction
 " }}}
 
 " shell, terminal {{{
+if has('win32')
+    " :h shell-powershell
+    let &shell = executable('pwsh') ? 'pwsh' : 'powershell'
+    let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
+    let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+    let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+    set shellquote= shellxquote=
+endif
+
 if has('nvim')
     tnoremap <M-[> <C-\><C-n>
     tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
@@ -1247,7 +1237,7 @@ function! GXBrowse(url)
         let viewer = 'xdg-open'
     elseif has('macunix') && executable('open')
         let viewer = 'open'
-    elseif has('win64') || has('win32')
+    elseif has('win32')
         let viewer = 'start'
         let redir = '>null'
     else
@@ -1364,16 +1354,23 @@ else
         return setqflist(map(a:files, '{"filename": v:val, "lnum": 1}')) " can't go to last cursor pos in these versions
     endfunction
 endif
-" Expands cmdline-special
-function! s:expand_cmdline_special(txt) abort
-    return substitute(a:txt, '\v\\@<!(\%|#%(\<?\d+|#)?)', '\=expand(submatch(1))', 'g')
+" Expands cmdline-special in text that that doesn't contain \r.
+function! s:expand_cmdline_special(line) abort
+    return substitute(substitute(substitute(
+                \ a:line, '\\\\', '\r', 'g' ),
+                \ '\v\\@<!(\%|#%(\<?\d+|#)?)', '\=expand(submatch(1))', 'g' ),
+                \ '\r', '\\\\', 'g' )
 endfunction
 function! s:cabbrev(lhs, rhs) abort
     return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
 endfunction
 " }}}
 
-nmap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
+if has('nvim-0.9')
+    nnoremap <leader>st <Cmd>Inspect<CR>
+else
+    nnoremap <silent><leader>st :<C-u>echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")') '->' synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')<CR>
+endif
 function! Text2Magic(text)
     return escape(a:text, '\.*$^~[]')
 endfunction
