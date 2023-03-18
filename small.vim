@@ -277,7 +277,7 @@ function! STLTitle(...) abort
     elseif bt is# 'help'
         return fnamemodify(bname, ':t')
     elseif bt is# 'terminal'
-        return has('nvim') ? '!' . matchstr(bname, 'term://\f\{-}//\d\+:\zs.*') : bname
+        return has('nvim') ? '!' . fnamemodify(matchstr(bname, 'term://.\{-}//\d\+:\zs.*'), ':t') : bname
     elseif bname =~# '^fugitive://'
         let [obj, gitdir] = FugitiveParse(bname)
         let matches = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
@@ -1241,7 +1241,6 @@ endfunction
 " Explorers {{{
 " https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
 function! GXBrowse(url)
-    let redir = '>&/dev/null'
     if exists('g:netrw_browsex_viewer')
         let viewer = g:netrw_browsex_viewer
     elseif has('unix') && executable('xdg-open')
@@ -1250,11 +1249,10 @@ function! GXBrowse(url)
         let viewer = 'open'
     elseif has('win32')
         let viewer = 'start'
-        let redir = '>null'
     else
         return
     endif
-    execute 'silent! !' . viewer . ' ' . shellescape(a:url, 1) . redir
+    execute 'silent! !' . viewer . ' ' . shellescape(a:url, 1)
     redraw!
 endfunction
 " based on https://gist.github.com/gruber/249502
