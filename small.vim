@@ -318,6 +318,102 @@ augroup Statusline | au!
 augroup END
 " }}}
 
+" ColorScheme {{{
+command! Bg if &background ==# 'dark' | set background=light | else | set background=dark | endif
+
+if $BACKGROUND =~# 'dark\|light'
+    let &background = $BACKGROUND
+endif
+
+" quite8 colorscheme
+function! C8() abort
+    " In nvim, :hi-clear inside a function doesn't fully clear highlights??? Reproduceable in at least 0.6.1. Vim works correctly.
+    " Reproduce: :color something, :fu Test() hi clear endfu, call Test()
+    let bg = &background
+    colorscheme default
+    let &background = bg
+
+    if has('nvim')
+        hi! link SpecialKey Special
+    else
+        hi! link SpecialKey NonText
+    endif
+    hi! link Terminal Normal
+    hi! link StatusLineTerm StatusLine
+    hi! link StatusLineTermNC StatusLineNC
+
+    hi Normal        guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi NormalFloat   guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Comment       guifg=NONE    guibg=NONE gui=bold                   ctermfg=NONE        ctermbg=NONE        cterm=bold
+    hi Constant      guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Identifier    guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Statement     guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi PreProc       guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Type          guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Special       guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Underlined    guifg=NONE    guibg=NONE gui=underline              ctermfg=NONE        ctermbg=NONE        cterm=underline
+    hi Ignore        guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Error         guifg=#d7005f guibg=NONE gui=bold,reverse           ctermfg=darkred     ctermbg=NONE        cterm=bold,reverse
+    hi Todo          guifg=NONE    guibg=NONE gui=bold,reverse           ctermfg=NONE        ctermbg=NONE        cterm=bold,reverse
+    hi ColorColumn   guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi Conceal       guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Cursor        guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi CursorColumn  guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi CursorLine    guifg=NONE    guibg=NONE gui=underline              ctermfg=NONE        ctermbg=NONE        cterm=underline
+    hi CursorLineNr  guifg=NONE    guibg=NONE gui=bold                   ctermfg=NONE        ctermbg=NONE        cterm=bold
+    hi DiffAdd       guifg=#00cc11 guibg=NONE gui=reverse                ctermfg=darkgreen   ctermbg=NONE        cterm=reverse
+    hi DiffChange    guifg=#0087d7 guibg=NONE gui=reverse                ctermfg=darkblue    ctermbg=NONE        cterm=reverse
+    hi DiffDelete    guifg=#d7005f guibg=NONE gui=reverse                ctermfg=darkred     ctermbg=NONE        cterm=reverse
+    hi DiffText      guifg=#d787d7 guibg=NONE gui=reverse                ctermfg=darkmagenta ctermbg=NONE        cterm=reverse
+    hi Directory     guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi ErrorMsg      guifg=NONE    guibg=NONE gui=bold,reverse           ctermfg=NONE        ctermbg=NONE        cterm=bold,reverse
+    hi FoldColumn    guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Folded        guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi IncSearch     guifg=#d78700 guibg=NONE gui=bold,reverse,underline ctermfg=darkyellow  ctermbg=NONE        cterm=bold,reverse,underline
+    hi LineNr        guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi MatchParen    guifg=NONE    guibg=NONE gui=bold,underline         ctermfg=NONE        ctermbg=NONE        cterm=bold,underline
+    hi ModeMsg       guifg=NONE    guibg=NONE gui=bold                   ctermfg=NONE        ctermbg=NONE        cterm=bold
+    hi MoreMsg       guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi NonText       guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Pmenu         guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi PmenuExtra    guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi PmenuKind     guifg=NONE    guibg=NONE gui=bold,reverse           ctermfg=NONE        ctermbg=NONE        cterm=bold,reverse
+    hi PmenuSbar     guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi PmenuSel      guifg=NONE    guibg=NONE gui=bold,underline         ctermfg=NONE        ctermbg=NONE        cterm=bold,underline
+    hi PmenuExtraSel guifg=NONE    guibg=NONE gui=bold                   ctermfg=NONE        ctermbg=NONE        cterm=bold
+    hi PmenuKindSel  guifg=NONE    guibg=NONE gui=bold                   ctermfg=NONE        ctermbg=NONE        cterm=bold
+    hi PmenuThumb    guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Question      guifg=NONE    guibg=NONE gui=standout               ctermfg=NONE        ctermbg=NONE        cterm=standout
+    hi QuickFixLine  guifg=#d787d7 guibg=NONE gui=reverse                ctermfg=darkmagenta ctermbg=NONE        cterm=reverse
+    hi Search        guifg=#00cccc guibg=NONE gui=bold,reverse           ctermfg=darkcyan    ctermbg=NONE        cterm=bold,reverse
+    hi CurSearch     guifg=#d787d7 guibg=NONE gui=bold,reverse,underline ctermfg=darkmagenta ctermbg=NONE        cterm=bold,reverse,underline
+    hi SignColumn    guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi SpellBad      guifg=NONE    guibg=NONE guisp=#d7005f              gui=undercurl       ctermfg=darkred     ctermbg=NONE                 cterm=underline
+    hi SpellCap      guifg=NONE    guibg=NONE guisp=#0080dd              gui=undercurl       ctermfg=darkblue    ctermbg=NONE                 cterm=underline
+    hi SpellLocal    guifg=NONE    guibg=NONE guisp=#d777d7              gui=undercurl       ctermfg=darkmagenta ctermbg=NONE                 cterm=underline
+    hi SpellRare     guifg=NONE    guibg=NONE guisp=#00cccc              gui=undercurl       ctermfg=darkcyan    ctermbg=NONE                 cterm=underline
+    hi StatusLine    guifg=NONE    guibg=NONE gui=bold,reverse           ctermfg=NONE        ctermbg=NONE        cterm=bold,reverse
+    hi StatusLineNC  guifg=NONE    guibg=NONE gui=bold,underline         ctermfg=NONE        ctermbg=NONE        cterm=bold,underline
+    hi TabLine       guifg=NONE    guibg=NONE gui=bold,underline         ctermfg=NONE        ctermbg=NONE        cterm=bold,underline
+    hi TabLineFill   guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi TabLineSel    guifg=NONE    guibg=NONE gui=bold,reverse           ctermfg=NONE        ctermbg=NONE        cterm=bold,reverse
+    hi Title         guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi VertSplit     guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi Visual        guifg=#d78700 guibg=NONE gui=reverse                ctermfg=darkyellow  ctermbg=NONE        cterm=reverse
+    hi VisualNOS     guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi WarningMsg    guifg=NONE    guibg=NONE gui=standout               ctermfg=NONE        ctermbg=NONE        cterm=standout
+    hi WildMenu      guifg=NONE    guibg=NONE gui=bold                   ctermfg=NONE        ctermbg=NONE        cterm=bold
+    hi CursorIM      guifg=NONE    guibg=NONE gui=NONE                   ctermfg=NONE        ctermbg=NONE        cterm=NONE
+    hi ToolbarLine   guifg=NONE    guibg=NONE gui=reverse                ctermfg=NONE        ctermbg=NONE        cterm=reverse
+    hi ToolbarButton guifg=NONE    guibg=NONE gui=bold,reverse           ctermfg=NONE        ctermbg=NONE        cterm=bold,reverse
+    hi diffAdded     guifg=#00cc11 guibg=NONE gui=NONE                   ctermfg=darkgreen   ctermbg=NONE        cterm=NONE
+    hi diffRemoved   guifg=#d7005f guibg=NONE gui=NONE                   ctermfg=darkred     ctermbg=NONE        cterm=NONE
+
+endfunction
+
+call C8()
+" }}}
+
 " Languages {{{
 augroup Languages | au!
     " NOTE: 'syntax-loading'
@@ -2538,86 +2634,4 @@ augroup repeatPlugin
 augroup END
 " }}}
 
-" colorscheme {{{
-set background=dark
-" vim < 8.0.0616 may override 'background' when Normal is defined,
-" which reloads the colorscheme (which in this case is default).
-" So Normal should be defined first.
-hi! Normal       ctermbg=233 guibg=#121212 ctermfg=255 guifg=#eeeeee
-
-" :h group-name
-hi! Comment      term=NONE ctermfg=108 guifg=#87af87
-hi! Constant     term=underline ctermfg=152 guifg=#afd7d7
-hi! Identifier   term=NONE cterm=NONE ctermfg=NONE guifg=NONE
-hi! Statement    term=bold cterm=bold ctermfg=NONE gui=bold guifg=NONE
-hi! PreProc      term=bold cterm=bold ctermfg=NONE gui=bold guifg=NONE
-hi! Type         term=NONE ctermfg=NONE gui=NONE guifg=NONE
-hi! StorageClass term=italic cterm=italic gui=italic
-hi! link Structure Keyword
-hi! link Typedef Keyword
-hi! Special      term=underline ctermfg=224 guifg=#ffd7d7
-hi! Delimiter    ctermfg=252 guifg=#bcbcbc
-hi! Underlined   ctermfg=143 guifg=#afaf5f
-hi! Error        ctermfg=203 ctermbg=NONE guifg=#ff5f5f guibg=NONE
-hi! Todo         cterm=bold,reverse ctermfg=218 ctermbg=NONE gui=bold,reverse guifg=#ffafd7 guibg=NONE
-
-" :h highlight-groups
-hi! link Conceal Special
-hi! DiffAdd      ctermbg=22 guibg=#284028
-hi! DiffChange   ctermbg=234 guibg=#1c1c1c
-hi! DiffDelete   cterm=NONE ctermfg=203 ctermbg=NONE gui=NONE guifg=#ff5f5f guibg=NONE
-hi! DiffText     cterm=NONE ctermbg=60 gui=NONE guibg=#484060
-hi! VertSplit    cterm=NONE ctermbg=16 ctermfg=252 gui=NONE guibg=#000000 guifg=#d0d0d0
-hi! Folded       ctermfg=252 ctermbg=16 guifg=#d0d0d0 guibg=#000000
-hi! FoldColumn   ctermbg=NONE ctermfg=238 guibg=NONE guifg=#444444
-hi! IncSearch    cterm=bold,underline,reverse gui=bold,underline,reverse
-hi! LineNr       ctermfg=250 guifg=#bcbcbc
-hi! MatchParen   cterm=bold,underline ctermfg=231 ctermbg=67 gui=bold,underline guifg=#ffffff guibg=#5f87af
-hi! NonText      ctermfg=242 gui=NONE guifg=#6c6c6c
-hi! NormalFloat  ctermbg=235 guibg=#262626
-hi! Pmenu        ctermbg=16 ctermfg=252 guibg=#000000 guifg=#d0d0d0
-hi! PmenuSel     ctermbg=241 ctermfg=231 guibg=#626262 guifg=#ffffff
-hi! Search       cterm=bold,underline ctermfg=180 ctermbg=238 gui=bold,underline guifg=#d7af87 guibg=#444444
-hi! SpecialKey   ctermfg=242 guifg=#6c6c6c
-exe 'hi! SpellBad cterm=undercurl ctermbg=NONE guisp=#ff5f5f' . (has('patch-8.2.0863') ? ' ctermul=203' : '')
-exe 'hi! SpellCap cterm=undercurl ctermbg=NONE guisp=#ffaf5f' . (has('patch-8.2.0863') ? ' ctermul=215' : '')
-hi! StatusLine   ctermfg=233 guifg=#121212 ctermbg=252 guibg=#d0d0d0 gui=bold cterm=bold
-hi! StatusLineNC ctermfg=16 guifg=#000000 ctermbg=241 guibg=#626262 gui=none cterm=none
-hi! link StatusLineTerm StatusLine
-hi! link StatusLineTermNC StatusLineNC
-hi! TabLine      cterm=NONE ctermfg=NONE ctermbg=241 gui=NONE guibg=#626262
-hi! TabLineFill  cterm=NONE ctermbg=238 gui=NONE guibg=#444444
-" TabLineSel
-hi! Title        term=bold cterm=bold ctermfg=150 gui=bold guifg=#afd787
-hi! Visual       ctermbg=241 guibg=#626262
-hi! WildMenu     cterm=bold ctermfg=NONE ctermbg=241 gui=bold guifg=NONE guibg=#626262
-
-" Filetypes:
-hi! diffAdded    ctermfg=150 guifg=#afd787
-hi! diffRemoved  ctermfg=203 guifg=#ff5f5f
-
-hi! link helpHyperTextJump Underlined
-hi! link helpOption Underlined
-
-hi! link luaFunction Keyword
-
-hi! link markdownCode String
-hi! link markdownCodeBlock String
-hi! link markdownHeadingDelimiter Keyword
-
-hi! link rustCommentLineDoc Comment
-hi! link rustLabel Special
-hi! link rustModPath NONE
-
-hi! link shCommandSub NONE
-hi! link shArithmetic NONE
-hi! link shShellVariables Identifier
-hi! link shSpecial Constant
-hi! link shSpecialDQ shSpecial
-hi! link shSpecialSQ shSpecial
-
-hi! link texZone Special
-
-hi! link vimCommentTitle Title
-" }}}
 " vim: set fdm=marker et sw=4:
