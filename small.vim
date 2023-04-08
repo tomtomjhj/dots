@@ -91,7 +91,7 @@ set shortmess+=Ic shortmess-=S
 set belloff=all
 
 set history=1000
-set viminfo=!,'150,<50,s30,h,r/tmp,r/run,rterm://,rfugitive://,rfern://,rman://
+set viminfo=!,'150,<50,s30,h,r/tmp,r/run,rterm://,rfugitive://,rfern://,rman://,rtemp://
 set updatetime=1234
 set backup undofile noswapfile
 if has('nvim')
@@ -128,8 +128,6 @@ augroup BasicSetup | au!
     if exists(':clearjumps')
         au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     endif
-    let &pumheight = min([&window/4, 20])
-    au VimResized * let &pumheight = min([&window/4, 20])
     if has('nvim-0.5')
         au TextYankPost * silent! lua vim.highlight.on_yank()
     endif
@@ -286,6 +284,8 @@ function! STLTitle(...) abort
         return pathshorten(fnamemodify(bname, ":~:.")) . ' :Git ' . join(FugitiveResult(bname)['args'], ' ')
     elseif ft is# 'gl'
         return ':GL' . join([''] + getbufvar(b, 'gl_args'), ' ')
+    elseif bname =~# '^temp://'
+        return matchstr(bname, '^temp://\zs.*')
     elseif empty(bname)
         return empty(bt) ? '[No Name]' : bt is# 'nofile' ? '[Scratch]' : '?'
     elseif isdirectory(bname) " NOTE: https://github.com/vim/vim/issues/9099
@@ -996,8 +996,6 @@ nnoremap <C-k> <C-W>k
 nnoremap <C-h> <C-W>h
 nnoremap <C-l> <C-W>l
 
-command! -count Wfh setlocal winfixheight | if <count> | exe "normal! z".<count>."\<CR>" | endif
-
 nnoremap <leader>w :<C-u>up<CR>
 nnoremap ZAQ :<C-u>qa!<CR>
 cnoreabbrev <expr> W <SID>cabbrev('W', 'w')
@@ -1158,6 +1156,29 @@ augroup terminal-custom | au!
     elseif exists('##TerminalWinOpen')
         au TerminalWinOpen,BufWinEnter * if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
     endif
+augroup END
+" }}}
+
+" window layout {{{
+command! -count Wfh setlocal winfixheight | if <count> | exe 'resize' <count> | endif
+nnoremap <C-w>g= :<C-u>call <SID>adjust_winfix_wins()<CR>
+
+function! s:adjust_winfix_wins() abort
+    for w in range(1, winnr('$'))
+        if getwinvar(w, '&winfixheight')
+            exe w 'resize' &previewheight
+        endif
+    endfor
+endfunction
+
+function! s:heights() abort
+    let &pumheight = min([&window/4, 20])
+    let &previewheight = max([&window/4, 12])
+endfunction
+call s:heights()
+
+augroup layout-custom | au!
+    au VimResized * call s:heights()
 augroup END
 " }}}
 
@@ -1394,21 +1415,24 @@ function! Wildignore2exclude() abort
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
 
-function! TempBuf(mods, ...) abort
+function! TempBuf(mods, title, ...) abort
     exe a:mods 'new'
+    if !empty(a:title)
+        exe 'file' printf('temp://%d/%s', bufnr(''), a:title)
+    endif
     setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile nomodeline
     if a:0
         call setline(1, a:1)
     endif
 endfunction
 function! Execute(cmd, mods) abort
-    call TempBuf(a:mods, split(s:execute(a:cmd), "\n"))
+    call TempBuf(a:mods, ':' . a:cmd, split(s:execute(a:cmd), "\n"))
 endfunction
 function! WriteC(cmd, mods) range abort
-    call TempBuf(a:mods, systemlist(s:expand_cmdline_special(a:cmd), getline(a:firstline, a:lastline)))
+    call TempBuf(a:mods, ':w !' . a:cmd, systemlist(s:expand_cmdline_special(a:cmd), getline(a:firstline, a:lastline)))
 endfunction
 function! Bang(cmd, mods) abort
-    call TempBuf(a:mods, systemlist(s:expand_cmdline_special(a:cmd)))
+    call TempBuf(a:mods, ':!' . a:cmd, systemlist(s:expand_cmdline_special(a:cmd)))
 endfunction
 command! -nargs=* -complete=command Execute call Execute(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
 command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
@@ -1417,6 +1441,12 @@ command! -nargs=* -complete=shellcmd Bang call Bang(<q-args>, has('patch-7.4.189
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
             \|keeppatterns keepjumps <line1>,<line2>substitute/\s\+$//e
+            \|call winrestview(_view)
+            \|unlet _view
+
+command! -range=% CollapseBlank
+            \ let _view = winsaveview()
+            \|exe 'keeppatterns keepjumps <line1>,<line2>global/^\_$\_s\+\_^$/d _'
             \|call winrestview(_view)
             \|unlet _view
 
@@ -1453,6 +1483,8 @@ if !exists('g:wildignore_files')
     call AddWildignore(s:wildignore_dirs, 1)
 endif
 
+" Doesn't work with hard wrapped list.
+" Alternative: %!pandoc --from=commonmark_x --to=commonmark_x --wrap=none
 command! -range=% ZulipMarkdown
             \ keeppatterns keepjumps <line1>,<line2>substitute/^    \ze[-+*]\s/  /e
             \|keeppatterns keepjumps <line1>,<line2>substitute/^        \ze[-+*]\s/    /e
