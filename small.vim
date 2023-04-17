@@ -416,7 +416,8 @@ call C8()
 
 " Languages {{{
 augroup Languages | au!
-    " NOTE: 'syntax-loading'
+    " NOTE: 'syntax-loading'.
+    " NOTE: It would be more correct to use Syntax autocmd for syntax customization.
     au FileType c,cpp call s:c_cpp()
     au FileType cpp call s:cpp()
     au FileType lua setlocal shiftwidth=2
@@ -802,54 +803,49 @@ nnoremap / :let g:search_mode='/'<CR>/
 nnoremap ? :let g:search_mode='/'<CR>?
 
 " NOTE: :cex [] | bufdo vimgrepadd /pat/j %
-" NOTE: :Grep pat `git\ ls-files\ dir`
 nnoremap <C-g>      :<C-u>Grep<space>
-nnoremap <leader>g/ :<C-u>Grep <C-r>=GrepInput(@/,0)<CR>
-nnoremap <leader>gw :<C-u>Grep <C-R>=GrepInput(expand('<cword>'),1)<CR>
+nnoremap <leader>g/ :<C-u>Grep! <C-r>=shellescape(GrepInput(@/), 1)<CR>
+nnoremap <leader>gw :<C-u>Grep! <C-R>=shellescape('\b'.expand('<cword>').'\b')<CR>
 nnoremap <C-f>      :<C-u>Files<space>
 nnoremap <leader>hh :<C-u>History<space>
 
-" NOTE: To include space in query, escape the space ('\ ').
-" NOTE: '%' in query should be escaped. `-complete=dir` expands cmdline-special.
-command! -nargs=* -complete=dir Grep call Grep(<f-args>)
-command! -nargs=? History call History(<f-args>)
-command! -nargs=? Files call Files(<f-args>)
+" NOTE: When using :Grep!, must do shellescape(_, 1) in cmdline yourself.
+command! -nargs=? -bang Grep call Grep(<q-args>, <bang>0)
+command! -nargs=? History call History(<q-args>)
+command! -nargs=? Files call Files(<q-args>)
 
 if executable('rg')
     " --vimgrep is like vimgrep /pat/g
-    let &grepprg = "rg --hidden --glob '!**/.git/**' --column --line-number --no-heading --smart-case"
+    let &grepprg = "rg -. -g '!**/.git/**' --no-heading -H -n --column -S"
     set grepformat^=%f:%l:%c:%m
-elseif executable('grep')
-    let &grepprg = 'grep -EnrI $* /dev/null'
+elseif has('linux') || !has('patch-8.1.0846') " has GNU grep, probably
+    let &grepprg = 'grep -EHnrI'
+    " NOTE: The default POSIX-compliant grepprg adds /dev/null to [FILE...] to simulate GNU grep's -H,
+    " which disables GNU grep's feature that defaults empty [FILE...] to cwd when -r is provided.
 endif
-function! Grep(query, ...) abort
+function! Grep(query, advanced) abort
     let opts = string(v:count)
     let options = (&grepprg =~# '^grep') ? Wildignore2exclude() : ''
-    let query = shellescape(a:query, 1)
-    let dir = '.'
-    if a:0
-        let dir = a:1
-    elseif opts =~ '3'
-        let dir = s:git_root(empty(bufname('%')) ? getcwd() : bufname('%'))
+    " NOTE: shellescape('!', 1) == '\!', but :grep doesn't handle this, because "!" is not handled by find_cmdline_var.
+    let query = a:advanced ? a:query : shellescape(a:query, 1)
+    if opts =~ '3'
+        let query .= ' ' . shellescape(s:git_root(empty(bufname('%')) ? getcwd() : bufname('%')), 1)
     endif
-    exe 'grep!' options query dir
+    " NOTE: cmdline-special is expanded here.
+    exe 'grep!' options query
     belowright cwindow
     redraw
 endfunction
-func! GrepInput(raw, word)
-    let query = a:raw
-    if a:word
-        let query = '\b'.query.'\b'
-    elseif g:search_mode ==# 'n'
-        let query = substitute(query, '\v\\[<>]','','g')
+func! GrepInput(raw)
+    if g:search_mode ==# 'n'
+        return substitute(a:raw, '\v\\[<>]','','g')
     elseif g:search_mode ==# 'v'
-        let query = escape(query, '+|?-(){}')
-    elseif query[0:1] !=# '\v'
-        let query = substitute(query, '\v(\\V|\\[<>])','','g')
+        return escape(a:raw, '+|?-(){}') " not escaped by VisualStar
+    elseif a:raw[0:1] !=# '\v' " can convert most of strict very magic to riggrep regex, otherwise, DIY
+        return substitute(a:raw, '\v(\\V|\\[<>])','','g')
     else
-        let query = substitute(query[2:], '\v\\([~/])', '\1', 'g')
+        return substitute(a:raw[2:], '\v\\([~/])', '\1', 'g')
     endif
-    return escape(query, ' \#%') " for <f-args> and cmdline-special expansion by `-complete=dir`
 endfunc
 function! History(...) abort
     silent doautocmd QuickFixCmdPre History
@@ -1257,7 +1253,7 @@ augroup END
 
 " window layout {{{
 command! -count Wfh setlocal winfixheight | if <count> | exe 'resize' <count> | endif
-nnoremap <C-w>g= :<C-u>call <SID>adjust_winfix_wins()<CR>
+nnoremap <silent> <C-w>g= :<C-u>call <SID>adjust_winfix_wins()<CR>
 
 function! s:adjust_winfix_wins() abort
     for w in range(1, winnr('$'))
