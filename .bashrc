@@ -8,7 +8,7 @@
 # See also https://askubuntu.com/a/279014
 colors() {
     T='text'
-    echo -e "\n                 40m     41m     42m     43m     44m     45m     46m     47m";
+    echo -e "\n                  40m      41m      42m      43m      44m      45m      46m      47m";
     for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' '1;32m' '  33m' '1;33m' '  34m' '1;34m' '  35m' '1;35m' '  36m' '1;36m' '  37m' '1;37m'; do
         FG=${FGs// /}
         echo -en " $FGs \033[$FG  $T  "
@@ -146,7 +146,7 @@ fi
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-alias ll='ls -alF'
+alias ll='ls -AlFh --time-style=long-iso' # --time-style is GNU stuff
 alias la='ls -A'
 alias l='ls -CF'
 
@@ -231,6 +231,24 @@ if [ -x "$(command -v fd)" ]; then
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 fi
 export FZF_DEFAULT_OPTS="--bind alt-a:select-all,alt-d:deselect-all,alt-t:toggle-all"
+
+# TODO: configure terminal to set $BACKGROUND when starting shell
+# `tmux new` gets $BACKGROUND from the tmux server, which might have started from terminal with different background.
+# Therefore, each shell should not inherit $BACKGROUND from tmux server.
+# It should be "injected" when each session is shown on terminal....
+# * `new`: just pass the env via .bashrc. Use -e flag.
+# * `attach`: inject enviroment variable to existing tmux session & children shell??
+#
+# What's update-environment options? Where does it copy from?
+# Read GLOBAL AND SESSION ENVIRONMENT.
+#
+# See also: https://unix.stackexchange.com/a/245568
+if [ "$BACKGROUND" == light ]; then
+    export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=light"
+    export DELTA_FEATURES="$DELTA_FEATURES light"
+else
+    export BACKGROUND=dark
+fi
 
 [ -x "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
 
