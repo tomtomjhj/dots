@@ -130,28 +130,39 @@ npm install
     3. put this
        ```ini
        [:UUID-CREATED-IN-1]
-       bold-color='#FFFFFFFFFFFF'
-       bold-color-same-as-fg=true
+       background-color='rgb(244,244,244)'
+       background-transparency-percent=46
+       cursor-blink-mode='off'
+       custom-command="sh -c 'BACKGROUND=light bash'"
+       font='Iosevka Custom 7.5'
+       foreground-color='rgb(18,18,18)'
+       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(0,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(98,98,98)', 'rgb(168,168,168)', 'rgb(215,0,17)', 'rgb(0,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
        scrollbar-policy='never'
-       use-transparent-background=false
-       background-color='rgb(0,0,0)'
-       cursor-colors-set=false
-       visible-name='my theme'
-       default-size-columns=100
-       use-theme-colors=false
-       font='Source Code Pro 13'
-       default-size-rows=30
+       use-custom-command=true
        use-system-font=false
-       cell-width-scale=1.0
-       palette=['rgb(31,31,31)', 'rgb(235,96,107)', 'rgb(195,232,141)', 'rgb(247,235,149)', 'rgb(128,203,195)', 'rgb(255,36,144)', 'rgb(174,221,255)', 'rgb(221,221,221)', 'rgb(102,102,102)', 'rgb(235,96,107)', 'rgb(195,232,141)', 'rgb(247,235,149)', 'rgb(125,198,191)', 'rgb(108,113,195)', 'rgb(86,214,255)', 'rgb(255,255,255)']
-       background-transparency-percent=11
-       foreground-color='rgb(255,255,255)'
-       cell-height-scale=1.0
-       highlight-colors-set=false
-       audible-bell=false
+       use-theme-colors=false
        use-theme-transparency=false
+       use-transparent-background=false
+       visible-name='quite-light'
+
+       [:UUID-CREATED-IN-1]
+       background-color='rgb(8,8,8)'
+       background-transparency-percent=13
+       cursor-blink-mode='off'
+       custom-command='tmux'
+       font='Iosevka Custom 7.5'
+       foreground-color='rgb(238,238,238)'
+       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(0,191,23)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(204,204,204)', 'rgb(98,98,98)', 'rgb(255,34,102)', 'rgb(0,255,95)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
+       scrollbar-policy='never'
+       use-custom-command=false
+       use-system-font=false
+       use-theme-colors=false
+       use-theme-transparency=false
+       use-transparent-background=true
+       visible-name='quite-dark'
        ```
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
+    * Run with profile: `gnome-terminal --profile=quite-light`
     * gnome-terminal colorscheme installer
         * <https://github.com/Mayccoll/Gogh/blob/master/apply-colors.sh#L655>
             * How are `BACKGROUND_COLOR` and etc different from the 16 colors? Maybe fg/bg applied when no color specified. cursor: only terminal knows this...? Vim's Cursor vs. this cursor?
