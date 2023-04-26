@@ -86,7 +86,7 @@ im-config -n nimf
 
 ## font
 ```sh
-sudo apt install fonts-nanum
+sudo apt install fonts-nanum fonts-noto-cjk-extra
 ./fonts
 ln -s ~/dots/.config/fontconfig/fonts.conf ~/.config/fontconfig/fonts.conf
 fc-cache -fv
