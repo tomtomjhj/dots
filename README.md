@@ -136,7 +136,7 @@ npm install
        custom-command="sh -c 'BACKGROUND=light bash'"
        font='Iosevka Custom 7.5'
        foreground-color='rgb(18,18,18)'
-       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(0,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(98,98,98)', 'rgb(168,168,168)', 'rgb(215,0,17)', 'rgb(0,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
+       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(23,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(98,98,98)', 'rgb(168,168,168)', 'rgb(215,0,17)', 'rgb(48,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
        scrollbar-policy='never'
        use-custom-command=true
        use-system-font=false
@@ -147,12 +147,12 @@ npm install
 
        [:UUID-CREATED-IN-1]
        background-color='rgb(8,8,8)'
-       background-transparency-percent=13
+       background-transparency-percent=10
        cursor-blink-mode='off'
        custom-command='tmux'
        font='Iosevka Custom 7.5'
        foreground-color='rgb(238,238,238)'
-       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(0,191,23)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(204,204,204)', 'rgb(98,98,98)', 'rgb(255,34,102)', 'rgb(0,255,95)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
+       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(34,191,0)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(204,204,204)', 'rgb(98,98,98)', 'rgb(255,34,102)', 'rgb(85,255,0)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
        scrollbar-policy='never'
        use-custom-command=false
        use-system-font=false
