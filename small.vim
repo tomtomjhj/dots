@@ -78,7 +78,7 @@ set wildmenu wildmode=longest:full,full
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo*', '*.glob', '*.cm*', '*.aux']
 let s:wildignore_dirs = ['.git', '__pycache__', 'target']
 set complete-=i complete-=u completeopt=menuone,preview
-if exists('+completepopup')
+if exists('+completepopup') " 8.1.1951
     set completeopt+=popup completepopup=highlight:NormalFloat,border:off
 endif
 set path=.,,
@@ -125,9 +125,7 @@ endif
 
 augroup BasicSetup | au!
     au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
-    if exists(':clearjumps')
-        au VimEnter * exec 'tabdo windo clearjumps' | tabnext
-    endif
+    au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     if has('nvim-0.5')
         au TextYankPost * silent! lua vim.highlight.on_yank()
     endif
@@ -311,9 +309,7 @@ endfunction
 augroup Statusline | au!
     if has('unix') " too slow on windows
         au BufReadPost,BufWritePost * call UpdateGitStatus(str2nr(expand('<abuf>')))
-        if exists('*getbufinfo')
-            au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
-        endif
+        au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
     endif
 augroup END
 " }}}
@@ -852,7 +848,7 @@ function! History(...) abort
     let files = copy(v:oldfiles)
     call map(files, 'expand(v:val)')
     call filter(files, 'filereadable(v:val)' . (a:0 ? ' && match(v:val, a:1) >= 0' : ''))
-    call s:setqflist_files(files, ':History')
+    call setqflist([], ' ', {'lines': files, 'title': ':History', 'efm': '%f'})
     silent doautocmd QuickFixCmdPost History
     belowright cwindow
 endfunction
@@ -871,7 +867,7 @@ function! Files(...) abort
     if a:0
         call filter(files, 'match(v:val, a:1) >= 0')
     endif
-    call s:setqflist_files(files, ':Files')
+    call setqflist([], ' ', {'lines': files, 'title': 'Files', 'efm': '%f'})
     silent doautocmd QuickFixCmdPost Files
     belowright cwindow
 endfunction
@@ -996,21 +992,16 @@ func! FineGrainedICtrlW(finer)
             return "\<C-w>"
         endif
         let l:sts = &softtabstop
-        let l:vsts = exists('+varsofttabstop') ? &varsofttabstop : ''
+        let l:vsts = exists('+varsofttabstop') ? &varsofttabstop : '' " 8.1.0114
         silent! setlocal softtabstop=0 varsofttabstop=
         return repeat("\<BS>", l:idx)
-                    \ . "\<C-R>=FineGrainedICtrlWReset(".l:sts.", '".l:vsts."')\<CR>"
+                    \ . "\<C-R>=execute('".printf('setl sts=%d %s', l:sts, exists('+varsofttabstop') ? printf('vsts=%d', l:vsts) : '')."')\<CR>"
                     \ . (a:finer ? "" : "\<C-R>=MuPairsBS()\<CR>")
     elseif l:chars[-1] !~ '\k'
         return MuPairsBS()
     else
         return "\<C-w>"
     endif
-endfunc
-function! FineGrainedICtrlWReset(sts, vsts) abort
-    let &l:softtabstop = a:sts
-    if exists('+varsofttabstop') | let &l:varsofttabstop = a:vsts | endif
-    return ''
 endfunc
 " }}}
 
@@ -1053,7 +1044,7 @@ cnoremap <M-n> <Down>
 Noremap q: :
 Noremap q <nop>
 Noremap <M-q> q
-if exists('*reg_recording')
+if exists('*reg_recording') " 8.1.0020
     Noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
 endif
 Noremap Q @q
@@ -1202,7 +1193,7 @@ function! MuPairsRegionType(l, c) abort
     if name =~? 'string' | return 's' | endif
     return 'n'
 endfunction
-if exists('*charcol')
+if exists('*charcol') " 8.2.2324
     function! s:prevchar() abort
         let c = charcol('.')
         if c == 1 | return '' | endif
@@ -1245,7 +1236,7 @@ endif
 augroup terminal-custom | au!
     if has('nvim')
         au TermOpen,WinEnter *           if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
-    elseif exists('##TerminalWinOpen')
+    elseif exists('##TerminalWinOpen') " 8.1.2219
         au TerminalWinOpen,BufWinEnter * if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
     endif
 augroup END
@@ -1448,18 +1439,6 @@ endfunction
 
 " etc util {{{
 " helpers {{{
-if exists('*execute')
-    function! s:execute(cmd) abort
-        return execute(a:cmd)
-    endfunction
-else
-    function! s:execute(cmd) abort
-        redir => output
-        execute a:cmd
-        redir END
-        return output
-    endfunction
-endif
 function! s:git_root(file_or_dir) abort
     let file_or_dir = fnamemodify(expand(a:file_or_dir), ':p')
     let dir = isdirectory(file_or_dir) ? file_or_dir : fnamemodify(file_or_dir, ':h')
@@ -1467,15 +1446,6 @@ function! s:git_root(file_or_dir) abort
     if v:shell_error | throw output | endif
     return output
 endfunction
-if has('patch-8.0.1040') || has('nvim-0.3.2')
-    function! s:setqflist_files(files, title) abort
-        return setqflist([], ' ', {'lines': a:files, 'title': a:title, 'efm': '%f'})
-    endfunction
-else
-    function! s:setqflist_files(files, title) abort
-        return setqflist(map(a:files, '{"filename": v:val, "lnum": 1}')) " can't go to last cursor pos in these versions
-    endfunction
-endif
 " Expands cmdline-special in text that that doesn't contain \r.
 function! s:expand_cmdline_special(line) abort
     return substitute(substitute(substitute(
@@ -1518,7 +1488,7 @@ function! TempBuf(mods, title, ...) abort
     endif
 endfunction
 function! Execute(cmd, mods) abort
-    call TempBuf(a:mods, ':' . a:cmd, split(s:execute(a:cmd), "\n"))
+    call TempBuf(a:mods, ':' . a:cmd, split(execute(a:cmd), "\n"))
 endfunction
 function! WriteC(cmd, mods) range abort
     call TempBuf(a:mods, ':w !' . a:cmd, systemlist(s:expand_cmdline_special(a:cmd), getline(a:firstline, a:lastline)))
@@ -1526,9 +1496,9 @@ endfunction
 function! Bang(cmd, mods) abort
     call TempBuf(a:mods, ':!' . a:cmd, systemlist(s:expand_cmdline_special(a:cmd)))
 endfunction
-command! -nargs=* -complete=command Execute call Execute(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
-command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
-command! -nargs=* -complete=shellcmd Bang call Bang(<q-args>, has('patch-7.4.1898') ? '<mods>' : '')
+command! -nargs=* -complete=command Execute call Execute(<q-args>, '<mods>')
+command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(<q-args>, '<mods>')
+command! -nargs=* -complete=shellcmd Bang call Bang(<q-args>, '<mods>')
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
