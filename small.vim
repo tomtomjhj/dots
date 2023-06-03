@@ -1514,6 +1514,36 @@ function! GitDiffFoldExpr(lnum)
 endfunction
 " }}}
 
+" textobj {{{
+" delimiter wrap
+for s:c in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+', '-', '#' ]
+    exe printf("xnoremap <silent> i%s :<C-u>exe 'normal! T%svt%s'<CR>", s:c, s:c, s:c)
+    exe printf("onoremap <silent> i%s :normal vi%s<CR>", s:c, s:c)
+    " target.vim behaves as if T is used instead of F
+    exe printf("xnoremap <silent> a%s :<C-u>exe 'normal! F%svf%s'<CR>", s:c, s:c, s:c)
+    exe printf("onoremap <silent> a%s :normal va%s<CR>", s:c, s:c)
+endfor
+unlet! s:c
+
+" indented block
+xnoremap <silent> ii :<C-u>call IndentObj(1)<CR>
+onoremap <silent> ii :<C-u>call IndentObj(1)<CR>
+" indented paragraph
+xnoremap <silent> iP :<C-u>call IndentObj(0)<CR>
+onoremap <silent> iP :<C-u>call IndentObj(0)<CR>
+
+function! IndentObj(skipblank) abort
+    let level = indent(line('.'))
+    while line('.') > 1 && ((a:skipblank ? getline(line('.') - 1) =~ '^\s*$' : 0) || indent(line('.') - 1) >= level)
+        normal! k
+    endwhile
+    normal! V
+    while line('.') < line('$') && ((a:skipblank ? getline(line('.') + 1) =~ '^\s*$' : 0) || indent(line('.') + 1) >= level)
+        normal! j
+    endwhile
+endfunction
+" }}}
+
 " etc util {{{
 " compat {{{
 if exists('*charidx') " 8.2.2233
