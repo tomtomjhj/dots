@@ -96,30 +96,31 @@ set updatetime=1234
 set backup undofile noswapfile
 if has('nvim')
     set backupdir-=.
-    let s:backupdir = &backupdir
-    let s:undodir = &undodir
 else
     let s:dotvim = has('win32') ? 'vimfiles' : '.vim'
-    let s:backupdir = $HOME . '/' . s:dotvim . '/backup'
-    let s:undodir = $HOME . '/' . s:dotvim . '/undo'
+    let &backupdir = $HOME . '/' . s:dotvim . '/backup//'
+    let &undodir = $HOME . '/' . s:dotvim . '/undo//'
     unlet s:dotvim
 endif
-if !isdirectory(s:backupdir) | call mkdir(s:backupdir, "p", 0700) | endif
-if !isdirectory(s:undodir) | call mkdir(s:undodir, "p", 0700) | endif
-let &backupdir = s:backupdir . '//'
-let &undodir = s:undodir . '//'
-unlet s:backupdir s:undodir
+if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p') | endif
+if !isdirectory(&undodir) | call mkdir(&undodir, 'p') | endif
 
 set autoread
 set splitright splitbelow
 if (has('patch-8.1.2315') || has('nvim-0.5')) | set switchbuf+=uselast | endif
+if has('nvim-0.8') | set jumpoptions+=view | endif
 set hidden
 set lazyredraw
 
 set modeline " debian unsets this
 set exrc secure
+
 if has('nvim-0.3.2') || has("patch-8.1.0360")
     set diffopt+=algorithm:histogram,indent-heuristic
+endif
+if has('nvim-0.9')
+    " NOTE: this makes `dp` finer-grained than needed
+    set diffopt+=linematch:60
 endif
 endif
 
@@ -149,7 +150,7 @@ if !has('gui_running') && !has('nvim')
     endif
 
     " Keys: {{{
-    " NOTE: <M- keys can be affected by 'encoding'.
+    " NOTE: <M- keys can be affected by 'encoding'. See also: https://github.com/tpope/vim-rsi/commit/45540637ead22f011e8215f1c90142e49d946a54
     " NOTE: Characters that come after <Esc> in terminal codes: [ ] P \ M O
     " (see term.c and `set termcap`)
     let s:my_meta_keys = ['+', '-', '/', '0', ';', 'c', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
@@ -1127,7 +1128,7 @@ endif
 Noremap Q @q
 
 " v_u mistake is  hard to notice. Use gu instead (works for visual mode too).
-nnoremap U <nop>
+nnoremap U :<C-u>undolist<CR>
 xnoremap u <nop>
 
 " delete without clearing regs
