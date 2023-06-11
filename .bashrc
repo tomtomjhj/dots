@@ -1,8 +1,20 @@
+[[ $- != *i* ]] && return
+
+# [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
+if [ -z "$TMUX"  ] && [ -z "$VIM" ]; then
+  detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
+  if [ $detached == 0 ]; then
+    tmux new-session
+  else
+    tmux attach
+  fi
+  detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
+  [ $detached == 0 ] && exit
+fi
+
 #
 # Adapted from Manjaro /etc/skel/.bashrc
 #
-
-[[ $- != *i* ]] && return
 
 # Taken from https://gist.github.com/vivkin/567896630dbc588ad470b8196c601ad1
 # See also https://askubuntu.com/a/279014
@@ -276,14 +288,3 @@ stty -ixon
 test -r "${HOME}/.opam/opam-init/complete.sh" && . "${HOME}/.opam/opam-init/complete.sh" > /dev/null 2> /dev/null || true
 test -r "${HOME}/.opam/opam-init/env_hook.sh" && . "${HOME}/.opam/opam-init/env_hook.sh" > /dev/null 2> /dev/null || true
 
-# [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
-if [ -z "$TMUX"  ] && [ -z "$VIM" ]; then
-  detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
-  if [ $detached == 0 ]; then
-    tmux new-session
-  else
-    tmux attach
-  fi
-  detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
-  [ $detached == 0 ] && exit
-fi
