@@ -319,9 +319,16 @@ augroup END
 " ColorScheme {{{
 command! Bg if &background ==# 'dark' | set background=light | else | set background=dark | endif
 
+augroup colors-custom | au!
+    au OptionSet background let $BACKGROUND = &background
+    au ColorScheme * hi markdownError cterm=bold ctermbg=NONE ctermfg=NONE gui=NONE guibg=NONE guifg=NONE
+augroup END
+
 if has('vim_starting')
     if $BACKGROUND ==# 'dark' || $BACKGROUND ==# 'light'
         let &background = $BACKGROUND
+    else
+        let $BACKGROUND = &background
     endif
 endif
 

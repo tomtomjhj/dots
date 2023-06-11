@@ -246,10 +246,9 @@ export FZF_DEFAULT_OPTS="--bind alt-a:select-all,alt-d:deselect-all,alt-t:toggle
 
 # detect background color
 # https://stackoverflow.com/a/30540928
-get_bg() {
-    local oldstty answer
-
-    oldstty=$(stty -g)
+# NOTE: doesn't seem to work in nvim/vim terminal
+detect_bg() {
+    local oldstty=$(stty -g)
     stty raw -echo min 0 time 0
     if [ -z "$TMUX"  ]; then
         printf "\033]11;?\033\\" >&2
@@ -257,22 +256,32 @@ get_bg() {
         # NOTE: requires allow-passthrough in tmux ≥ 3.3
         printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
     fi
-    answer=
-    while [ -z ${answer} ]; do
+    local answer=
+    local n=0
+    while [ -z "$answer" ] && [ $n -lt 100 ]; do
         sleep 0.001
-        read answer
+        read -r answer
+        n=$((n + 1))
     done
-    stty $oldstty
+    stty "$oldstty"
 
+    answer=${answer#*;}
     # From rgb:RRRR/GGGG/BBBB, extract the first 'R', and convert to decimal
-    if [ "$(printf "%d" $(echo ${answer#*;} | sed -E 's/rgb:([0-9a-f]).*/0x\1/'))" -gt 8 ]; then
+    if [ $n -eq 100 ] || ! echo "$answer" | grep -o 'rgb:[0-9a-f]' &> /dev/null ; then
+        echo 'detect_bg failed. Defaulting to dark.' >&2
+        echo dark
+        return
+    fi
+    if [ "$(printf '%d' "$(echo "$answer" | sed -E 's/rgb:([0-9a-f]).*/0x\1/')")" -gt 8 ]; then
         echo light
     else
         echo dark
     fi
 }
 # TODO: tmux client-attached hook to update-environment?
-export BACKGROUND=$(get_bg)
+if [ -z "$BACKGROUND" ] && [ -z "$VIM" ]; then
+    export BACKGROUND=$(detect_bg)
+fi
 if [ "$BACKGROUND" = dark ] || [ "$BACKGROUND" = light ]; then
     export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=$BACKGROUND"
     export DELTA_FEATURES="$DELTA_FEATURES $BACKGROUND"
