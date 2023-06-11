@@ -232,22 +232,40 @@ if [ -x "$(command -v fd)" ]; then
 fi
 export FZF_DEFAULT_OPTS="--bind alt-a:select-all,alt-d:deselect-all,alt-t:toggle-all"
 
-# TODO: configure terminal to set $BACKGROUND when starting shell
-# `tmux new` gets $BACKGROUND from the tmux server, which might have started from terminal with different background.
-# Therefore, each shell should not inherit $BACKGROUND from tmux server.
-# It should be "injected" when each session is shown on terminal....
-# * `new`: just pass the env via .bashrc. Use -e flag.
-# * `attach`: inject enviroment variable to existing tmux session & children shell??
-#
-# What's update-environment options? Where does it copy from?
-# Read GLOBAL AND SESSION ENVIRONMENT.
-#
-# See also: https://unix.stackexchange.com/a/245568
-if [ "$BACKGROUND" == light ]; then
-    export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=light"
-    export DELTA_FEATURES="$DELTA_FEATURES light"
+# detect background color
+# https://stackoverflow.com/a/30540928
+get_bg() {
+    local oldstty answer
+
+    oldstty=$(stty -g)
+    stty raw -echo min 0 time 0
+    if [ -z "$TMUX"  ]; then
+        printf "\033]11;?\033\\" >&2
+    else
+        # NOTE: requires allow-passthrough in tmux ≥ 3.3
+        printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
+    fi
+    answer=
+    while [ -z ${answer} ]; do
+        sleep 0.001
+        read answer
+    done
+    stty $oldstty
+
+    # From rgb:RRRR/GGGG/BBBB, extract the first 'R', and convert to decimal
+    if [ "$(printf "%d" $(echo ${answer#*;} | sed -E 's/rgb:([0-9a-f]).*/0x\1/'))" -gt 8 ]; then
+        echo light
+    else
+        echo dark
+    fi
+}
+# TODO: tmux client-attached hook to update-environment?
+export BACKGROUND=$(get_bg)
+if [ "$BACKGROUND" = dark ] || [ "$BACKGROUND" = light ]; then
+    export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=$BACKGROUND"
+    export DELTA_FEATURES="$DELTA_FEATURES $BACKGROUND"
 else
-    export BACKGROUND=dark
+    unset BACKGROUND
 fi
 
 [ -x "$(command -v zoxide)" ] && eval "$(zoxide init bash)"
