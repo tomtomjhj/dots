@@ -4,6 +4,7 @@
     *  <https://github.com/jaagr/dots>
     * use make, stow, ...
         * https://dotfiles.github.io/
+        * Just use home as git repo https://drewdevault.com/2019/12/30/dotfiles.html
         * https://github.com/masasam/dotfiles/blob/master/Makefile
         * https://polothy.github.io/post/2018-10-09-makefile-dotfiles/
         * https://github.com/b4b4r07/dotfiles/blob/master/Makefile

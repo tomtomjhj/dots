@@ -2,14 +2,14 @@
 
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
 if [ -z "$TMUX"  ] && [ -z "$VIM" ]; then
-  detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
-  if [ $detached == 0 ]; then
+  detached=$(tmux ls 2> /dev/null | grep "window" | grep -cv "attached")
+  if [ "$detached" -eq 0 ]; then
     tmux new-session
   else
     tmux attach
   fi
-  detached=$(tmux ls 2> /dev/null | grep "window" | grep -v "attached" | wc -l)
-  [ $detached == 0 ] && exit
+  detached=$(tmux ls 2> /dev/null | grep "window" | grep -cv "attached")
+  [ "$detached" -eq 0 ] && exit
 fi
 
 #
@@ -211,7 +211,6 @@ alias py=python3
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias ssh='TERM=xterm-256color ssh'
 alias tmux='tmux -2u'
 alias ta='tmux attach'
 man () { /usr/bin/man "$@" | nvim +Man!; }
@@ -228,7 +227,7 @@ HISTFILESIZE=4000
 alias hd='history -d -1'
 # M-C-h: Pop last command from history
 hpop() {
-    READLINE_LINE="$(HISTTIMEFORMAT= history 1 | sed 's/^[ ]*[0-9]*[ ]*//')"
+    READLINE_LINE="$(HISTTIMEFORMAT='' history 1 | sed 's/^[ ]*[0-9]*[ ]*//')"
     history -d -1
     READLINE_POINT=${#READLINE_LINE}
 }

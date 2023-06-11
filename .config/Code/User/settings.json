@@ -4,7 +4,7 @@
     "editor.fontSize": 12,
     "editor.minimap.enabled": false,
     "editor.occurrencesHighlight": false,
-    "editor.renderFinalNewline": false,
+    "editor.renderFinalNewline": "off",
     "editor.unicodeHighlight.ambiguousCharacters": false,
 
     "extensions.ignoreRecommendations": true,
@@ -266,6 +266,6 @@
     // below are settings that are frequently modified during runtime
     "window.zoomLevel": 2,
     "editor.wordWrap": "on",
-    "workbench.colorTheme": "Default Light+",
+    "workbench.colorTheme": "Default Light Modern",
 }
 // vim:set ft=jsonc fdm=marker cms=//\ %s:

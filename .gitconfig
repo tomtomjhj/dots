@@ -28,7 +28,7 @@
 	rb = rebase
 	sm = submodule
 	smu = submodule update --init
-	fa = fetch --all
+	fa = fetch --all -j0
 	cp = cherry-pick
 [user]
 	email = tomtomjhj@gmail.com
