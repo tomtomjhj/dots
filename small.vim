@@ -41,7 +41,7 @@ set encoding=utf-8
 set mouse=nvi
 set number
 set ruler showcmd
-set foldcolumn=1 foldnestmax=5
+set foldcolumn=1 foldnestmax=5 foldlevel=99
 set scrolloff=2 sidescrolloff=2 sidescroll=1 startofline
 set showtabline=1
 set laststatus=2
@@ -75,7 +75,7 @@ Noremap <Space><Space> <C-d>
 noremap! <C-Space> <C-k>
 
 set wildmenu wildmode=longest:full,full
-let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo*', '*.glob', '*.cm*', '*.aux']
+let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo', '*.vo[sk]', '*.glob', '*.aux']
 let s:wildignore_dirs = ['.git', '__pycache__', 'target']
 set complete-=i complete-=u completeopt=menuone,preview
 if exists('+completepopup') " 8.1.1951
@@ -156,6 +156,7 @@ if !has('gui_running') && !has('nvim')
     let s:my_meta_keys = ['+', '-', '/', '0', ';', 'c', 'P', 'n', 'p', 'q', 'y'] + [',', '.', '\', ']', '\|']
     " These terminal options conflict with my <M- mappings.
     " Fortunately, they are not important and can be disabled.
+    " t_RB is used for background detection, but I detect it from the shell.
     set t_IS= t_RF= t_RB= t_SC= t_ts= " uses <Esc>]
     set t_RS= " uses <Esc>P and <ESC>\
     if $TERM ==# 'xterm-kitty'
@@ -318,16 +319,20 @@ augroup END
 " ColorScheme {{{
 command! Bg if &background ==# 'dark' | set background=light | else | set background=dark | endif
 
-if $BACKGROUND =~# 'dark\|light'
-    let &background = $BACKGROUND
+if has('vim_starting')
+    if $BACKGROUND ==# 'dark' || $BACKGROUND ==# 'light'
+        let &background = $BACKGROUND
+    endif
 endif
 
 " pal colorscheme
 function! Colors() abort
-    " :hi-clear inside a function doesn't work in versions prior to 8.2.0613/0.9.1
-    let bg = &background
-    colorscheme default
-    let &background = bg
+    if !has('vim_starting')
+        " :hi-clear inside a function doesn't work in versions prior to 8.2.0613/0.9.1
+        let bg = &background
+        colorscheme default
+        let &background = bg
+    endif
 
     " global stuff
     hi! link Character String
@@ -880,8 +885,6 @@ function! s:markdown() abort
     endif
     " }}}
     " s:markdown() {{{
-    setlocal foldlevel=6
-
     " <> pair is too intrusive
     setlocal matchpairs-=<:>
     " Set from $VIMRUNTIME/ftplugin/html.vim
@@ -965,13 +968,14 @@ endif
 function! Grep(query, advanced) abort
     let opts = string(v:count)
     let options = (&grepprg =~# '^grep') ? Wildignore2exclude() : ''
-    " NOTE: shellescape('!', 1) == '\!', but :grep doesn't handle this, because "!" is not handled by find_cmdline_var.
+    " NOTE: shellescape('!', 1) == '\!'. This is meant for :!. Need something that only escapes cmdline-special.
     let query = a:advanced ? a:query : shellescape(a:query, 1)
     if opts =~ '3'
         let query .= ' ' . shellescape(s:git_root(empty(bufname('%')) ? getcwd() : bufname('%')), 1)
     endif
     " NOTE: cmdline-special is expanded here.
-    exe 'grep!' options query
+    " NOTE: :grep is |-separated command (:h :bar), so | should be escaped
+    exe 'grep!' options escape(query, '|')
     belowright cwindow
     redraw
 endfunction
@@ -1211,10 +1215,6 @@ function! SkipCharBackward(line, from, char) abort
     let to = a:from
     while to > 0 && a:line[to - 1] is# a:char | let to -= 1 | endwhile
     return to
-endfunction
-
-function! VariableSegmentLeft(line, from) abort
-    let to = SkipPatBackward(a:line, a:from, '\k')
 endfunction
 
 function! BSWithoutSTS(n) abort
@@ -1696,6 +1696,7 @@ if exists('*charidx') " 8.2.2233
 else
     " If idx is not at the start of the char, the result differs from built-in charidx.
     function! s:charidx(string, idx)
+        " NOTE: this is behavior prior to 9.0.1617. New one returns the char len
         if a:idx >= strlen(a:string) | return -1 | endif
         return s:strcharlen(strpart(a:string, 0, a:idx))
     endfunction
@@ -1717,13 +1718,6 @@ function! s:git_root(file_or_dir) abort
     let output = systemlist('git -C ' . shellescape(dir) . ' rev-parse --show-toplevel')[0]
     if v:shell_error | throw output | endif
     return output
-endfunction
-" Expands cmdline-special in text that that doesn't contain \r.
-function! s:expand_cmdline_special(line) abort
-    return substitute(substitute(substitute(
-                \ a:line, '\\\\', '\r', 'g' ),
-                \ '\v\\@<!(\%|#%(\<?\d+|#)?)', '\=expand(submatch(1))', 'g' ),
-                \ '\r', '\\\\', 'g' )
 endfunction
 function! s:cabbrev(lhs, rhs) abort
     return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
@@ -1752,7 +1746,7 @@ endfunction
 function! TempBuf(mods, title, ...) abort
     exe a:mods 'new'
     if !empty(a:title)
-        exe 'file' printf('temp://%d/%s', bufnr(''), a:title)
+        exe 'file' printf('temp://%d/%s', bufnr(''), fnameescape(a:title))
     endif
     setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile nomodeline
     if a:0
@@ -1763,14 +1757,14 @@ function! Execute(cmd, mods) abort
     call TempBuf(a:mods, ':' . a:cmd, split(execute(a:cmd), "\n"))
 endfunction
 function! WriteC(cmd, mods) range abort
-    call TempBuf(a:mods, ':w !' . a:cmd, systemlist(s:expand_cmdline_special(a:cmd), getline(a:firstline, a:lastline)))
+    call TempBuf(a:mods, ':w !' . a:cmd, systemlist(a:cmd, getline(a:firstline, a:lastline)))
 endfunction
 function! Bang(cmd, mods) abort
-    call TempBuf(a:mods, ':!' . a:cmd, systemlist(s:expand_cmdline_special(a:cmd)))
+    call TempBuf(a:mods, ':!' . a:cmd, systemlist(a:cmd))
 endfunction
 command! -nargs=* -complete=command Execute call Execute(<q-args>, '<mods>')
-command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(<q-args>, '<mods>')
-command! -nargs=* -complete=shellcmd Bang call Bang(<q-args>, '<mods>')
+command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(exists('*expandcmd') ? expandcmd(<q-args>) : <q-args>, '<mods>') " 8.1.1510
+command! -nargs=* -complete=shellcmd Bang call Bang(exists('*expandcmd') ? expandcmd(<q-args>) : <q-args>, '<mods>')
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
