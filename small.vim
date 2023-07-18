@@ -42,6 +42,7 @@ set mouse=nvi
 set number
 set ruler showcmd
 set foldcolumn=1 foldnestmax=5 foldlevel=99
+let &foldtext = 'printf("%s %s+%d", getline(v:foldstart), v:folddashes, v:foldend - v:foldstart)'
 set scrolloff=2 sidescrolloff=2 sidescroll=1 startofline
 set showtabline=1
 set laststatus=2
@@ -55,7 +56,7 @@ set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=↪\ 
-let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 3 : 2
+let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 'indent,eol,nostop' : 'indent,eol,start'
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
 
@@ -948,8 +949,8 @@ func! VisualStar(g)
     call histadd('/', @/)
     let @" = l:reg_save
 endfunc
-nnoremap / :let g:search_mode='/'<CR>/
-nnoremap ? :let g:search_mode='/'<CR>?
+cnoremap <expr> <CR> ((getcmdtype() =~ '[/?]' && !empty(getcmdline()) && execute('let g:search_mode="/"'))?'':'') . '<C-]><CR>'
+cnoremap <expr> / (mode() =~# "[vV\<C-v>]" && getcmdtype() =~ '[/?]' && empty(getcmdline())) ? "\<C-c>\<Esc>/\\%V" : '/'
 
 " NOTE: :cex [] | bufdo vimgrepadd /pat/j %
 nnoremap <C-g>      :<C-u>Grep<space>
@@ -1598,6 +1599,7 @@ let g:netrw_fastbrowse = 0
 let g:netrw_clipboard = 0
 let g:netrw_dirhistmax = 0
 nnoremap <silent><leader>- :<C-u>call <SID>explore_bufdir('Explore')<CR>
+" NOTE: Hexplore use `wincmd s`, which will copy setlocal-ed window-local options
 nnoremap <silent><C-w>es   :<C-u>call <SID>explore_bufdir('Hexplore')<CR>
 nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore!')<CR>
 nnoremap <silent><C-w>et   :<C-u>call <SID>explore_bufdir('Texplore')<CR>
@@ -1640,9 +1642,11 @@ augroup git-custom | au!
     au FileType diff
         \ nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
     au FileType git,fugitive,gitcommit
-        \ nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
+        \ setlocal foldtext=fugitive#Foldtext()
+        \|nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
         \|Map <buffer> <localleader>* <Plug>fugitive:*
+    au FileType fugitiveblame setlocal cursorline
     au User FugitiveObject,FugitiveIndex
         \ silent! unmap <buffer> *
         \|Map <buffer> <localleader>* <Plug>fugitive:*
