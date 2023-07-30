@@ -41,7 +41,7 @@ set encoding=utf-8
 set mouse=nvi
 set number
 set ruler showcmd
-set foldcolumn=1 foldnestmax=5 foldlevel=99
+set foldcolumn=1 foldnestmax=9 foldlevel=99
 let &foldtext = 'printf("%s %s+%d", getline(v:foldstart), v:folddashes, v:foldend - v:foldstart)'
 set scrolloff=2 sidescrolloff=2 sidescroll=1 startofline
 set showtabline=1
@@ -126,7 +126,7 @@ endif
 endif
 
 augroup BasicSetup | au!
-    au BufRead * if empty(&buftype) && &filetype !~# '\v%(commit)' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
+    au BufRead * if empty(&buftype) && &filetype !=# 'git' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     if has('nvim-0.5')
         au TextYankPost * silent! lua vim.highlight.on_yank()
@@ -380,11 +380,18 @@ function! Colors() abort
         hi! link @tag.attribute None
         hi! link @tag.delimiter Delimiter
     endif
+    hi! link LspCodeLens NonText
+    hi! link LspCodeLensSeparator NonText
+    hi! link coqKwd Keyword
+    hi! link coqProofDelim PreProc
+    hi! link helpHyperTextJump Underlined
+    hi! link helpOption Underlined
+    hi! link markdownCode String
 
     " gui dark
     hi Normal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi NormalFloat guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Comment guifg=#808080 guibg=NONE gui=bold cterm=bold
+    hi Comment guifg=#d79600 guibg=NONE gui=NONE cterm=NONE
     hi Constant guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi String guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
     hi Identifier guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -398,7 +405,7 @@ function! Colors() abort
     hi Error guifg=#d7005f guibg=NONE gui=bold,reverse cterm=bold,reverse
     hi Todo guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi ColorColumn guifg=NONE guibg=#808080 gui=NONE cterm=NONE
-    hi Conceal guifg=#d79600 guibg=NONE gui=NONE cterm=NONE
+    hi Conceal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Cursor guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi CursorColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi CursorLine guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
@@ -441,7 +448,7 @@ function! Colors() abort
     hi TabLineSel guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi Title guifg=#0080dd guibg=NONE gui=bold,underline cterm=bold,underline
     hi VertSplit guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Visual guifg=#d79600 guibg=NONE gui=reverse cterm=reverse
+    hi Visual guifg=#808080 guibg=NONE gui=reverse cterm=reverse
     hi VisualNOS guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi WarningMsg guifg=NONE guibg=NONE gui=standout ctermfg=NONE ctermbg=NONE cterm=standout
     hi WildMenu guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
@@ -453,12 +460,12 @@ function! Colors() abort
 
     " gui light override
     if &background ==# 'light'
+        hi Comment guifg=#af7700 guibg=NONE gui=NONE cterm=NONE
         hi String guifg=#177700 guibg=NONE gui=NONE cterm=NONE
         hi Function guifg=#871087 guibg=NONE gui=NONE cterm=NONE
         hi Statement guifg=#005faf guibg=NONE gui=NONE cterm=NONE
         hi PreProc guifg=#009999 guibg=NONE gui=NONE cterm=NONE
         hi Error guifg=#af0011 guibg=NONE gui=bold,reverse cterm=bold,reverse
-        hi Conceal guifg=#af7700 guibg=NONE gui=NONE cterm=NONE
         hi DiffAdd guifg=#177700 guibg=NONE gui=reverse cterm=reverse
         hi DiffChange guifg=#005faf guibg=NONE gui=reverse cterm=reverse
         hi DiffDelete guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
@@ -473,7 +480,6 @@ function! Colors() abort
         hi SpellLocal guifg=NONE guibg=NONE guisp=#871087 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellRare guifg=NONE guibg=NONE guisp=#009999 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi Title guifg=#005faf guibg=NONE gui=bold,underline cterm=bold,underline
-        hi Visual guifg=#af7700 guibg=NONE gui=reverse cterm=reverse
         hi diffAdded guifg=#177700 guibg=NONE gui=NONE cterm=NONE
         hi diffRemoved guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
     endif
@@ -495,7 +501,7 @@ function! Colors() abort
     hi Error ctermfg=1 ctermbg=NONE cterm=bold,reverse
     hi Todo ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi ColorColumn ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi Conceal ctermfg=3 ctermbg=NONE cterm=NONE
+    hi Conceal ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Cursor ctermfg=NONE ctermbg=NONE cterm=reverse
     hi CursorColumn ctermfg=NONE ctermbg=NONE cterm=NONE
     hi CursorLine ctermfg=NONE ctermbg=NONE cterm=underline
@@ -550,7 +556,7 @@ function! Colors() abort
 
     " 16 override
     if exists('&t_Co') && str2nr(&t_Co) >=16
-        hi Comment ctermfg=8 ctermbg=NONE cterm=bold
+        hi Comment ctermfg=3 ctermbg=NONE cterm=NONE
         hi ColorColumn ctermfg=NONE ctermbg=8 cterm=NONE
         hi FoldColumn ctermfg=8 ctermbg=NONE cterm=reverse
         hi LineNr ctermfg=8 ctermbg=NONE cterm=NONE
@@ -560,6 +566,7 @@ function! Colors() abort
         hi PmenuKindSel ctermfg=8 ctermbg=NONE cterm=bold,reverse
         hi StatusLineNC ctermfg=8 ctermbg=NONE cterm=bold,reverse
         hi TabLine ctermfg=NONE ctermbg=8 cterm=bold
+        hi Visual ctermfg=8 ctermbg=NONE cterm=reverse
     endif
 endfunction
 
@@ -949,7 +956,7 @@ func! VisualStar(g)
     call histadd('/', @/)
     let @" = l:reg_save
 endfunc
-cnoremap <expr> <CR> ((getcmdtype() =~ '[/?]' && !empty(getcmdline()) && execute('let g:search_mode="/"'))?'':'') . '<C-]><CR>'
+cnoremap <expr> <CR> (( (getcmdtype() =~ '[/?]' && !empty(getcmdline()) && execute('let g:search_mode="/"') && 0) \|\| feedkeys("\<C-]>\<CR>", 'nt') )?'':'')
 cnoremap <expr> / (mode() =~# "[vV\<C-v>]" && getcmdtype() =~ '[/?]' && empty(getcmdline())) ? "\<C-c>\<Esc>/\\%V" : '/'
 
 " NOTE: :cex [] | bufdo vimgrepadd /pat/j %
@@ -1120,21 +1127,22 @@ cnoremap <M-*> <C-a>
 
 inoremap <expr> <C-u> match(getline('.'), '\S') >= 0 ? '<C-g>u<C-u>' : '<C-u>'
 
-inoremap         <expr> <C-j>  ScanJump(0, 'NextTokenBoundary')
-cnoremap         <expr> <C-j>  ScanJump(1, 'NextTokenBoundary')
-inoremap         <expr> <C-k>  ScanJump(0, PrevTokenBoundary)
-cnoremap         <expr> <C-k>  ScanJump(1, PrevTokenBoundary)
+inoremap         <expr> <C-j>  ScanJump(0, 'NextTokenBoundary', "\<Right>")
+cnoremap         <expr> <C-j>  ScanJump(1, 'NextTokenBoundary', "")
+inoremap         <expr> <C-k>  ScanJump(0, PrevTokenBoundary, "\<Left>")
+cnoremap         <expr> <C-k>  ScanJump(1, PrevTokenBoundary, "")
 inoremap <silent><expr> <C-w>  ScanRubout(0, 'PrevTokenLeftBoundary')
 cnoremap         <expr> <C-w>  ScanRubout(1, 'PrevTokenLeftBoundary')
 inoremap <silent><expr> <M-BS> ScanRubout(0, PrevSubwordBoundary)
 cnoremap         <expr> <M-BS> ScanRubout(1, PrevSubwordBoundary)
 
-function! ScanJump(cmap, scanner) abort
+function! ScanJump(cmap, scanner, default) abort
     let line = a:cmap ? getcmdline() : getline('.')
     let from = s:charidx(line . ' ', (a:cmap ? getcmdpos() : col('.')) - 1)
     let line = split(line, '\zs')
     let to = call(a:scanner, [line, from])
     let delta = to - from
+    if delta == 0 | return a:default | endif
     return (a:cmap ? "\<Space>\<BS>" : "")
         \. repeat(delta > 0 ? "\<Right>" : "\<Left>", abs(delta))
 endfunction
