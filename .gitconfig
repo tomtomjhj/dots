@@ -27,7 +27,7 @@
 	#                      ^ this space is necessary to make completion work
 	rb = rebase
 	sm = submodule
-	smu = submodule update --init
+	smu = submodule update --init --recursive
 	fa = fetch --all -j0
 	cp = cherry-pick
 [user]

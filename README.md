@@ -326,6 +326,14 @@ EOF
 ```
 Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
 
+#### kernel 6.2 breaks nvidia stuff
+Around 2023-08-04, kernel was upgraded to 6.2 from 5.19.
+This broke display in my office desktop (AMD cpu, MSI B450M, GeForce GT 1030):
+"NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver".
+
+Solution: Boot into 5.19. This can be selected in grub menu.
+
+
 # note, tips
 * https://github.com/cyrus-and/gdb-dashboard
 * less
@@ -377,6 +385,10 @@ Delete `/etc/apt/preferences.d/wpasupplicant` when fixed.
     * TODO: How to apply ignore rules only when writing to .bash_history?
       Do something at `trap ... EXIT`?
     * <https://superuser.com/questions/135651/how-can-i-add-a-command-to-the-bash-history-without-executing-it>
+* webp → mp4, with sane fps <https://stackoverflow.com/questions/18123376>
+  ```
+  ffmpeg -fflags +genpts -i input.webm -r 24 output.mp4
+  ```
 
 
 ## firefox
