@@ -32,8 +32,10 @@ endif
 " }}}
 
 " Basic {{{
-command! -nargs=1 Noremap exe 'nnoremap' <q-args> | exe 'xnoremap' <q-args> | exe 'onoremap' <q-args> 
-command! -nargs=1 Map exe 'nmap' <q-args> | exe 'xmap' <q-args> | exe 'omap' <q-args>
+command! -nargs=1 Mnoremap exe 'nnoremap' <q-args> | exe 'xnoremap' <q-args> | exe 'onoremap' <q-args>
+command! -nargs=1 Mmap     exe 'nmap' <q-args>     | exe 'xmap' <q-args>     | exe 'omap' <q-args>
+command! -nargs=1 Noremap  exe 'nnoremap' <q-args> | exe 'xnoremap' <q-args>
+command! -nargs=1 Map      exe 'nmap' <q-args>     | exe 'xmap' <q-args>
 
 if has('vim_starting')
 set encoding=utf-8
@@ -42,7 +44,8 @@ set mouse=nvi
 set number
 set ruler showcmd
 set foldcolumn=1 foldnestmax=9 foldlevel=99
-let &foldtext = 'printf("%s %s+%d", getline(v:foldstart), v:folddashes, v:foldend - v:foldstart)'
+let &foldtext = 'printf("%s %s+%d", substitute(getline(v:foldstart), ''\v^\s*\ze\s'', ''\=repeat("-", len(submatch(0)))'', 0), v:folddashes, v:foldend - v:foldstart)'
+" TODO: I want nostartofline when using sidescroll
 set scrolloff=2 sidescrolloff=2 sidescroll=1 startofline
 set showtabline=1
 set laststatus=2
@@ -56,6 +59,8 @@ set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=↪\ 
+" very buggy
+" if has('patch-9.0.1247') || has('nvim-0.10') | set smoothscroll | endif
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 'indent,eol,nostop' : 'indent,eol,start'
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
@@ -65,10 +70,10 @@ set langmenu=en
 set spelllang=en,cjk
 
 let mapleader = "\<Space>"
-Noremap <Space> <Nop>
+Mnoremap <Space> <Nop>
 let maplocalleader = ","
-Noremap , <Nop>
-Noremap <M-;> ,
+Mnoremap , <Nop>
+Mnoremap <M-;> ,
 " scrolling with only left hand
 Noremap <C-Space> <C-u>
 Noremap <Space><Space> <C-d>
@@ -107,7 +112,7 @@ if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p') | endif
 if !isdirectory(&undodir) | call mkdir(&undodir, 'p') | endif
 
 set autoread
-set splitright splitbelow
+set splitright splitbelow " TODO: not natural for Gdiffsplit with object
 if (has('patch-8.1.2315') || has('nvim-0.5')) | set switchbuf+=uselast | endif
 if has('nvim-0.8') | set jumpoptions+=view | endif
 set hidden
@@ -126,6 +131,8 @@ endif
 endif
 
 augroup BasicSetup | au!
+    " Return to last edit position when entering normal buffer
+    " TODO: this addes jump? manually running is ok. maybe autocmd problem?
     au BufRead * if empty(&buftype) && &filetype !=# 'git' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     if has('nvim-0.5')
@@ -135,7 +142,7 @@ augroup END
 " }}}
 
 " fix terminal vim problems {{{
-if !has('gui_running') && !has('nvim')
+if has('vim_starting') && !has('gui_running') && !has('nvim')
     if !has('patch-8.2.0852')
         silent! !stty -ixon > /dev/null 2>/dev/null
     endif
@@ -226,13 +233,14 @@ function! s:SetupGUI() abort
     if !has('nvim')
         set guioptions=i
         set guicursor+=a:blinkon0
+    " NOTE: These variables are not set at startup. Should run at UIEnter.
     elseif exists('g:GuiLoaded') " nvim-qt
         GuiTabline 0
         GuiPopupmenu 0
     endif
 endfunction
 
-if has('nvim')
+if has('nvim') && has('vim_starting')
     au UIEnter * ++once if has('nvim-0.9') ? has('gui_running') : v:event.chan | call s:SetupGUI() | endif
 elseif has('gui_running')
     call s:SetupGUI()
@@ -350,6 +358,7 @@ function! Colors() abort
     hi! link StorageClass Statement
     hi! link Structure Statement
     hi! link Typedef Statement
+    hi! link FloatBorder NormalFloat
     if has('nvim')
         hi! link SpecialKey Special
     else
@@ -390,7 +399,7 @@ function! Colors() abort
 
     " gui dark
     hi Normal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NormalFloat guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi NormalFloat guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi Comment guifg=#d79600 guibg=NONE gui=NONE cterm=NONE
     hi Constant guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi String guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
@@ -486,7 +495,7 @@ function! Colors() abort
 
     " 8
     hi Normal ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NormalFloat ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi NormalFloat ctermfg=NONE ctermbg=NONE cterm=reverse
     hi Comment ctermfg=NONE ctermbg=NONE cterm=bold
     hi Constant ctermfg=NONE ctermbg=NONE cterm=NONE
     hi String ctermfg=2 ctermbg=NONE cterm=NONE
@@ -998,6 +1007,7 @@ func! GrepInput(raw)
     if g:search_mode ==# 'n'
         return substitute(a:raw, '\v\\[<>]','','g')
     elseif g:search_mode ==# 'v'
+        " TODO: Now that I have :Grep!, just do `grep -f` or `rg -F` from @c
         return escape(a:raw, '+|?-(){}') " not escaped by VisualStar
     elseif a:raw[0:1] !=# '\v' " can convert most of strict very magic to riggrep regex, otherwise, DIY
         return substitute(a:raw, '\v(\\V|\\[<>])','','g')
@@ -1050,10 +1060,41 @@ xnoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 onoremap <expr> J mode() !=# 'v' \|\| v:count ? 'j' : 'gj'
 onoremap <expr> K mode() !=# 'v' \|\| v:count ? 'k' : 'gk'
 Noremap <leader>J J
-Noremap <expr> H v:count ? 'H' : 'h'
-Noremap <expr> L v:count ? 'L' : 'l'
+Mnoremap <expr> H v:count ? 'H' : 'h'
+Mnoremap <expr> L v:count ? 'L' : 'l'
 
-Noremap <M-0> ^w
+for s:mode in ['n', 'o', 'x']
+    for s:motion in ['w', 'e', 'b', 'ge']
+        exe printf('%snoremap %s <Plug>(PSWordMotion-%s)', s:mode, s:motion, s:motion)
+        " exe printf('%snoremap %s %s', s:mode, join(map(split(s:motion, '\zs'), '''<M-''.v:val.''>'''), ''), s:motion)
+    endfor
+endfor
+unlet s:mode s:motion
+
+nnoremap <silent> <Plug>(PSWordMotion-w)   :<C-u>call PSWordMotion('w' , v:count1, ''  , ''  )<CR>
+nnoremap <silent> <Plug>(PSWordMotion-e)   :<C-u>call PSWordMotion('e' , v:count1, ''  , ''  )<CR>
+nnoremap <silent> <Plug>(PSWordMotion-b)   :<C-u>call PSWordMotion('b' , v:count1, ''  , ''  )<CR>
+nnoremap <silent> <Plug>(PSWordMotion-ge)  :<C-u>call PSWordMotion('ge', v:count1, ''  , ''  )<CR>
+onoremap <silent> <Plug>(PSWordMotion-w)   :<C-u>call PSWordMotion('w' , v:count1, ''  , ''  )<CR>
+onoremap <silent> <Plug>(PSWordMotion-e)  v:<C-u>call PSWordMotion('e' , v:count1, ''  , ''  )<CR>
+onoremap <silent> <Plug>(PSWordMotion-b)   :<C-u>call PSWordMotion('b' , v:count1, ''  , ''  )<CR>
+onoremap <silent> <Plug>(PSWordMotion-ge)  :<C-u>call PSWordMotion('ge', v:count1, ''  , '1 ')<CR>
+xnoremap <silent> <Plug>(PSWordMotion-w)   :<C-u>call PSWordMotion('w' , v:count1, 'gv', ''  )<CR>
+xnoremap <silent> <Plug>(PSWordMotion-e)   :<C-u>call PSWordMotion('e' , v:count1, 'gv', ''  )<CR>
+xnoremap <silent> <Plug>(PSWordMotion-b)   :<C-u>call PSWordMotion('b' , v:count1, 'gv', ''  )<CR>
+xnoremap <silent> <Plug>(PSWordMotion-ge)  :<C-u>call PSWordMotion('ge', v:count1, 'gv', ''  )<CR>
+
+function! PSWordMotion(motion, cnt, pre, post) abort
+    if !empty(a:pre) | exe 'normal!' a:pre | endif
+    let pat = a:motion =~ 'e' ? '\v.>@=|\S\ze\_s' : '\v<|(\s\zs|^)\S'
+    let flag = a:motion =~ '^[we]' ? 'W' : 'Wb'
+    for _ in range(a:cnt)
+        call search(pat, flag)
+    endfor
+    if !empty(a:post) | exe 'normal!' a:post | endif
+endfunction
+
+Mnoremap <M-0> ^w
 
 " sneak {{{
 " TODO: support visual mode
@@ -1147,7 +1188,6 @@ function! ScanJump(cmap, scanner, default) abort
         \. repeat(delta > 0 ? "\<Right>" : "\<Left>", abs(delta))
 endfunction
 
-" TODO: put the killed text to some sort of yank buffer? @-, @y, ...
 function! ScanRubout(cmap, scanner) abort
     let line = a:cmap ? getcmdline() : getline('.')
     let from = s:charidx(line . ' ', (a:cmap ? getcmdpos() : col('.')) - 1)
@@ -1247,7 +1287,6 @@ nnoremap <silent><leader><C-L> :diffupdate<CR><C-L>
 nnoremap <silent><leader>sfs :syntax sync fromstart<CR><C-L>
 nnoremap <leader>ss :setlocal spell! spell?<CR>
 nnoremap <leader>sc :if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
-nnoremap <leader>sp :set paste! paste?<CR>
 nnoremap <leader>sw :setlocal wrap! wrap?<CR>
 nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
 
@@ -1255,9 +1294,12 @@ Noremap <leader>dp :diffput<CR>
 Noremap <leader>do :diffget<CR>
 
 " clipboard.
-inoremap <C-v> <C-g>u<C-r><C-o>+
+" Don't behave like P even if "+ is linewise. .... just use UI's paste                                           vvvvvv to avoid whitespace-only line
+inoremap <expr> <C-v> '<C-g>u' . (getregtype('+') ==# 'V' && !empty(getline('.')[:max([0,col('.')-1-1])]) ? '<CR>0<C-d>' : '') . '<C-r><C-o>+' . (getregtype('+') ==# 'V' ? (empty(getline('.')[col('.')-1:]) ? '<BS>' : '<Left>') : '')
+" "= is charwise if the result doesn't end with \n.
+" inoremap <silent><C-v> <C-g>u<C-r><C-p>=substitute(substitute(@+, '^\_s\+', '', ''), '\_s\+$', '', '')<CR>
 Noremap <M-c> "+y
-nnoremap <silent> yY :let _view = winsaveview() \| exe 'keepjumps keepmarks norm ggVG"+y' \| call winrestview(_view) \| unlet _view<cr>
+nnoremap <silent> yY :<C-u>let _view = winsaveview() \| exe 'keepjumps keepmarks norm ggVG"+y' \| call winrestview(_view) \| unlet _view<CR>
 
 " buf/filename
 nnoremap <leader>fn 2<C-g>
@@ -1277,13 +1319,13 @@ cnoremap <M-n> <Down>
 
 " disable annoying q and Q (use c_CTRL-F and gQ) and streamline record/execute
 " TODO: q quits hit-enter and *starts recording* unlike q of more-prompt → open a vim issue
-Noremap q: :
-Noremap q <nop>
-Noremap <M-q> q
+Mnoremap q: :
+Mnoremap q <nop>
+Mnoremap <M-q> q
 if exists('*reg_recording') " 8.1.0020
-    Noremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
+    Mnoremap <expr> qq empty(reg_recording()) ? 'qq' : 'q'
 endif
-Noremap Q @q
+Mnoremap Q @q
 
 " v_u mistake is  hard to notice. Use gu instead (works for visual mode too).
 nnoremap U :<C-u>undolist<CR>
@@ -1305,9 +1347,9 @@ nnoremap <silent> & :&&<cr>
 xnoremap <silent> & :&&<cr>
 
 " set nrformats+=alpha
-Noremap  <M-+> <C-a>
+nnoremap <M-+> <C-a>
 xnoremap <M-+> g<C-a>
-Noremap  <M--> <C-x>
+nnoremap <M--> <C-x>
 xnoremap <M--> g<C-x>
 
 nnoremap <C-j> <C-W>j
@@ -1461,6 +1503,7 @@ endif
 if has('nvim')
     tnoremap <M-[> <C-\><C-n>
     tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+    " NOTE: When [Process exited $EXIT_CODE] in terminal mode, pressing any key wipes the terminal buffer.
     command! -nargs=? -complete=shellcmd T <mods> split | exe "terminal" <q-args> | if empty(<q-args>) | startinsert | endif
 else
     " NOTE: If 'hidden' is set and arg is provided, job finished + window closed doesn't wipe the buffer, in contrary to the doc:
@@ -1505,19 +1548,49 @@ augroup END
 if has('patch-8.1.0311') || has('nvim-0.3.2')
     packadd cfilter
 endif
+
+nnoremap <silent><leader>co :botright copen<CR>
 nnoremap <silent><leader>x  :pc\|ccl\|lcl<CR>
-nnoremap <silent>]q :cnext<CR>
-nnoremap <silent>[q :cprevious<CR>
-nnoremap <silent>]l :lnext<CR>
-nnoremap <silent>[l :lprevious<CR>
+nnoremap <silent>[q :<C-u>call <SID>Cnext(1, 'c')<CR>
+nnoremap <silent>]q :<C-u>call <SID>Cnext(0, 'c')<CR>
+nnoremap <silent>[l :<C-u>call <SID>Cnext(1, 'l')<CR>
+nnoremap <silent>]l :<C-u>call <SID>Cnext(0, 'l')<CR>
+" note: use :cex [] to start a new quickfix
+nnoremap <silent> <leader>qf :<C-u>call <SID>Qfadd(v:count ? win_getid() : 0)<CR>
+command! Cfork call setloclist(0, [], ' ', getqflist({'context':1, 'items':1, 'quickfixtextfunc':1, 'title':1})) | cclose | lwindow
+function s:qf() abort
+    setlocal nowrap
+    setlocal norelativenumber number
+    setlocal nobuflisted
+
+    nnoremap <buffer> <Left>  :<C-u>call <SID>Colder('older')<CR>
+    nnoremap <buffer> <Right> :<C-u>call <SID>Colder('newer')<CR>
+    nnoremap <buffer><silent> <CR> <CR>:call FlashLine()<CR>
+    if s:Qf().is_loc
+        nmap <buffer> p <CR><C-w>p
+    else
+        " Like CTRL-W_<CR>, but with preview window and without messing up buffer list
+        nnoremap <buffer><silent> p    :<C-u>call <SID>PreviewQf(line('.'))<CR>
+        nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>
+    endif
+    nmap     <buffer>         J jp
+    nmap     <buffer>         K kp
+    command! -buffer -range Qfrm :<line1>,<line2>call s:Qfrm()
+    Noremap <buffer><silent> dd :Qfrm<CR>
+endfunction
+
+augroup qf-custom | au!
+    au FileType qf call s:qf()
+    au QuitPre * nested if &filetype !=# 'qf' | silent! lclose | endif
+augroup END
 
 " like cwindow, but don't jump to the window
-command! -bar -nargs=? CW call s:cwindow(0, <q-mods>, <q-args>)
-command! -bar -nargs=? LW call s:cwindow(1, <q-mods>, <q-args>)
-function! s:cwindow(loclist, mods, args) abort
+command! -bar -nargs=? CW call s:cwindow('c', <q-mods>, <q-args>)
+command! -bar -nargs=? LW call s:cwindow('l', <q-mods>, <q-args>)
+function! s:cwindow(prefix, mods, args) abort
     let curwin = win_getid()
     let view = winsaveview()
-    exe a:mods . (a:loclist ? ' lwindow' : ' cwindow') a:args
+    exe a:mods . ' ' . a:prefix . 'window' a:args
     " jumped to qf/loc window. return.
     if curwin != win_getid() && &buftype ==# 'quickfix'
         wincmd p
@@ -1525,25 +1598,34 @@ function! s:cwindow(loclist, mods, args) abort
     endif
 endfunction
 
-function s:qf() abort
-    setlocal nowrap
-    setlocal norelativenumber number
-    setlocal nobuflisted
-    " Like CTRL-W_<CR>, but with preview window and without messing up buffer list
-    nnoremap <buffer><silent> p :<C-u>call <SID>PreviewQf(line('.'))<CR>
-    nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>
+function! s:Qf(...) abort
+    let win = a:0 ? a:1 : 0
+    let is_loc = win || getwininfo(win_getid())[0]['loclist']
+    return {'is_loc': is_loc,
+          \ 'prefix': is_loc ? 'l' : 'c',
+          \ 'get': is_loc ? function('getloclist', [win]) : function('getqflist'),
+          \ 'set': is_loc ? function('setloclist', [win]) : function('setqflist')}
 endfunction
-
-augroup qf-custom | au!
-    au FileType qf call s:qf()
-augroup END
-
+function! s:Cnext(prev, prefix) abort
+    try
+        exe a:prefix . (a:prev ? 'previous' : 'next')
+    catch /^Vim\%((\a\+)\)\=:E553/
+        exe a:prefix . (a:prev ? 'last' : 'first')
+    catch /^Vim\%((\a\+)\)\=:E\%(325\|776\|42\):/
+    endtry
+    if &foldopen =~ 'quickfix' && foldclosed(line('.')) != -1
+        normal! zv
+    endif
+endfunction
+function! s:Colder(newer)
+    try
+        exe (s:Qf().prefix) . a:newer
+    catch /^Vim\%((\a\+)\)\=:E\%(380\|381\):/
+    endtry
+endfunction
 function! s:GetQfEntry(linenr) abort
     if &filetype !=# 'qf' | return {} | endif
-    let l:qflist = getloclist(0)
-    if empty(l:qflist)
-        let l:qflist = getqflist()
-    endif
+    let l:qflist = s:Qf().get()
     if !l:qflist[a:linenr-1].valid | return {} | endif
     if !filereadable(bufname(l:qflist[a:linenr-1].bufnr)) | return {} | endif
     return l:qflist[a:linenr-1]
@@ -1552,8 +1634,10 @@ function! s:PreviewQf(linenr) abort
     let l:entry = s:GetQfEntry(a:linenr)
     if empty(l:entry) | return | endif
     let l:listed = buflisted(l:entry.bufnr)
+    let width = winwidth(0) > 170 ? winwidth(0) * 4 / 9 : 0
     if s:PreviewBufnr() != l:entry.bufnr
-        execute 'keepjumps pedit' bufname(l:entry.bufnr)
+        execute (width ? 'vertical' : '')  'leftabove keepjumps pedit' bufname(l:entry.bufnr)
+        if width | execute 'vertical resize' width | endif
     endif
     noautocmd wincmd P
     if l:entry.lnum > 0
@@ -1561,8 +1645,8 @@ function! s:PreviewQf(linenr) abort
     else
         call search(l:entry.pattern, 'w')
     endif
-    normal! zz
-    setlocal cursorline nofoldenable
+    normal! zzzv
+    call FlashLine()
     if !l:listed
         setlocal nobuflisted bufhidden=delete noswapfile
     endif
@@ -1575,6 +1659,20 @@ function! s:PreviewBufnr()
         endif
     endfor
     return 0
+endfunction
+function! s:Qfadd(win) abort
+    let qf = s:Qf(a:win)
+    let item = {'bufnr': bufnr('%'), 'lnum': line('.'), 'text': getline('.')}
+    call qf.set([item], 'a')
+    call s:cwindow(qf.prefix, '', '')
+endfunction
+function! s:Qfrm() range abort
+    let qf = s:Qf()
+    let list = qf.get({'all':1})
+    call remove(list['items'], a:firstline - 1, a:lastline - 1)
+    let view = winsaveview()
+    call qf.set([], 'r', list)
+    call winrestview(view)
 endfunction
 " }}}
 
@@ -1648,32 +1746,19 @@ endfunction
 " Git. See also plugin/git.vim {{{
 augroup git-custom | au!
     au FileType diff
-        \ nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
+        \ nnoremap <silent><buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
     au FileType git,fugitive,gitcommit
         \ setlocal foldtext=fugitive#Foldtext()
-        \|nnoremap <silent><buffer>zM :setlocal foldmethod=expr foldexpr=GitDiffFoldExpr(v:lnum)\|unmap <lt>buffer>zM<CR>zM
+        \|nnoremap <silent><buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
-        \|Map <buffer> <localleader>* <Plug>fugitive:*
+        \|Mmap <buffer> <localleader>* <Plug>fugitive:*
     au FileType fugitiveblame setlocal cursorline
     au User FugitiveObject,FugitiveIndex
         \ silent! unmap <buffer> *
-        \|Map <buffer> <localleader>* <Plug>fugitive:*
+        \|Mmap <buffer> <localleader>* <Plug>fugitive:*
     " TODO: diff mapping for gitcommit
 augroup END
 
-" See also:
-" - https://github.com/sgeb/vim-diff-fold/blob/master/ftplugin/diff.vim
-" - https://vim.fandom.com/wiki/Folding_for_diff_files
-function! GitDiffFoldExpr(lnum)
-    let line = getline(a:lnum)
-    if line =~# '^diff'
-        return '>1'
-    elseif line =~# '^@@'
-        return '>2'
-    else
-        return '='
-    endif
-endfunction
 " }}}
 
 " textobj {{{
@@ -1708,6 +1793,18 @@ endfunction
 
 " etc util {{{
 " compat {{{
+if has('patch-8.2.0137') || has('nvim-0.5')
+    function! s:win_execute(win, cmd) abort
+        call win_execute(a:win, a:cmd)
+    endfunction
+else
+    function! s:win_execute(win, cmd) abort
+        let curwin = win_getid()
+        noautocmd call win_gotoid(a:win)
+        call execute(a:cmd)
+        noautocmd call win_gotoid(curwin)
+    endfunction
+endif
 if exists('*charidx') " 8.2.2233
     function! s:charidx(string, idx)
         return charidx(a:string, a:idx)
@@ -1754,6 +1851,14 @@ endfunction
 function! Text2VeryMagic(str) abort
     return escape(a:str, '!#$%&()*+,-./:;<=>?@[\]^{|}~')
 endfunction
+
+function! FlashLine() abort
+    normal! zv
+    let win = win_getid()
+    let match = matchaddpos('QuickFixLine', [line('.')])
+    call timer_start(321, { _ -> s:win_execute(win, printf('call matchdelete(%d)', match)) })
+endfunction
+
 function! Wildignore2exclude() abort
     let exclude = copy(g:wildignore_files)
     let exclude_dir = copy(g:wildignore_dirs)
@@ -1805,6 +1910,13 @@ command! -range=% Unpdf
             \|call winrestview(_view)
             \|unlet _view
 
+" Doesn't work with hard wrapped list.
+" Alternative: %!pandoc --from=commonmark_x --to=commonmark_x --wrap=none
+command! -range=% ZulipMarkdown
+            \ keeppatterns keepjumps <line1>,<line2>substitute/^    \ze[-+*]\s/  /e
+            \|keeppatterns keepjumps <line1>,<line2>substitute/^        \ze[-+*]\s/    /e
+            \|keeppatterns keepjumps <line1>,<line2>substitute/^            \ze[-+*]\s/      /e
+
 " :substitute using a dict, where key == submatch (like VisualStar)
 function! SubstituteDict(dict) range
     exe a:firstline . ',' . a:lastline . 'substitute'
@@ -1829,13 +1941,6 @@ if !exists('g:wildignore_files')
     call AddWildignore(s:wildignore_files, 0)
     call AddWildignore(s:wildignore_dirs, 1)
 endif
-
-" Doesn't work with hard wrapped list.
-" Alternative: %!pandoc --from=commonmark_x --to=commonmark_x --wrap=none
-command! -range=% ZulipMarkdown
-            \ keeppatterns keepjumps <line1>,<line2>substitute/^    \ze[-+*]\s/  /e
-            \|keeppatterns keepjumps <line1>,<line2>substitute/^        \ze[-+*]\s/    /e
-            \|keeppatterns keepjumps <line1>,<line2>substitute/^            \ze[-+*]\s/      /e
 
 if !has('nvim')
     command! -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
