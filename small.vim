@@ -59,8 +59,7 @@ set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=↪\ 
-" very buggy
-" if has('patch-9.0.1247') || has('nvim-0.10') | set smoothscroll | endif
+if has('patch-9.0.1729') || has('nvim-0.10') | set smoothscroll | endif
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 'indent,eol,nostop' : 'indent,eol,start'
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
@@ -368,6 +367,7 @@ function! Colors() abort
     hi! link StatusLineTerm StatusLine
     hi! link StatusLineTermNC StatusLineNC
     if has('nvim-0.8')
+        hi! link @punctuation.special Special
         hi! link @constructor NONE
         hi! link @type.definition Type
         hi! link @type.qualifier StorageClass
@@ -409,6 +409,7 @@ function! Colors() abort
     hi PreProc guifg=#00cccc guibg=NONE gui=NONE cterm=NONE
     hi Type guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Special guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
+    hi Delimiter guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Underlined guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
     hi Ignore guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Error guifg=#d7005f guibg=NONE gui=bold,reverse cterm=bold,reverse
@@ -505,6 +506,7 @@ function! Colors() abort
     hi PreProc ctermfg=6 ctermbg=NONE cterm=NONE
     hi Type ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Special ctermfg=NONE ctermbg=NONE cterm=bold
+    hi Delimiter ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Underlined ctermfg=NONE ctermbg=NONE cterm=underline
     hi Ignore ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Error ctermfg=1 ctermbg=NONE cterm=bold,reverse
@@ -1571,7 +1573,7 @@ function s:qf() abort
     else
         " Like CTRL-W_<CR>, but with preview window and without messing up buffer list
         nnoremap <buffer><silent> p    :<C-u>call <SID>PreviewQf(line('.'))<CR>
-        nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>
+        nnoremap <buffer><silent> <CR> :<C-u>pclose<CR><CR>:call FlashLine()<CR>
     endif
     nmap     <buffer>         J jp
     nmap     <buffer>         K kp
@@ -1616,6 +1618,7 @@ function! s:Cnext(prev, prefix) abort
     if &foldopen =~ 'quickfix' && foldclosed(line('.')) != -1
         normal! zv
     endif
+    call FlashLine()
 endfunction
 function! s:Colder(newer)
     try
@@ -1773,21 +1776,36 @@ endfor
 unlet! s:c
 
 " indented block
-xnoremap <silent> ii :<C-u>call IndentObj(1)<CR>
-onoremap <silent> ii :<C-u>call IndentObj(1)<CR>
+xnoremap <silent> ii :<C-U>exe 'normal! gv'\|call IndentObj(1,0,0)<CR>
+onoremap <silent> ii :<C-u>call IndentObj(1,0,0)<CR>
+xnoremap <silent> ai :<C-U>exe 'normal! gv'\|call IndentObj(1,1,0)<CR>
+onoremap <silent> ai :<C-u>call IndentObj(1,1,0)<CR>
+xnoremap <silent> aI :<C-U>exe 'normal! gv'\|call IndentObj(1,1,1)<CR>
+onoremap <silent> aI :<C-u>call IndentObj(1,1,1)<CR>
 " indented paragraph
-xnoremap <silent> iP :<C-u>call IndentObj(0)<CR>
-onoremap <silent> iP :<C-u>call IndentObj(0)<CR>
+xnoremap <silent> iP :<C-U>exe 'normal! gv'\|call IndentObj(0,0,0)<CR>
+onoremap <silent> iP :<C-u>call IndentObj(0,0,0)<CR>
 
-function! IndentObj(skipblank) abort
-    let level = indent(line('.'))
-    while line('.') > 1 && ((a:skipblank ? getline(line('.') - 1) =~ '^\s*$' : 0) || indent(line('.') - 1) >= level)
-        normal! k
+function! IndentObj(skipblank, header, footer) abort
+    let line = nextnonblank('.')
+    let level = indent(line)
+    let start = line | let end = line
+    while start > 1 && !(getline(start - 1) =~ '\S' ? indent(start - 1) < level : !a:skipblank)
+        let start -= 1
     endwhile
-    normal! V
-    while line('.') < line('$') && ((a:skipblank ? getline(line('.') + 1) =~ '^\s*$' : 0) || indent(line('.') + 1) >= level)
-        normal! j
+    if a:header | let start = prevnonblank(start - 1) | endif
+    while end < line('$') && !(getline(end + 1) =~ '\S' ? indent(end + 1) < level : !a:skipblank)
+        let end += 1
     endwhile
+    if a:footer | let end = nextnonblank(end + 1) | endif
+    " union of the current visual region and the skipblank containing the cursor
+    if mode() =~# "[vV\<C-v>]"
+        let start = min([start, line("'<")])
+        let end = max([end, line("'>")])
+        exe "normal! \<Esc>"
+    endif
+    if end - start > winheight(0) | exe "normal! m'" | endif
+    exe start | exe 'normal! V' | exe end
 endfunction
 " }}}
 
