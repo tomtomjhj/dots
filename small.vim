@@ -1344,7 +1344,7 @@ Noremap <M-p> "pp
 Noremap <M-P> "pP
 
 nnoremap Y y$
-onoremap <silent> ge :execute "normal! " . v:count1 . "ge<space>"<cr>
+" onoremap <silent> ge :execute "normal! " . v:count1 . "ge<space>"<cr>
 nnoremap <silent> & :&&<cr>
 xnoremap <silent> & :&&<cr>
 
@@ -1793,12 +1793,12 @@ function! IndentObj(skipblank, header, footer) abort
     while start > 1 && !(getline(start - 1) =~ '\S' ? indent(start - 1) < level : !a:skipblank)
         let start -= 1
     endwhile
-    if a:header | let start = prevnonblank(start - 1) | endif
+    let start = a:header ? prevnonblank(start - 1) : nextnonblank(start)
     while end < line('$') && !(getline(end + 1) =~ '\S' ? indent(end + 1) < level : !a:skipblank)
         let end += 1
     endwhile
-    if a:footer | let end = nextnonblank(end + 1) | endif
-    " union of the current visual region and the skipblank containing the cursor
+    let end = a:footer ? nextnonblank(end + 1) : prevnonblank(end)
+    " union of the current visual region and the block/paragraph containing the cursor
     if mode() =~# "[vV\<C-v>]"
         let start = min([start, line("'<")])
         let end = max([end, line("'>")])
