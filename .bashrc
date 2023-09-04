@@ -257,8 +257,9 @@ detect_bg() {
     fi
     local answer=
     local n=0
-    while [ -z "$answer" ] && [ $n -lt 100 ]; do
-        sleep 0.001
+    # User may type something when waiting for respsonse. Ignore them.
+    while [ "${answer::4}" != $'\e]11' ] && [ $n -lt 100 ]; do
+        sleep 0.002
         read -r answer
         n=$((n + 1))
     done
