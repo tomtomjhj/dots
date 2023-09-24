@@ -137,7 +137,7 @@ npm install
        custom-command="sh -c 'BACKGROUND=light bash'"
        font='Iosevka Custom 7.5'
        foreground-color='rgb(18,18,18)'
-       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(23,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(98,98,98)', 'rgb(168,168,168)', 'rgb(215,0,17)', 'rgb(48,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
+       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(23,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(98,98,98)', 'rgb(158,158,158)', 'rgb(215,0,17)', 'rgb(48,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
        scrollbar-policy='never'
        use-custom-command=true
        use-system-font=false
@@ -184,6 +184,7 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 
 ### etc
 * `privacy.resistFingerprinting` breaks some stuff
+* <https://connect.mozilla.org/t5/discussions/how-to-remove-the-3-dot-menu-on-firefox-suggest-drop-down-items/td-p/28339>
 
 ## tex
 * [Dockerfile](./docker/texlive/Dockerfile)
@@ -402,7 +403,14 @@ Solution: Boot into 5.19. This can be selected in grub menu.
     * copy-pasting removes the spaces in the text
     * pdf print quality bad
     * j/k is not like arrow up/down https://github.com/mozilla/pdf.js/issues/7019
-* firefox pdf dark mode https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375
+* firefox pdf dark mode <https://github.com/darkreader/darkreader/issues/374#issuecomment-640622375>
+  Make a bookmark with the following url.
+  ```
+  javascript:void(viewer.style = 'filter: grayscale(0%) invert(100%) hue-rotate(180deg) contrast(100%) brightness(100%)')
+  ```
+  Added `hue-rorate` to make it work like zathura's `recolor-keephue`.
+  <https://developer.mozilla.org/en-US/docs/Web/CSS/filter-function/hue-rotate>.
+  See also <https://stackoverflow.com/a/65355529>.
 * 98
     * why is this an improvement??? https://www.reddit.com/r/firefox/comments/t9h0og/comment/hzvfyxi/?utm_source=share&utm_medium=web2x&context=3
     * see also: https://www.reddit.com/r/firefox/comments/t9hk42/comment/hzu6uq1/?utm_source=share&utm_medium=web2x&context=3
