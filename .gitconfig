@@ -28,7 +28,8 @@
 	rb = rebase
 	sm = submodule
 	smu = submodule update --init --recursive
-	fa = fetch --all -j0
+	# https://lore.kernel.org/git/pull.1483.git.1676928805555.gitgitgadget@gmail.com/
+	fa = fetch --all -j4
 	cp = cherry-pick
 [user]
 	email = tomtomjhj@gmail.com

@@ -153,7 +153,7 @@ npm install
        custom-command='tmux'
        font='Iosevka Custom 7.5'
        foreground-color='rgb(238,238,238)'
-       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(34,191,0)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(204,204,204)', 'rgb(98,98,98)', 'rgb(255,34,102)', 'rgb(85,255,0)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
+       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(34,191,0)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(204,204,204)', 'rgb(112,112,112)', 'rgb(255,34,102)', 'rgb(85,255,0)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
        scrollbar-policy='never'
        use-custom-command=false
        use-system-font=false
@@ -334,6 +334,12 @@ This broke display in my office desktop (AMD cpu, MSI B450M, GeForce GT 1030):
 
 Solution: Boot into 5.19. This can be selected in grub menu.
 
+2023-10-01: Old kernel is broken too. /:
+Gave up and upgraded to 23.04.
+
+### 23.04
+* default fonts changed?? much feature so wow
+  <https://ubuntuhandbook.org/index.php/2023/04/restore-old-fonts-ubuntu-2304/>
 
 # note, tips
 * https://github.com/cyrus-and/gdb-dashboard
@@ -411,6 +417,7 @@ Solution: Boot into 5.19. This can be selected in grub menu.
   Added `hue-rorate` to make it work like zathura's `recolor-keephue`.
   <https://developer.mozilla.org/en-US/docs/Web/CSS/filter-function/hue-rotate>.
   See also <https://stackoverflow.com/a/65355529>.
+    * Problem: When applied, "zoom in" is broken. If zoomed in sufficiently so that the width of document is larger than the width of firefox, scrolled to somewhere else and hyperlinks don't work.
 * 98
     * why is this an improvement??? https://www.reddit.com/r/firefox/comments/t9h0og/comment/hzvfyxi/?utm_source=share&utm_medium=web2x&context=3
     * see also: https://www.reddit.com/r/firefox/comments/t9hk42/comment/hzu6uq1/?utm_source=share&utm_medium=web2x&context=3
