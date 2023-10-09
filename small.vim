@@ -80,8 +80,10 @@ Noremap <Space><Space> <C-d>
 noremap! <C-Space> <C-k>
 
 set wildmenu wildmode=longest:full,full
+" expand() expands wildcard with shell, and then filters with wildignore converted with glob2regpat().
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo', '*.vo[sk]', '*.glob', '*.aux']
-let s:wildignore_dirs = ['.git', '__pycache__', 'target']
+let s:wildignore_dirs = ['.git', '__pycache__', 'target'] " '*/dir/*' is too excessive.
+let &wildignore = join(s:wildignore_files + s:wildignore_dirs, ',')
 set complete-=i complete-=u completeopt=menuone,preview
 if exists('+completepopup') " 8.1.1951
     set completeopt+=popup completepopup=highlight:NormalFloat,border:off
@@ -456,7 +458,7 @@ function! Colors() abort
     hi TabLine guifg=NONE guibg=#808080 gui=bold cterm=bold
     hi TabLineFill guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi TabLineSel guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi Title guifg=#0080dd guibg=NONE gui=bold,underline cterm=bold,underline
+    hi Title guifg=#d777d7 guibg=NONE gui=bold,underline cterm=bold,underline
     hi VertSplit guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Visual guifg=#808080 guibg=NONE gui=reverse cterm=reverse
     hi VisualNOS guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -489,7 +491,7 @@ function! Colors() abort
         hi SpellCap guifg=NONE guibg=NONE guisp=#005faf gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellLocal guifg=NONE guibg=NONE guisp=#871087 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellRare guifg=NONE guibg=NONE guisp=#009999 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi Title guifg=#005faf guibg=NONE gui=bold,underline cterm=bold,underline
+        hi Title guifg=#871087 guibg=NONE gui=bold,underline cterm=bold,underline
         hi diffAdded guifg=#177700 guibg=NONE gui=NONE cterm=NONE
         hi diffRemoved guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
     endif
@@ -544,16 +546,23 @@ function! Colors() abort
     hi Search ctermfg=6 ctermbg=NONE cterm=bold,reverse
     hi CurSearch ctermfg=5 ctermbg=NONE cterm=bold,reverse,underline
     hi SignColumn ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi SpellBad ctermfg=1 ctermbg=NONE cterm=underline
-    hi SpellCap ctermfg=4 ctermbg=NONE cterm=underline
-    hi SpellLocal ctermfg=5 ctermbg=NONE cterm=underline
-    hi SpellRare ctermfg=6 ctermbg=NONE cterm=underline
+    if has('nvim')
+        hi SpellBad ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellCap ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellLocal ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellRare ctermfg=NONE ctermbg=NONE cterm=undercurl
+    else
+        hi SpellBad ctermfg=1 ctermbg=NONE cterm=undercurl
+        hi SpellCap ctermfg=4 ctermbg=NONE cterm=undercurl
+        hi SpellLocal ctermfg=5 ctermbg=NONE cterm=undercurl
+        hi SpellRare ctermfg=6 ctermbg=NONE cterm=undercurl
+    endif
     hi StatusLine ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi StatusLineNC ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi TabLine ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi TabLineFill ctermfg=NONE ctermbg=NONE cterm=reverse
     hi TabLineSel ctermfg=NONE ctermbg=NONE cterm=bold
-    hi Title ctermfg=4 ctermbg=NONE cterm=bold,underline
+    hi Title ctermfg=5 ctermbg=NONE cterm=bold,underline
     hi VertSplit ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Visual ctermfg=3 ctermbg=NONE cterm=reverse
     hi VisualNOS ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -1878,10 +1887,8 @@ function! FlashLine() abort
 endfunction
 
 function! Wildignore2exclude() abort
-    let exclude = copy(g:wildignore_files)
-    let exclude_dir = copy(g:wildignore_dirs)
-    call map(exclude, 'shellescape(v:val, 1)')
-    call map(exclude_dir, 'shellescape(v:val, 1)')
+    let exclude = map(copy(s:wildignore_files), 'shellescape(v:val, 1)')
+    let exclude_dir = map(copy(s:wildignore_dirs), 'shellescape(v:val, 1)')
     return '--exclude={'.join(exclude, ',').'} --exclude-dir={'.join(exclude_dir, ',').'}'
 endfunction
 
@@ -1942,23 +1949,6 @@ function! SubstituteDict(dict) range
                 \ . '/\=a:dict[submatch(0)]/ge'
 endfunction
 command! -range=% -nargs=1 SubstituteDict :<line1>,<line2>call SubstituteDict(<args>)
-
-command! -nargs=+ -bang AddWildignore call AddWildignore([<f-args>], <bang>0)
-function! AddWildignore(wigs, is_dir) abort
-    if a:is_dir
-        let g:wildignore_dirs += a:wigs
-        let globs = map(a:wigs, 'v:val.",".v:val."/,**/".v:val."/*"')
-    else
-        let g:wildignore_files += a:wigs
-        let globs = a:wigs
-    endif
-    exe 'set wildignore+='.join(globs, ',')
-endfunction
-if !exists('g:wildignore_files')
-    let [g:wildignore_files, g:wildignore_dirs] = [[], []]
-    call AddWildignore(s:wildignore_files, 0)
-    call AddWildignore(s:wildignore_dirs, 1)
-endif
 
 if !has('nvim')
     command! -nargs=+ -complete=shellcmd Man delcommand Man | runtime ftplugin/man.vim | if winwidth(0) > 170 | exe 'vert Man' <q-args> | else | exe 'Man' <q-args> | endif
