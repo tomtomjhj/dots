@@ -19,15 +19,15 @@ fi
 # Taken from https://gist.github.com/vivkin/567896630dbc588ad470b8196c601ad1
 # See also https://askubuntu.com/a/279014
 colors() {
-    T='text'
-    echo -e "\n                  40m      41m      42m      43m      44m      45m      46m      47m";
+    echo
+    echo "                 40m     41m     42m     43m     44m     45m     46m     47m"
     for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' '1;32m' '  33m' '1;33m' '  34m' '1;34m' '  35m' '1;35m' '  36m' '1;36m' '  37m' '1;37m'; do
         FG=${FGs// /}
-        echo -en " $FGs \033[$FG  $T  "
+        echo -en " $FGs \033[$FG  abc  "
         for BG in 40m 41m 42m 43m 44m 45m 46m 47m; do
-            echo -en "$EINS \033[$FG\033[$BG  $T \033[0m\033[$BG \033[0m";
+            echo -en " \033[$FG\033[$BG  abc  \033[0m";
         done
-        echo;
+        echo
     done
     echo
 }

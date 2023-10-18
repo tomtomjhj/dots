@@ -78,6 +78,28 @@ A minimal "colorscheme" that only uses 8 (line highlight), 7 (comment), f (fg).
                     <string>bold</string>
                 </dict>
             </dict>
+            <dict>
+                <key>name</key>
+                <string>diffAdded</string>
+                <key>scope</key>
+                <string>markup.inserted.diff</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#02000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>diffRemoved</string>
+                <key>scope</key>
+                <string>markup.deleted.diff</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#01000000</string>
+                </dict>
+            </dict>
         </array>
         <key>uuid</key>
         <string>uuid</string>

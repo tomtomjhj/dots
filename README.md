@@ -81,6 +81,7 @@ im-config -n nimf
 ./interception/install.sh
 ```
 * https://gitlab.com/interception/linux/plugins/dual-function-keys
+    * interception-tools is in ubuntu repository, but dual-function-keys is not.
 * https://gist.github.com/tanyuan/55bca522bf50363ae4573d4bdcf06e2e
 * kmonad?
 * <https://github.com/rvaiya/keyd>?
@@ -111,10 +112,10 @@ npm install
       sudo fc-cache -fsv
       ```
 * Google docs: non-ascii 폰트 주의
-    * 한글 지원 안하는 폰트 사용하면 export 시 한글이 다 굴림으로 바뀜. 현재 Google docs에서 지원하는 한글 폰트 중 쓸만한 건 나눔 고딕 밖에 없음.
+    * 한글 지원 안하는 폰트 사용하면 export 시 한글이 다 굴림으로 바뀜. ~~현재 Google docs에서 지원하는 한글 폰트 중 쓸만한 건 나눔 고딕 밖에 없음.~~ Noto Sans KR 추가됨
         * `fonts-nanum` 패키지 설치했더라도 Google docs의 "Nanum Gothic"은 odp로 export 후 LibreOffice Impress에서 열 때 "font is not available and will be substituted"라고 나옴. 그런데 대부분 글자는 잘 표시됨 (`fc-match "Nanum Gothic"` 실행 시 `NanumGothic.ttf` 찾음). 그런데 Impress에서는 한글과 ascii char 간격이 훨씬 커서 여하간 레이아웃이 깨짐.
     * Consolas는 설치하기 귀찮으니 그냥 Source Code Pro 사용할 것
-    * ∗ 같은 문자 지원하는 폰트 없는 듯
+    * 수학: Cambria Math
 
 ## gnome
 * [make gnome terminal title bar small](https://www.reddit.com/r/gnome/comments/b3l1c9/gnometerminal_title_bar_is_huge_in_332/)
@@ -190,7 +191,7 @@ find $HOME/.cache/mozilla/firefox -type d -name startupCache | xargs rm -rf
 * [Dockerfile](./docker/texlive/Dockerfile)
 * minimal-ish? installation
   ```bash
-  sudo apt install texlive-science texlive-xetex texlive-lang-korean texlive-publishers texlive-fonts-extra
+  sudo apt install latexmk texlive-science texlive-xetex texlive-lang-korean texlive-fonts-extra
   ```
 
 ## pandoc
@@ -239,6 +240,8 @@ update-desktop-database ~/.local/share/applications
 
 ## etc
 * `aptitude upgrade --full-resolver` good for resolving broken package issues
+* purge after only remove `sudo apt-get purge $(dpkg -l | grep '^rc' | awk '{print $2}')`.
+  <https://askubuntu.com/a/687305>
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
