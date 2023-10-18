@@ -1076,8 +1076,8 @@ Mnoremap <expr> L v:count ? 'L' : 'l'
 
 for s:mode in ['n', 'o', 'x']
     for s:motion in ['w', 'e', 'b', 'ge']
-        exe printf('%snoremap %s <Plug>(PSWordMotion-%s)', s:mode, s:motion, s:motion)
-        " exe printf('%snoremap %s %s', s:mode, join(map(split(s:motion, '\zs'), '''<M-''.v:val.''>'''), ''), s:motion)
+        exe printf('%smap %s <Plug>(PSWordMotion-%s)', s:mode, s:motion, s:motion)
+        " exe printf('%smap %s %s', s:mode, join(map(split(s:motion, '\zs'), '''<M-''.v:val.''>'''), ''), s:motion)
     endfor
 endfor
 unlet s:mode s:motion
