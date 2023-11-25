@@ -59,7 +59,7 @@ set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=↪\ 
-if has('patch-9.0.1729') || has('nvim-0.10') | set smoothscroll | endif
+if has('patch-9.0.2105') || has('nvim-0.10') | set smoothscroll | endif
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 'indent,eol,nostop' : 'indent,eol,start'
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
@@ -943,7 +943,6 @@ let g:tex_no_error = 1
 " }}}
 
 " search & files {{{
-" search_mode: which command last set @/?
 " `*`, `v_*` without moving the cursor. Reserve @c for the raw original text
 " NOTE: Can't repeat properly if ins-special-special is used. Use q-recording.
 nnoremap <silent>* :<C-u>call Star(0)\|set hlsearch<CR>
@@ -952,21 +951,23 @@ xnoremap <silent>* :<C-u>call VisualStar(0)\|set hlsearch<CR>
 xnoremap <silent>g* :<C-u>call VisualStar(1)\|set hlsearch<CR>
 " set hlsearch inside the function doesn't work? Maybe :h function-search-undo?
 " NOTE: word boundary is syntax property -> may not match in other ft buffers
-let g:search_mode = get(g:, 'search_mode', '/')
+let s:star_mode = get(s:, 'star_mode', '/')
+let s:star_histnr = get(s:, 'star_histnr', 0)
 func! Star(g)
     let @c = expand('<cword>')
     " <cword> can be non-keyword
     if match(@c, '\k') == -1
-        let g:search_mode = 'v'
+        let s:star_mode = 'v'
         let @/ = Text2Magic(@c)
     else
-        let g:search_mode = 'n'
+        let s:star_mode = 'n'
         let @/ = a:g ? @c : '\<' . @c . '\>'
     endif
     call histadd('/', @/)
+    let s:star_histnr = histnr('/')
 endfunc
 func! VisualStar(g)
-    let g:search_mode = 'v'
+    let s:star_mode = 'v'
     let l:reg_save = @"
     " don't trigger TextYankPost
     noau silent! normal! gvy
@@ -974,9 +975,10 @@ func! VisualStar(g)
     let l:pattern = Text2Magic(@")
     let @/ = a:g ? '\<' . l:pattern . '\>' : l:pattern " reversed
     call histadd('/', @/)
+    let s:star_histnr = histnr('/')
     let @" = l:reg_save
 endfunc
-cnoremap <expr> <CR> (( (getcmdtype() =~ '[/?]' && !empty(getcmdline()) && execute('let g:search_mode="/"') && 0) \|\| feedkeys("\<C-]>\<CR>", 'nt') )?'':'')
+
 cnoremap <expr> / (mode() =~# "[vV\<C-v>]" && getcmdtype() =~ '[/?]' && empty(getcmdline())) ? "\<C-c>\<Esc>/\\%V" : '/'
 
 " NOTE: :cex [] | bufdo vimgrepadd /pat/j %
@@ -1015,9 +1017,10 @@ function! Grep(query, advanced) abort
     redraw
 endfunction
 func! GrepInput(raw)
-    if g:search_mode ==# 'n'
+    let mode = (s:star_histnr == histnr('/')) ? s:star_mode : '/' " not accurate, because / could've been aborted
+    if mode ==# 'n'
         return substitute(a:raw, '\v\\[<>]','','g')
-    elseif g:search_mode ==# 'v'
+    elseif mode ==# 'v'
         " TODO: Now that I have :Grep!, just do `grep -f` or `rg -F` from @c
         return escape(a:raw, '+|?-(){}') " not escaped by VisualStar
     elseif a:raw[0:1] !=# '\v' " can convert most of strict very magic to riggrep regex, otherwise, DIY
