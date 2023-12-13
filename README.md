@@ -45,6 +45,25 @@
 
 # Ubuntu setup
 
+## packages
+
+essentials
+```
+build-essential git vim tmux python3-pip python-is-python3 curl wget xclip htop unzip
+```
+dev
+```
+sudo apt install autoconf automake libtool-bin ccache ninja-build cmake g++ pkg-config llvm clang libfuse2 opam
+```
+utils
+```
+sshfs aptitude dconf-editor gnome-tweaks
+```
+apps
+```
+zathura okular inkscape
+```
+
 ## ppas
 ```sh
 sudo apt-get install software-properties-common
@@ -349,7 +368,30 @@ Gave up and upgraded to 23.04.
 ### 23.10
 * feature? bug? gnome desktop now "fixes" the tiling configuration.
   2 vertical split windows; add one more vertical split window on left; alt-tab; click right window → left shows the initial left window.
-* window snap 후에 터미널에서 키가 씹힐 때가 잇음??
+* window snap 후에 터미널에서 키가 씹힐 때가 잇음?? redraw가 씹히는 듯
+
+### 22.04 reinstall
+* firefox에서 nimf가 막힘.
+  dmesg:
+  ```
+  apparmor="DENIED" operation="connect" class="file" profile="firefox" name="/run/user/1000/nimf/socket" pid=2512 comm="firefox" requested_mask="wr" denied_mask="wr" fsuid=1000 ouid=1000
+  apparmor="DENIED" operation="exec" class="file" profile="firefox" name="/usr/bin/nimf" pid=8274 comm="firefox" requested_mask="x" denied_mask="x" fsuid=1000 ouid=0
+  ```
+  <https://bugs.launchpad.net/ubuntu/+source/evince/+bug/1569863>
+  firenvim도 apparmor가 막음.
+  ```
+  sudo systemctl disable apparmor
+  ```
+  왜 저번엔 안 이랬는지???
+* nautilus가 간혹 매우 느리게 뜸. 이 시점에는 여러번 실행해도 여러 창이 뜨지 않음.
+  `journalctl -b0 -p3`
+  ```
+  systemd[1537]: Failed to start Tracker file system data miner.
+  systemd[1537]: Failed to start Tracker metadata extractor.
+  ```
+  <https://www.reddit.com/r/gnome/comments/nu4bvr/comment/h0xsag4/>
+  `rm -rf ~/.cache/{tracker3,tracker}`. fixed. ubuntu downgrade문제일듯.
+
 
 # note, tips
 * https://github.com/cyrus-and/gdb-dashboard
