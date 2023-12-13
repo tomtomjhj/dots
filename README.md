@@ -343,6 +343,13 @@ Gave up and upgraded to 23.04.
 ### 23.04
 * default fonts changed?? much feature so wow
   <https://ubuntuhandbook.org/index.php/2023/04/restore-old-fonts-ubuntu-2304/>
+* nautilus에 nimf로 한글 입력 안됨???
+* htop `<F5>` got slower
+
+### 23.10
+* feature? bug? gnome desktop now "fixes" the tiling configuration.
+  2 vertical split windows; add one more vertical split window on left; alt-tab; click right window → left shows the initial left window.
+* window snap 후에 터미널에서 키가 씹힐 때가 잇음??
 
 # note, tips
 * https://github.com/cyrus-and/gdb-dashboard
@@ -493,3 +500,5 @@ Gave up and upgraded to 23.04.
 * `git-rerere`
     * https://stackoverflow.com/questions/49500943/what-is-git-rerere-and-how-does-it-work#comment86015280_49501436
     * not very accuate??
+* <https://github.com/arxanas/git-branchless>
+* `rebase --update-refs` <https://adamj.eu/tech/2022/10/15/how-to-rebase-stacked-git-branches/>
