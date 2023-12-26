@@ -1760,6 +1760,7 @@ endfunction
 
 " Git. See also plugin/git.vim {{{
 augroup git-custom | au!
+    au Syntax git,gitcommit,diff syn sync minlines=321
     au FileType diff
         \ nnoremap <silent><buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
     au FileType git,fugitive,gitcommit

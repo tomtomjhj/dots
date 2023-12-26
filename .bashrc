@@ -1,16 +1,17 @@
 [[ $- != *i* ]] && return
 
 # [ -z "$TMUX"  ] && { tmux attach || exec tmux new-session && exit;}
-if [ -z "$TMUX"  ] && [ -z "$VIM" ]; then
+if [ -x "$(command -v tmux)" ] && [ -z "$TMUX"  ] && [ -z "$VIM" ]; then
   detached=$(tmux ls 2> /dev/null | grep "window" | grep -cv "attached")
   if [ "$detached" -eq 0 ]; then
-    tmux new-session
+    tmux -2u new-session
   else
-    tmux attach
+    tmux -2u attach
   fi
   detached=$(tmux ls 2> /dev/null | grep "window" | grep -cv "attached")
   [ "$detached" -eq 0 ] && exit
 fi
+alias tmux='tmux -2u'
 
 #
 # Adapted from Manjaro /etc/skel/.bashrc
@@ -211,7 +212,6 @@ alias py=python3
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias tmux='tmux -2u'
 alias ta='tmux attach'
 man () { /usr/bin/man "$@" | nvim +Man!; }
 alias stage="$HOME/stage-git/stage"
@@ -250,7 +250,7 @@ detect_bg() {
     local oldstty=$(stty -g)
     stty raw -echo min 0 time 0
     if [ -z "$TMUX"  ]; then
-        printf "\033]11;?\033\\" >&2
+        printf "\033]11;?\007" >&2
     else
         # NOTE: requires allow-passthrough in tmux ≥ 3.3
         printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
