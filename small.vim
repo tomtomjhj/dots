@@ -67,6 +67,7 @@ set cpoptions-=_
 let $LANG='en'
 set langmenu=en
 set spelllang=en,cjk
+set spellsuggest=best,13
 
 let mapleader = "\<Space>"
 Mnoremap <Space> <Nop>
@@ -320,7 +321,7 @@ endfunction
 
 augroup Statusline | au!
     if has('unix') " too slow on windows
-        au BufReadPost,BufWritePost * call UpdateGitStatus(str2nr(expand('<abuf>')))
+        au BufReadPost,BufWritePost * silent! call UpdateGitStatus(str2nr(expand('<abuf>')))
         au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
     endif
 augroup END
@@ -356,6 +357,7 @@ function! Colors() abort
     hi! link Number String
     hi! link Boolean String
     hi! link Float String
+    hi! link Operator Statement
     hi! link StorageClass Statement
     hi! link Structure Statement
     hi! link Typedef Statement
@@ -369,27 +371,23 @@ function! Colors() abort
     hi! link StatusLineTerm StatusLine
     hi! link StatusLineTermNC StatusLineNC
     if has('nvim-0.8')
-        hi! link @punctuation.special Special
-        hi! link @constructor NONE
+        hi! link @variable.builtin @variable
+        hi! link @constant.builtin Constant
+        hi! link @module NONE
+        hi! link @module.builtin Constant
+        hi! link @type.builtin Constant
         hi! link @type.definition Type
         hi! link @type.qualifier StorageClass
-        hi! link @storageclass.lifetime String
-        hi! link @constant.builtin Constant
-        hi @text.strong       ctermfg=NONE ctermbg=NONE cterm=bold guifg=NONE guibg=NONE gui=bold
-        hi @text.emphasis     ctermfg=NONE ctermbg=NONE cterm=italic guifg=NONE guibg=NONE gui=italic
-        hi @text.underline    ctermfg=NONE ctermbg=NONE cterm=underline guifg=NONE guibg=NONE gui=underline
-        hi @text.strike       ctermfg=NONE ctermbg=NONE cterm=strikethrough guifg=NONE guibg=NONE gui=strikethrough
-        hi! link @text.literal String
-        hi! link @text.literal.block NONE
-        hi! link @text.reference Underlined
-        hi! link @text.note Todo
-        hi! link @text.warning Error
-        hi! link @text.danger Error
-        hi! link @text.diff.add diffAdded
-        hi! link @text.diff.delete diffRemoved
+        hi! link @constructor Function
+        hi! link @keyword.storage.lifetime String
+        hi! link @punctuation.special Special
+        hi! link @markup.quote NONE
+        hi! link @markup.math String
+        hi! link @markup.raw String
+        hi! link @markup.raw.block NONE
+        hi! link @markup.list Stat
         hi! link @tag Statement
-        hi! link @tag.attribute None
-        hi! link @tag.delimiter Delimiter
+        hi! link @tag.attribute NONE
     endif
     hi! link LspCodeLens NonText
     hi! link LspCodeLensSeparator NonText
@@ -416,6 +414,9 @@ function! Colors() abort
     hi Ignore guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Error guifg=#d7005f guibg=NONE gui=bold,reverse cterm=bold,reverse
     hi Todo guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
+    hi Added guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
+    hi Changed guifg=#00cccc guibg=NONE gui=NONE cterm=NONE
+    hi Removed guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
     hi ColorColumn guifg=NONE guibg=#808080 gui=NONE cterm=NONE
     hi Conceal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Cursor guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
@@ -467,8 +468,6 @@ function! Colors() abort
     hi CursorIM guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi diffAdded guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
-    hi diffRemoved guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
 
     " gui light override
     if &background ==# 'light'
@@ -478,6 +477,9 @@ function! Colors() abort
         hi Statement guifg=#005faf guibg=NONE gui=NONE cterm=NONE
         hi PreProc guifg=#009999 guibg=NONE gui=NONE cterm=NONE
         hi Error guifg=#af0011 guibg=NONE gui=bold,reverse cterm=bold,reverse
+        hi Added guifg=#177700 guibg=NONE gui=NONE cterm=NONE
+        hi Changed guifg=#009999 guibg=NONE gui=NONE cterm=NONE
+        hi Removed guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
         hi DiffAdd guifg=#177700 guibg=NONE gui=reverse cterm=reverse
         hi DiffChange guifg=#005faf guibg=NONE gui=reverse cterm=reverse
         hi DiffDelete guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
@@ -492,8 +494,6 @@ function! Colors() abort
         hi SpellLocal guifg=NONE guibg=NONE guisp=#871087 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellRare guifg=NONE guibg=NONE guisp=#009999 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi Title guifg=#871087 guibg=NONE gui=bold,underline cterm=bold,underline
-        hi diffAdded guifg=#177700 guibg=NONE gui=NONE cterm=NONE
-        hi diffRemoved guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
     endif
 
     " 8
@@ -513,6 +513,9 @@ function! Colors() abort
     hi Ignore ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Error ctermfg=1 ctermbg=NONE cterm=bold,reverse
     hi Todo ctermfg=NONE ctermbg=NONE cterm=bold,reverse
+    hi Added ctermfg=2 ctermbg=NONE cterm=NONE
+    hi Changed ctermfg=6 ctermbg=NONE cterm=NONE
+    hi Removed ctermfg=1 ctermbg=NONE cterm=NONE
     hi ColorColumn ctermfg=NONE ctermbg=NONE cterm=reverse
     hi Conceal ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Cursor ctermfg=NONE ctermbg=NONE cterm=reverse
@@ -571,8 +574,6 @@ function! Colors() abort
     hi CursorIM ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi diffAdded ctermfg=2 ctermbg=NONE cterm=NONE
-    hi diffRemoved ctermfg=1 ctermbg=NONE cterm=NONE
 
     " 16 override
     if exists('&t_Co') && str2nr(&t_Co) >=16
@@ -1515,10 +1516,36 @@ if has('win32')
 endif
 
 if has('nvim')
-    tnoremap <M-[> <C-\><C-n>
-    tnoremap <expr> <M-r> '<C-\><C-N>"'.nr2char(getchar()).'pi'
     " NOTE: When [Process exited $EXIT_CODE] in terminal mode, pressing any key wipes the terminal buffer.
     command! -nargs=? -complete=shellcmd T <mods> split | exe "terminal" <q-args> | if empty(<q-args>) | startinsert | endif
+    " see also: https://github.com/VioletJewel/vimterm.nvim
+    tnoremap <expr> <C-w> &filetype !=# 'fzf' ? TermWinKey() : "\<C-w>"
+    tnoremap <expr> <M-w> TermWinKey()
+    function! TermWinKey() abort
+        let count = ''
+        let ch = getcharstr()
+        if ch !=# '0'
+            while ch =~# '\d'
+                let count .= ch
+                let ch = getcharstr()
+            endwhile
+        endif
+        let count = count is# '' ? 0 : str2nr(count)
+        if ch ==# '.'
+            return repeat("\<C-w>", count ? count : 1)
+        elseif ch ==# "\<C-\>"
+            return repeat("\<C-\>", count ? count : 1)
+        elseif ch ==# 'N' || ch ==# "\<C-n>"
+            return "\<C-\>\<C-n>" " bug: sometimes stl is not redrawn?? also happens when actually typed
+        elseif ch ==# '"'
+            return "\<C-\>\<C-o>" . (count ? count : '') . '"' . getcharstr() . 'p'
+        elseif ch ==# ':'
+            return "\<C-\>\<C-o>" . ':' " this seems to break cursor shape
+        elseif ch ==# 'g'
+            let ch .= getcharstr()
+        endif
+        return printf("\<Cmd>%s wincmd %s\<CR>", count ? count : '', ch)
+    endfunction
 else
     " NOTE: If 'hidden' is set and arg is provided, job finished + window closed doesn't wipe the buffer, in contrary to the doc:
     " > When the job has finished and no changes were made to the buffer: closing the
@@ -1940,11 +1967,17 @@ command! -range=% Unpdf
             \|unlet _view
 
 " Doesn't work with hard wrapped list.
-" Alternative: %!pandoc --from=commonmark_x --to=commonmark_x --wrap=none
 command! -range=% ZulipMarkdown
             \ keeppatterns keepjumps <line1>,<line2>substitute/^    \ze[-+*]\s/  /e
             \|keeppatterns keepjumps <line1>,<line2>substitute/^        \ze[-+*]\s/    /e
             \|keeppatterns keepjumps <line1>,<line2>substitute/^            \ze[-+*]\s/      /e
+
+" --wrap=auto|none|preserve
+command! -range=% -nargs=? Md
+            \ let _view = winsaveview()
+            \|exe '<line1>,<line2>!pandoc --from=commonmark_x --to=commonmark_x' <q-args>
+            \|call winrestview(_view)
+            \|unlet _view
 
 " :substitute using a dict, where key == submatch (like VisualStar)
 function! SubstituteDict(dict) range
@@ -2882,7 +2915,7 @@ endif
 " }}}
 
 " repeat {{{
-" https://github.com/tpope/vim-repeat/blob/24afe922e6a05891756ecf331f39a1f6743d3d5a/autoload/repeat.vim
+" https://github.com/tomtomjhj/vim-repeat/blob/11cad98ebb5bb92b039e8212b645ea722c542a4d/autoload/repeat.vim
 let g:repeat_tick = -1
 let g:repeat_reg = ['', '']
 
@@ -2970,8 +3003,7 @@ endfunction
 
 function! s:repeat_wrap(command,count)
     let preserve = (g:repeat_tick == b:changedtick)
-    call feedkeys((a:count ? a:count : '').a:command, 'n')
-    exe (&foldopen =~# 'undo\|all' ? 'norm! zv' : '')
+    call feedkeys((a:count ? a:count : '').a:command, 'ntix')
     if preserve
         let g:repeat_tick = b:changedtick
     endif
