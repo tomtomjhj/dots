@@ -47,8 +47,10 @@
 	helper = store
 [merge]
 	tool = vimdiff3
-	# zdiff3?
+	# zdiff3? 2.35. not in 22.04
 	conflictstyle = diff3
+[rebase]
+	autosquash = true
 [difftool "vimdiff3"]
 	path = nvim
 [mergetool "vimdiff3"]
@@ -59,8 +61,8 @@
 	fetchJobs = 0
 [pull]
 	ff = only
-# [rerere]
-# 	enabled = true
+[rerere]
+	enabled = true
 [delta]
 # NOTE
 # * Don't set core.pager=delta by default. See alias.dt.

@@ -17,6 +17,7 @@
     cfg config --local status.showUntrackedFiles no
     ```
     * `--separate-git-dir`
+    * <https://www.chezmoi.io/>
 * automate direct binary download https://stackoverflow.com/a/29360657
 * https://help.ubuntu.com/community/CheckInstall
 * opam
@@ -394,8 +395,9 @@ Gave up and upgraded to 23.04.
   firenvim도 apparmor가 막음.
   ```
   sudo systemctl disable apparmor
+  reboot
   ```
-  왜 저번엔 안 이랬는지???
+  apparmor같은 거 update 될때마다 해줘야 함
 * nautilus가 간혹 매우 느리게 뜸. 이 시점에는 여러번 실행해도 여러 창이 뜨지 않음.
   `journalctl -b0 -p3`
   ```
@@ -461,6 +463,15 @@ Gave up and upgraded to 23.04.
   ```
   ffmpeg -fflags +genpts -i input.webm -r 24 output.mp4
   ```
+* pdf → image
+  ```
+  magick convert -density 300 -trim in.pdf -quality 100 out.png
+  ```
+  quality max is 100.
+  change density if necessary.
+  see also <https://imagemagick.org/script/command-line-options.php>
+* how to rotate a page in pdf without losing bookmark, etc?
+  pdfarranger loses them. can't fix with pdktk update_info
 
 
 ## firefox
@@ -483,6 +494,7 @@ Gave up and upgraded to 23.04.
   <https://developer.mozilla.org/en-US/docs/Web/CSS/filter-function/hue-rotate>.
   See also <https://stackoverflow.com/a/65355529>.
     * Problem: When applied, "zoom in" is broken. If zoomed in sufficiently so that the width of document is larger than the width of firefox, scrolled to somewhere else and hyperlinks don't work.
+    * See also <https://github.com/shivaprsd/doqment>
 * 98
     * why is this an improvement??? https://www.reddit.com/r/firefox/comments/t9h0og/comment/hzvfyxi/?utm_source=share&utm_medium=web2x&context=3
     * see also: https://www.reddit.com/r/firefox/comments/t9hk42/comment/hzu6uq1/?utm_source=share&utm_medium=web2x&context=3
@@ -552,8 +564,6 @@ Gave up and upgraded to 23.04.
 * <https://stackoverflow.com/questions/39665570/why-can-two-git-worktrees-not-check-out-the-same-branch>
 * `git push -u origin my_ref:remote_branch`
 * `git-rebase(1)` REBASING MERGES
-* `git-rerere`
-    * https://stackoverflow.com/questions/49500943/what-is-git-rerere-and-how-does-it-work#comment86015280_49501436
-    * not very accuate??
 * <https://github.com/arxanas/git-branchless>
 * `rebase --update-refs` <https://adamj.eu/tech/2022/10/15/how-to-rebase-stacked-git-branches/>
+* what's the best practice for spliting a commit?
