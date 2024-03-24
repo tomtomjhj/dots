@@ -59,7 +59,7 @@ set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=↪\ 
-if has('patch-9.0.2105') || has('nvim-0.10') | set smoothscroll | endif
+" if has('patch-9.0.2105') || has('nvim-0.10') | set smoothscroll | endif
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 'indent,eol,nostop' : 'indent,eol,start'
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
@@ -98,7 +98,7 @@ set noerrorbells novisualbell t_vb=
 set shortmess+=Ic shortmess-=S
 set belloff=all
 
-set history=1000
+set history=765
 set viminfo=!,'150,<50,s30,h,r/tmp,r/run,rterm://,rfugitive://,rfern://,rman://,rtemp://
 set updatetime=1234
 set backup undofile noswapfile
@@ -114,7 +114,7 @@ if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p') | endif
 if !isdirectory(&undodir) | call mkdir(&undodir, 'p') | endif
 
 set autoread
-set splitright splitbelow " TODO: not natural for Gdiffsplit with object
+set splitright splitbelow
 if (has('patch-8.1.2315') || has('nvim-0.5')) | set switchbuf+=uselast | endif
 if has('nvim-0.8') | set jumpoptions+=view | endif
 set hidden
@@ -135,7 +135,7 @@ endif
 augroup BasicSetup | au!
     " Return to last edit position when entering normal buffer
     " TODO: this addes jump? manually running is ok. maybe autocmd problem?
-    au BufRead * if empty(&buftype) && &filetype !=# 'git' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
+    au BufRead * if empty(&buftype) && &filetype !~# '^git' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     if has('nvim-0.5')
         au TextYankPost * silent! lua vim.highlight.on_yank()
@@ -468,6 +468,8 @@ function! Colors() abort
     hi CursorIM guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
+    hi diffAdded guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
+    hi diffRemoved guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
 
     " gui light override
     if &background ==# 'light'
@@ -494,6 +496,8 @@ function! Colors() abort
         hi SpellLocal guifg=NONE guibg=NONE guisp=#871087 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellRare guifg=NONE guibg=NONE guisp=#009999 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi Title guifg=#871087 guibg=NONE gui=bold,underline cterm=bold,underline
+        hi diffAdded guifg=#177700 guibg=NONE gui=NONE cterm=NONE
+        hi diffRemoved guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
     endif
 
     " 8
@@ -574,6 +578,8 @@ function! Colors() abort
     hi CursorIM ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton ctermfg=NONE ctermbg=NONE cterm=bold,reverse
+    hi diffAdded ctermfg=2 ctermbg=NONE cterm=NONE
+    hi diffRemoved ctermfg=1 ctermbg=NONE cterm=NONE
 
     " 16 override
     if exists('&t_Co') && str2nr(&t_Co) >=16
@@ -615,7 +621,7 @@ let c_no_curly_error = 1
 function! s:c_cpp() abort
     " don't highlight the #define content
     syn clear cDefine
-    syn region	cDefine		matchgroup=PreProc start="^\s*\zs\(%:\|#\)\s*\(define\|undef\)\>" skip="\\$" end="$" keepend contains=ALLBUT,@cPreProcGroup,@Spell
+    syn region	cDefine		matchgroup=PreProc start="^\s*\zs\%(%:\|#\)\s*\%(define\|undef\)\>" skip="\\$" end="$" keepend contains=ALLBUT,@cPreProcGroup,@Spell
     hi! def link cDefine NONE
 
     setlocal shiftwidth=2
@@ -1349,6 +1355,7 @@ xnoremap u <nop>
 " delete without clearing regs
 Noremap x "_x
 
+" last changed region. useful for selecting last pasted stuff
 nnoremap gV `[v`]
 
 " repetitive pastes using designated register @p
@@ -1582,6 +1589,7 @@ call s:heights()
 
 augroup layout-custom | au!
     au VimResized * call s:heights()
+    au OptionSet winfixbuf setlocal nowinfixbuf
 augroup END
 " }}}
 
@@ -1939,6 +1947,7 @@ endfunction
 function! WriteC(cmd, mods) range abort
     call TempBuf(a:mods, ':w !' . a:cmd, systemlist(a:cmd, getline(a:firstline, a:lastline)))
 endfunction
+" NOTE: `:!cmd` does't capture the entire output.
 function! Bang(cmd, mods) abort
     call TempBuf(a:mods, ':!' . a:cmd, systemlist(a:cmd))
 endfunction
@@ -1994,21 +2003,24 @@ endif
 " }}}
 
 " comments {{{
-" https://github.com/tomtomjhj/vim-commentary/blob/05b5bbad0d9c14c308f5cb3bc26975f41df7fcaa/plugin/commentary.vim
+" https://github.com/tomtomjhj/vim-commentary/blob/1484006b8f3e4b9c3557631167a1d87c4ea90065/plugin/commentary.vim
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
         \ &commentstring, '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')), '%s', 1)
 endfunction
 
-function! s:commentary_strip_white_space(l,r,line) abort
-  let [l, r] = [a:l, a:r]
-  if l[-1:] ==# ' ' && stridx(a:line,l) == -1 && stridx(a:line,l[0:-2]) == 0
-    let l = l[:-2]
+" l_go: Used for (un)commenting. Doesn't get stripped by empty comment.
+" l: Used for checking comment range. Stripped by empty comment.
+function! s:commentary_strip_white_space(l,l_go,r,line) abort
+  let [l, l_go, r] = [a:l, a:l_go, a:r]
+  if l_go[-1:] ==# ' ' && stridx(a:line,l_go) == -1 && stridx(a:line,l_go[0:-2]) == 0
+    if l[-1:]    ==# ' '    | let l    = l[:-2]    | endif
+    if l_go[:-2] !=# a:line | let l_go = l_go[:-2] | endif
   endif
   if r[0] ==# ' ' && (' ' . a:line)[-strlen(r)-1:] != r && a:line[-strlen(r):] == r[1:]
     let r = r[1:]
   endif
-  return [l, r]
+  return [l, l_go, r]
 endfunction
 
 function! s:commentary_go(...) abort
@@ -2021,12 +2033,14 @@ function! s:commentary_go(...) abort
     let [lnum1, lnum2] = [line("'["), line("']")]
   endif
 
+  silent doautocmd <nomodeline> User CommentaryPre
   let [l, r] = s:commentary_surroundings()
+  let l_go = l
   let uncomment = 2
   let force_uncomment = a:0 > 2 && a:3
   for lnum in range(lnum1,lnum2)
     let line = matchstr(getline(lnum),'\S.*\s\@<!')
-    let [l, r] = s:commentary_strip_white_space(l,r,line)
+    let [l, l_go, r] = s:commentary_strip_white_space(l,l_go,r,line)
     if len(line) && (stridx(line,l) || line[strlen(line)-strlen(r) : -1] != r)
       let uncomment = 0
     endif
@@ -2041,30 +2055,26 @@ function! s:commentary_go(...) abort
   let lines = []
   for lnum in range(lnum1,lnum2)
     let line = getline(lnum)
-    if strlen(r) > 2 && l.r !~# '\\' && r !~# '\V*)\|-}\||#'
+    if strlen(r) > 2 && l.r !~# '\\' && r !~# '\V*)\|-}\||#' && !force_uncomment
       let line = substitute(line,
             \'\M' . substitute(l, '\ze\S\s*$', '\\zs\\d\\*\\ze', '') . '\|' . substitute(r, '\S\zs', '\\zs\\d\\*\\ze', ''),
             \'\=substitute(submatch(0)+1-uncomment,"^0$\\|^-\\d*$","","")','g')
     endif
     if force_uncomment
-      if line =~ '^\s*' . l
-        let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l):-strlen(r)-1]','')
+      if line =~ '\v\C^\s*' . escape(l, '!#$%&()*+,-./:;<=>?@[\]^{|}~')
+        let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l_go):-strlen(r)-1]','')
+        if line =~# '^\s\+$' | let line = '' | endif
       endif
     elseif uncomment
-      let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l):-strlen(r)-1]','')
+      let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l_go):-strlen(r)-1]','')
+      if line =~# '^\s\+$' | let line = '' | endif
     else
-      let line = substitute(line,'^\%('.matchstr(getline(lnum1),indent).'\|\s*\)\zs.*\S\@<=','\=l.submatch(0).r','')
+      let line = substitute(line,'^\%('.matchstr(getline(lnum1),indent).'\|\s*\)\zs.*\S\@<=','\=l_go.submatch(0).r','')
     endif
     call add(lines, line)
   endfor
   call setline(lnum1, lines)
-  let modelines = &modelines
-  try
-    set modelines=0
-    silent doautocmd User CommentaryPost
-  finally
-    let &modelines = modelines
-  endtry
+  silent doautocmd <nomodeline> User CommentaryPost
   return ''
 endfunction
 
@@ -2075,7 +2085,7 @@ function! s:commentary_textobject(inner) abort
     while lnums[index] != bound && line ==# '' || !(stridx(line,l) || line[strlen(line)-strlen(r) : -1] != r)
       let lnums[index] += dir
       let line = matchstr(getline(lnums[index]+dir),'\S.*\s\@<!')
-      let [l, r] = s:commentary_strip_white_space(l,r,line)
+      let [l, _, r] = s:commentary_strip_white_space(l,l,r,line)
     endwhile
   endfor
   while (a:inner || lnums[1] != line('$')) && empty(getline(lnums[0]))
@@ -2090,6 +2100,7 @@ function! s:commentary_textobject(inner) abort
 endfunction
 
 function! s:commentary_insert()
+  silent doautocmd <nomodeline> User CommentaryPre
   let [l, r] = s:commentary_surroundings()
   return l . r . repeat("\<C-G>U\<Left>", strchars(r))
 endfunction
