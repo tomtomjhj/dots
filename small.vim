@@ -1303,13 +1303,13 @@ endfunction
 " }}}
 
 " etc mappings {{{
-nnoremap <silent><leader><CR> :let v:searchforward=1\|nohlsearch<CR>
-nnoremap <silent><leader><C-L> :diffupdate<CR><C-L>
-nnoremap <silent><leader>sfs :syntax sync fromstart<CR><C-L>
-nnoremap <leader>ss :setlocal spell! spell?<CR>
-nnoremap <leader>sc :if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
-nnoremap <leader>sw :setlocal wrap! wrap?<CR>
-nnoremap <leader>ic :set ignorecase! smartcase! ignorecase?<CR>
+nnoremap <silent><leader><CR> :<C-u>let v:searchforward=1\|nohlsearch<CR>
+nnoremap <silent><leader><C-L> :<C-u>diffupdate<CR><C-L>
+nnoremap <silent><leader>sfs :<C-u>syntax sync fromstart<CR><C-L>
+nnoremap <leader>ss :<C-u>setlocal spell! spell?<CR>
+nnoremap <leader>sc :<C-u>if empty(&spc) \| setl spc< spc? \| else \| setl spc= spc? \| endif<CR>
+nnoremap <leader>sw :<C-u>setlocal wrap! wrap?<CR>
+nnoremap <leader>ic :<C-u>set ignorecase! smartcase! ignorecase?<CR>
 
 Noremap <leader>dp :diffput<CR>
 Noremap <leader>do :diffget<CR>
@@ -1355,8 +1355,9 @@ xnoremap u <nop>
 " delete without clearing regs
 Noremap x "_x
 
-" last changed region. useful for selecting last pasted stuff
-nnoremap gV `[v`]
+" last affected region. useful for selecting last pasted stuff
+" NOTE: writing the buffer resets '[, '] it to whole buffer. :h autocmd-use
+nnoremap <expr> gV (getpos("'[")[1:2] ==# [1,1] && getpos("']")[1:2] ==# [line("$"),1]) ? '`.' : '`[v`]'
 
 " repetitive pastes using designated register @p
 Noremap <M-y> "py
@@ -1391,10 +1392,10 @@ cnoreabbrev <expr> vsf <SID>cabbrev('vsf', "vert sf**/<Left><Left><Left>")
 cnoreabbrev <expr> tsb <SID>cabbrev('tsb', 'tab sb')
 cnoreabbrev <expr> tsf <SID>cabbrev('tsf', "tab sf**/<Left><Left><Left>")
 
-nnoremap <leader>cx :tabclose<CR>
-nnoremap <leader>td :tab split<CR>
-nnoremap <leader>tt :tabedit<CR>
-nnoremap <leader>fe :e!<CR>
+nnoremap <leader>cx :<C-u>tabclose<CR>
+nnoremap <leader>td :<C-u>tab split<CR>
+nnoremap <leader>tt :<C-u>tabedit<CR>
+nnoremap <leader>fe :<C-u>e!<CR>
 
 inoreabbrev <expr> date strftime('%F')
 " }}}
@@ -1516,10 +1517,14 @@ endfunction
 if has('win32')
     " :h shell-powershell
     let &shell = executable('pwsh') ? 'pwsh' : 'powershell'
-    let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
-    let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-    let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+    let &shellcmdflag = '-NoLogo -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();$PSDefaultParameterValues[''Out-File:Encoding'']=''utf8'';Remove-Alias -Force -ErrorAction SilentlyContinue tee;'
+    let &shellredir = '2>&1 | %%{ "$_" } | Out-File %s; exit $LastExitCode'
+    let &shellpipe  = '2>&1 | %%{ "$_" } | tee %s; exit $LastExitCode'
     set shellquote= shellxquote=
+endif
+
+if &shell =~# 'bash$' && has('linux')
+    let &shell = &shell . ' -O globstar'  " ** globs for :!, system(), etc
 endif
 
 if has('nvim')
@@ -1589,7 +1594,6 @@ call s:heights()
 
 augroup layout-custom | au!
     au VimResized * call s:heights()
-    au OptionSet winfixbuf setlocal nowinfixbuf
 augroup END
 " }}}
 
@@ -1598,8 +1602,8 @@ if has('patch-8.1.0311') || has('nvim-0.3.2')
     packadd cfilter
 endif
 
-nnoremap <silent><leader>co :botright copen<CR>
-nnoremap <silent><leader>x  :pc\|ccl\|lcl<CR>
+nnoremap <silent><leader>co :<C-u>botright copen<CR>
+nnoremap <silent><leader>x  :<C-u>pc\|ccl\|lcl<CR>
 nnoremap <silent>[q :<C-u>call <SID>Cnext(1, 'c')<CR>
 nnoremap <silent>]q :<C-u>call <SID>Cnext(0, 'c')<CR>
 nnoremap <silent>[l :<C-u>call <SID>Cnext(1, 'l')<CR>
@@ -1748,7 +1752,7 @@ let s:url_regex = '\c\<\%([a-z][0-9A-Za-z_-]\+:\%(\/\{1,3}\|[a-z0-9%]\)\|www\d\{
 function! CursorURL() abort
     return matchstr(expand('<cWORD>'), s:url_regex)
 endfunction
-nnoremap <silent> gx :call GXBrowse(CursorURL())<cr>
+nnoremap <silent> gx :<C-u>call GXBrowse(CursorURL())<cr>
 
 let g:netrw_home = simplify(&undodir . '..')
 let g:netrw_fastbrowse = 0
@@ -1759,9 +1763,9 @@ nnoremap <silent><leader>- :<C-u>call <SID>explore_bufdir('Explore')<CR>
 nnoremap <silent><C-w>es   :<C-u>call <SID>explore_bufdir('Hexplore')<CR>
 nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore!')<CR>
 nnoremap <silent><C-w>et   :<C-u>call <SID>explore_bufdir('Texplore')<CR>
-nnoremap <leader>cd :cd <Plug>BufDir/
-nnoremap <leader>e  :e! <Plug>BufDir/
-nnoremap <leader>te :tabedit <Plug>BufDir/
+nnoremap <leader>cd :<C-u>cd <Plug>BufDir/
+nnoremap <leader>e  :<C-u>e! <Plug>BufDir/
+nnoremap <leader>te :<C-u>tabedit <Plug>BufDir/
 function! s:netrw() abort
     silent! nunmap <buffer> <C-L>
     nmap <buffer> <leader><C-L> <Plug>NetrwRefresh
@@ -1797,10 +1801,10 @@ endfunction
 augroup git-custom | au!
     au Syntax git,gitcommit,diff syn sync minlines=321
     au FileType diff
-        \ nnoremap <silent><buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
+        \ nnoremap <silent><buffer>zM :<C-u>setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
     au FileType git,fugitive,gitcommit
         \ setlocal foldtext=fugitive#Foldtext()
-        \|nnoremap <silent><buffer>zM :setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
+        \|nnoremap <silent><buffer>zM :<C-u>setlocal foldmethod=syntax\|unmap <lt>buffer>zM<CR>zM
         \|silent! unmap <buffer> *
         \|Mmap <buffer> <localleader>* <Plug>fugitive:*
     au FileType fugitiveblame setlocal cursorline
@@ -2926,7 +2930,7 @@ endif
 " }}}
 
 " repeat {{{
-" https://github.com/tomtomjhj/vim-repeat/blob/11cad98ebb5bb92b039e8212b645ea722c542a4d/autoload/repeat.vim
+" https://github.com/tomtomjhj/vim-repeat/blob/782271546ca490e825b732cbc200765c5b6c6557/autoload/repeat.vim
 let g:repeat_tick = -1
 let g:repeat_reg = ['', '']
 
@@ -3014,7 +3018,13 @@ endfunction
 
 function! s:repeat_wrap(command,count)
     let preserve = (g:repeat_tick == b:changedtick)
-    call feedkeys((a:count ? a:count : '').a:command, 'ntix')
+    try
+        call feedkeys((a:count ? a:count : '').a:command, 'ntix')
+    catch /^Vim.*/
+        echohl ErrorMsg
+        echom matchstr(v:exception, 'Vim.\{-}:\zs.*')
+        echohl None
+    endtry
     if preserve
         let g:repeat_tick = b:changedtick
     endif
