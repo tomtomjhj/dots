@@ -286,7 +286,7 @@ function! STLTitle(...) abort
     elseif bt is# 'help'
         return fnamemodify(bname, ':t')
     elseif bt is# 'terminal'
-        return has('nvim') ? '!' . fnamemodify(matchstr(bname, 'term://.\{-}//\d\+:\zs.*'), ':t') : bname
+        return has('nvim') ? '!' . matchstr(bname, 'term://.\{-}//\d\+:\zs.*') : bname
     elseif bname =~# '^fugitive://'
         let [obj, gitdir] = FugitiveParse(bname)
         let matches = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
@@ -377,20 +377,29 @@ function! Colors() abort
         hi! link @module.builtin Constant
         hi! link @type.builtin Constant
         hi! link @type.definition Type
-        hi! link @type.qualifier StorageClass
+        hi! link @attribute Macro
+        hi! link @attribute.builtin Macro
+        hi! link @function.macro Macro
         hi! link @constructor Function
-        hi! link @keyword.storage.lifetime String
         hi! link @punctuation.special Special
+        hi @markup.strong        ctermfg=NONE ctermbg=NONE cterm=bold guifg=NONE guibg=NONE gui=bold
+        hi @markup.italic        ctermfg=NONE ctermbg=NONE cterm=italic guifg=NONE guibg=NONE gui=italic
+        hi @markup.strikethrough ctermfg=NONE ctermbg=NONE cterm=strikethrough guifg=NONE guibg=NONE gui=strikethrough
+        hi! link @markup.underline Underlined
+        hi! link @markup.heading Title
         hi! link @markup.quote NONE
         hi! link @markup.math String
+        hi! link @markup.link Underlined
         hi! link @markup.raw String
         hi! link @markup.raw.block NONE
-        hi! link @markup.list Stat
+        hi! link @markup.list Statement
         hi! link @tag Statement
         hi! link @tag.attribute NONE
     endif
     hi! link LspCodeLens NonText
     hi! link LspCodeLensSeparator NonText
+    hi! link diffAdded Added
+    hi! link diffRemoved Removed
     hi! link coqKwd Keyword
     hi! link coqProofDelim PreProc
     hi! link helpHyperTextJump Underlined
@@ -436,7 +445,7 @@ function! Colors() abort
     hi MatchParen guifg=NONE guibg=NONE gui=bold,underline ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NonText guifg=#808080 guibg=NONE gui=NONE cterm=NONE
+    hi NonText guifg=#808080 guibg=NONE gui=nocombine cterm=nocombine
     hi Pmenu guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuExtra guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuKind guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
@@ -539,7 +548,7 @@ function! Colors() abort
     hi MatchParen ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NonText ctermfg=3 ctermbg=NONE cterm=NONE
+    hi NonText ctermfg=3 ctermbg=NONE cterm=nocombine
     hi Pmenu ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuExtra ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuKind ctermfg=NONE ctermbg=NONE cterm=bold,reverse
@@ -587,7 +596,7 @@ function! Colors() abort
         hi ColorColumn ctermfg=NONE ctermbg=8 cterm=NONE
         hi FoldColumn ctermfg=8 ctermbg=NONE cterm=reverse
         hi LineNr ctermfg=8 ctermbg=NONE cterm=NONE
-        hi NonText ctermfg=8 ctermbg=NONE cterm=NONE
+        hi NonText ctermfg=8 ctermbg=NONE cterm=nocombine
         hi PmenuSel ctermfg=8 ctermbg=NONE cterm=bold,reverse,underline
         hi PmenuExtraSel ctermfg=8 ctermbg=NONE cterm=bold,reverse
         hi PmenuKindSel ctermfg=8 ctermbg=NONE cterm=bold,reverse
@@ -618,6 +627,8 @@ augroup END
 let c_no_comment_fold = 1
 let c_no_bracket_error = 1
 let c_no_curly_error = 1
+let c_functions = 1
+let c_function_pointers = 1
 function! s:c_cpp() abort
     " don't highlight the #define content
     syn clear cDefine
@@ -1013,6 +1024,7 @@ function! Grep(query, advanced) abort
     let opts = string(v:count)
     let options = (&grepprg =~# '^grep') ? Wildignore2exclude() : ''
     " NOTE: shellescape('!', 1) == '\!'. This is meant for :!. Need something that only escapes cmdline-special.
+    if a:query =~# '!' && !a:advanced | echo 'Use :Grep! if query contains "!"' | return | endif
     let query = a:advanced ? a:query : shellescape(a:query, 1)
     if opts =~ '3'
         let query .= ' ' . shellescape(s:git_root(empty(bufname('%')) ? getcwd() : bufname('%')), 1)
