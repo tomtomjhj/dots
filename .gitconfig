@@ -43,6 +43,7 @@
 [diff]
 	tool = vimdiff3
 	algorithm = histogram
+	indentHeuristic = true
 [credential]
 	helper = store
 [merge]

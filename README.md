@@ -395,9 +395,11 @@ Gave up and upgraded to 23.04.
   firenvim도 apparmor가 막음.
   ```
   sudo systemctl disable apparmor
-  reboot
+  sudo aa-teardown
   ```
-  apparmor같은 거 update 될때마다 해줘야 함
+  apparmor같은 거 update 될때마다 해줘야 함.
+  <https://help.ubuntu.com/community/AppArmor>.
+  TODO: proper fix
 * nautilus가 간혹 매우 느리게 뜸. 이 시점에는 여러번 실행해도 여러 창이 뜨지 않음.
   `journalctl -b0 -p3`
   ```
@@ -535,7 +537,8 @@ Gave up and upgraded to 23.04.
       ```
 
 ## Git
-* To force stash apply, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>
+* Merging working tree and stash: `git add`, then stash pop. <https://stackoverflow.com/a/16613814>.
+  Alternatively, `git checkout` instead of `git stash apply` <https://stackoverflow.com/a/16625128>.
 * `git pull --rebase --autostash`
 * https://github.com/mhagger/git-imerge
 * git reflog
@@ -565,5 +568,7 @@ Gave up and upgraded to 23.04.
 * `git push -u origin my_ref:remote_branch`
 * `git-rebase(1)` REBASING MERGES
 * <https://github.com/arxanas/git-branchless>
-* `rebase --update-refs` <https://adamj.eu/tech/2022/10/15/how-to-rebase-stacked-git-branches/>
+* `rebase --update-refs` <https://adamj.eu/tech/2022/10/15/how-to-rebase-stacked-git-branches/> 2.38
 * what's the best practice for spliting a commit?
+* `git blame --reverse` (`fugitive_<CR>` in blob with count) may not show the commit that deletes the line when the path includes merge commits.
+  <https://stackoverflow.com/a/42707940>
