@@ -59,7 +59,7 @@ set nojoinspaces
 set list listchars=tab:\|\ ,trail:-,nbsp:+,extends:>
 
 set wrap linebreak breakindent showbreak=↪\ 
-" if has('patch-9.0.2105') || has('nvim-0.10') | set smoothscroll | endif
+if has('patch-9.1.0413') || has('nvim-0.10') | set smoothscroll | endif
 let &backspace = (has('patch-8.2.0590') || has('nvim-0.5')) ? 'indent,eol,nostop' : 'indent,eol,start'
 set whichwrap+=<,>,[,],h,l
 set cpoptions-=_
@@ -1337,6 +1337,8 @@ nnoremap <silent> yY :<C-u>%yank+<CR>
 " buf/filename
 nnoremap <leader>fn 2<C-g>
 
+onoremap <LeftMouse> <Esc><LeftMouse>
+
 noremap <F1> <Esc>
 inoremap <F1> <Esc>
 nmap     <C-q> <Esc>
@@ -1408,6 +1410,11 @@ nnoremap <leader>cx :<C-u>tabclose<CR>
 nnoremap <leader>td :<C-u>tab split<CR>
 nnoremap <leader>tt :<C-u>tabedit<CR>
 nnoremap <leader>fe :<C-u>e!<CR>
+
+for s:cmd in ["]", "\<C-]>", "f", "F", "g\<C-]>", "g]"]
+    exe printf('nnoremap <silent> g<C-w>%s <Cmd>vert wincmd %s<CR>', s:cmd, s:cmd)
+endfor
+unlet! s:cmd
 
 inoreabbrev <expr> date strftime('%F')
 " }}}
@@ -1611,7 +1618,7 @@ augroup END
 
 " quickfix, loclist, ... {{{
 if has('patch-8.1.0311') || has('nvim-0.3.2')
-    packadd cfilter
+    packadd! cfilter
 endif
 
 nnoremap <silent><leader>co :<C-u>botright copen<CR>
