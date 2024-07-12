@@ -175,7 +175,7 @@ npm install
        custom-command="sh -c 'BACKGROUND=light bash'"
        font='Iosevka Custom 7.5'
        foreground-color='rgb(18,18,18)'
-       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(23,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(98,98,98)', 'rgb(158,158,158)', 'rgb(215,0,17)', 'rgb(48,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
+       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(23,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(58,58,58)', 'rgb(158,158,158)', 'rgb(215,0,17)', 'rgb(48,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
        scrollbar-policy='never'
        use-custom-command=true
        use-system-font=false
@@ -191,7 +191,7 @@ npm install
        custom-command='tmux'
        font='Iosevka Custom 7.5'
        foreground-color='rgb(238,238,238)'
-       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(34,191,0)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(204,204,204)', 'rgb(112,112,112)', 'rgb(255,34,102)', 'rgb(85,255,0)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
+       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(34,191,0)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(208,208,208)', 'rgb(112,112,112)', 'rgb(255,34,102)', 'rgb(85,255,0)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
        scrollbar-policy='never'
        use-custom-command=false
        use-system-font=false
@@ -244,6 +244,11 @@ curl -LSs https://github.com/pandoc/lua-filters/releases/latest/download/lua-fil
 mv lua-filters/filters .
 rm -rf lua-filters
 ```
+
+note
+* pandoc converts fenced code block without language to indented code block, which is ugly for code block under list.
+  No option to disable this. What's the difference from --markdown-headings, --reference-links?
+  https://github.com/jgm/pandoc/issues/2120
 
 ## wayland stuff
 * (fixed in 21.10) screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing

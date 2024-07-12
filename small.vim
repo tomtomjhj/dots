@@ -379,9 +379,10 @@ function! Colors() abort
         hi! link @type.definition Type
         hi! link @attribute Macro
         hi! link @attribute.builtin Macro
+        hi! link @function.builtin Function
         hi! link @function.macro Macro
         hi! link @constructor Function
-        hi! link @punctuation.special Special
+        hi! link @punctuation.special Macro
         hi @markup.strong        ctermfg=NONE ctermbg=NONE cterm=bold guifg=NONE guibg=NONE gui=bold
         hi @markup.italic        ctermfg=NONE ctermbg=NONE cterm=italic guifg=NONE guibg=NONE gui=italic
         hi @markup.strikethrough ctermfg=NONE ctermbg=NONE cterm=strikethrough guifg=NONE guibg=NONE gui=strikethrough

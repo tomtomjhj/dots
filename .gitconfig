@@ -44,6 +44,7 @@
 	tool = vimdiff3
 	algorithm = histogram
 	indentHeuristic = true
+	colorMoved = default
 [credential]
 	helper = store
 [merge]
@@ -76,6 +77,7 @@
 	hunk-header-decoration-style =
 	# navigate = true
 # use --features/DELTA_FEATURE to control dark/light
+# NOTE: delta 0.17 got terminal bg detection, but it doesn't seem to work well with tmux
 [delta "dark"]
 	light = false
 [delta "light"]

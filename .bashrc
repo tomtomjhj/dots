@@ -253,6 +253,7 @@ detect_bg() {
         printf "\033]11;?\007" >&2
     else
         # NOTE: requires allow-passthrough in tmux ≥ 3.3
+        # NOTE: passthrough not required in higher version
         printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
     fi
     local answer=
