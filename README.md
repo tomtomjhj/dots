@@ -96,7 +96,11 @@ sudo ubuntu-drivers install
 
 ## 한글
 
-### nimf
+kime: install as instructed
+
+<details>
+<summary>nimf</summary>
+
 ```bash
 sudo rm -f /etc/apt/sources.list.d/hamonikr.list
 curl -sL https://pkg.hamonikr.org/add-hamonikr.apt | sudo -E bash -
@@ -105,13 +109,11 @@ im-config -n nimf
 ```
 * libhangul → add ESC to "shortcuts from Korean to system keyboard" so that esc in vim resets to en
 * set "hooking GDK key events" https://github.com/hamonikr/nimf/issues/14#issuecomment-725849454
+</details>
 
 버그?
 * kitty, neovide 등에서 한/영 전환 안됨 → 이것들이 지원 안하는 것임
-* libreoffice writer에서 ctrl-f으로 한글 검색 시 뭔가 이상해짐
-
-### kime
-* Ran `im-config -n kime` on Wayland but doesn't work at all <https://github.com/Riey/kime/issues/559>?
+<!-- * libreoffice writer에서 ctrl-f으로 한글 검색 시 뭔가 이상해짐 -->
 
 ## capslock
 ```bash
@@ -329,7 +331,14 @@ snap firefox literally unusable (literally)
 * ignores system theme stuff (e.g. gnome accent color)
     * `snap install gtk-commons-themes`?
 
-install deb package
+install deb package from mozilla's apt repo
+<https://support.mozilla.org/en-US/kb/install-firefox-linux?#w_install-firefox-deb-package-for-debian-based-distributions>
+
+<details>
+<summary>
+install deb package from mozillateam ppa (works, but not not listed on the install method page)
+</summary>
+
 <https://ubuntuhandbook.org/index.php/2022/04/install-firefox-deb-ubuntu-22-04/>
 ```bash
 sudo snap remove --purge firefox
@@ -350,6 +359,7 @@ sudo tee /etc/apt/apt.conf.d/51unattended-upgrades-firefox << EOF
 Unattended-Upgrade::Allowed-Origins:: "LP-PPA-mozillateam:${distro_codename}";
 EOF
 ```
+</details>
 
 #### can't login to Wi-Fi with PEAP, MSCHAPv2
 Fixed on 2022-06-21.
@@ -577,3 +587,4 @@ Gave up and upgraded to 23.04.
 * what's the best practice for spliting a commit?
 * `git blame --reverse` (`fugitive_<CR>` in blob with count) may not show the commit that deletes the line when the path includes merge commits.
   <https://stackoverflow.com/a/42707940>
+* `git range-diff`

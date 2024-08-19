@@ -189,9 +189,6 @@ fi
 
 # my stuff -------------------------------------------
 
-HISTTIMEFORMAT="%F %T "
-HISTIGNORE="?:??:???:git ??"
-
 export PS1="\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 export PROMPT_DIRTRIM=3
 
@@ -201,10 +198,6 @@ export LESS='Ri'
 
 alias mk="make -j -k"
 alias nv=nvim
-cn() { nvim --cmd 'let g:ide_client = "coc"' "$@"; }
-vil() { nvim --cmd 'set background=light' "$@"; }
-alias vimdiff="nvim -d"
-alias e="emacs -nw"
 alias g=git
 alias gti=git
 alias py=python3

@@ -12,10 +12,8 @@
 	st = status
 	hs = log --all --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
 	hsp = log --all --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
-	hss = log --all --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
 	hsc = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b'
 	hscp = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' -p
-	hscs = log --graph --format=format:'%C(yellow)%h%C(reset) %C(green)%as%C(reset) %C(blue)%an%C(auto)%d\n%C(bold)%s%C(reset)\n%b' --stat
 	rl = reflog --format='%C(yellow)%h%C(reset) %gd%C(auto)%d %C(green)%cr%C(reset) %gs (%s)'
 	df = diff
 	dfc = diff --cached

@@ -2148,6 +2148,7 @@ imap <M-/> <C-G>u<Plug>CommentaryInsert
 
 " vinegar {{{
 " https://github.com/tpope/vim-vinegar/blob/bb1bcddf43cfebe05eb565a84ab069b357d0b3d6/plugin/vinegar.vim
+" + fix: seek after VinegarUp
 let s:vinegar_dotfiles = '\(^\|\s\s\)\zs\.\S\+'
 
 let s:vinegar_escape = 'substitute(escape(v:val, ".$~"), "*", ".*", "g")'
@@ -2183,8 +2184,9 @@ function! s:vinegar_opendir(cmd) abort
   elseif expand('%') =~# '^$\|^term:[\/][\/]'
     execute a:cmd '.'
   else
+    let fname = expand('%:t')
     execute a:cmd '%:h' . (expand('%:p') =~# '^\a\a\+:' ? s:vinegar_slash() : '')
-    call s:vinegar_seek(expand('#:t'))
+    call s:vinegar_seek(fname)
   endif
 endfunction
 
