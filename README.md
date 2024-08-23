@@ -98,6 +98,10 @@ sudo ubuntu-drivers install
 
 kime: install as instructed
 
+todo
+* Math mode doesn't start in gnome-terminal.
+  Need to check if kime is actually in effect in gnome-terminal.
+
 <details>
 <summary>nimf</summary>
 
@@ -334,32 +338,22 @@ snap firefox literally unusable (literally)
 install deb package from mozilla's apt repo
 <https://support.mozilla.org/en-US/kb/install-firefox-linux?#w_install-firefox-deb-package-for-debian-based-distributions>
 
-<details>
-<summary>
-install deb package from mozillateam ppa (works, but not not listed on the install method page)
-</summary>
-
-<https://ubuntuhandbook.org/index.php/2022/04/install-firefox-deb-ubuntu-22-04/>
+Block snap version
 ```bash
 sudo snap remove --purge firefox
-sudo add-apt-repository ppa:mozillateam/ppa
-sudo apt install -t 'o=LP-PPA-mozillateam' firefox
 
 sudo tee /etc/apt/preferences.d/firefox << 'EOF'
-Package: firefox*
-Pin: release o=LP-PPA-mozillateam
-Pin-Priority: 1001
+Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000
 
 Package: firefox*
 Pin: release o=Ubuntu*
 Pin-Priority: -1
 EOF
-
-sudo tee /etc/apt/apt.conf.d/51unattended-upgrades-firefox << EOF
-Unattended-Upgrade::Allowed-Origins:: "LP-PPA-mozillateam:${distro_codename}";
-EOF
 ```
-</details>
+
+See also <https://ubuntuhandbook.org/index.php/2022/04/install-firefox-deb-ubuntu-22-04/>
 
 #### can't login to Wi-Fi with PEAP, MSCHAPv2
 Fixed on 2022-06-21.
@@ -489,6 +483,9 @@ Gave up and upgraded to 23.04.
   see also <https://imagemagick.org/script/command-line-options.php>
 * how to rotate a page in pdf without losing bookmark, etc?
   pdfarranger loses them. can't fix with pdktk update_info
+* sync-ing directories
+    * https://stackoverflow.com/questions/3672480/cp-command-should-ignore-some-files
+    * https://unix.stackexchange.com/questions/203846/how-to-sync-two-folders-with-command-line-tools (trailing slash)
 
 
 ## firefox
@@ -588,3 +585,7 @@ Gave up and upgraded to 23.04.
 * `git blame --reverse` (`fugitive_<CR>` in blob with count) may not show the commit that deletes the line when the path includes merge commits.
   <https://stackoverflow.com/a/42707940>
 * `git range-diff`
+* Rebasing merge commit with conflict resolution and other additional changes (that modify the part of code that didn't produce conflict marker, but conceptually is a conflict).
+  `git rebase --rebase-merges origin/master` + rerere doesn't seem to carry over the additional changes.
+  See REBASING MERGES?
+  Had to merge the merge commit.
