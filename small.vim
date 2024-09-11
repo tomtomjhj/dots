@@ -408,8 +408,9 @@ function! Colors() abort
     hi! link markdownCode String
 
     " gui dark
+    let g:terminal_ansi_colors = ['#080808', '#d7005f', '#22bf00', '#d79600', '#0080dd', '#d777d7', '#00cccc', '#d0d0d0', '#777777', '#ff2266', '#55ff00', '#ffaf00', '#5fafff', '#ff87ff', '#00eeff', '#eeeeee']
     hi Normal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NormalFloat guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
+    hi NormalFloat guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Comment guifg=#d79600 guibg=NONE gui=NONE cterm=NONE
     hi Constant guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi String guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
@@ -427,7 +428,7 @@ function! Colors() abort
     hi Added guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
     hi Changed guifg=#00cccc guibg=NONE gui=NONE cterm=NONE
     hi Removed guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
-    hi ColorColumn guifg=NONE guibg=#808080 gui=NONE cterm=NONE
+    hi ColorColumn guifg=NONE guibg=#777777 gui=NONE cterm=NONE
     hi Conceal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Cursor guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi CursorColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -439,21 +440,23 @@ function! Colors() abort
     hi DiffText guifg=#d777d7 guibg=NONE gui=reverse cterm=reverse
     hi Directory guifg=#0080dd guibg=NONE gui=NONE cterm=NONE
     hi ErrorMsg guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi FoldColumn guifg=#808080 guibg=NONE gui=reverse cterm=reverse
+    hi FoldColumn guifg=#777777 guibg=NONE gui=reverse cterm=reverse
     hi Folded guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi IncSearch guifg=#d79600 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
-    hi LineNr guifg=#808080 guibg=NONE gui=NONE cterm=NONE
+    hi LineNr guifg=#777777 guibg=NONE gui=NONE cterm=NONE
     hi MatchParen guifg=NONE guibg=NONE gui=bold,underline ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NonText guifg=#808080 guibg=NONE gui=nocombine cterm=nocombine
-    hi Pmenu guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi PmenuExtra guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi PmenuKind guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi PmenuSbar guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi PmenuSel guifg=#808080 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
-    hi PmenuExtraSel guifg=#808080 guibg=NONE gui=bold,reverse cterm=bold,reverse
-    hi PmenuKindSel guifg=#808080 guibg=NONE gui=bold,reverse cterm=bold,reverse
+    hi NonText guifg=#777777 guibg=NONE gui=nocombine cterm=nocombine
+    hi Pmenu guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+    hi PmenuExtra guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+    hi PmenuKind guifg=NONE guibg=#777777 gui=bold cterm=bold
+    hi PmenuMatch guifg=NONE guibg=#777777 gui=bold cterm=bold
+    hi PmenuSbar guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+    hi PmenuSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    hi PmenuExtraSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    hi PmenuKindSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    hi PmenuMatchSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
     hi PmenuThumb guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Question guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi QuickFixLine guifg=#d777d7 guibg=NONE gui=reverse cterm=reverse
@@ -465,13 +468,13 @@ function! Colors() abort
     hi SpellLocal guifg=NONE guibg=NONE guisp=#d777d7 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi SpellRare guifg=NONE guibg=NONE guisp=#00cccc gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi StatusLine guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi StatusLineNC guifg=#808080 guibg=NONE gui=bold,reverse cterm=bold,reverse
-    hi TabLine guifg=NONE guibg=#808080 gui=bold cterm=bold
+    hi StatusLineNC guifg=#777777 guibg=NONE gui=bold,reverse cterm=bold,reverse
+    hi TabLine guifg=NONE guibg=#777777 gui=bold cterm=bold
     hi TabLineFill guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi TabLineSel guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi Title guifg=#d777d7 guibg=NONE gui=bold,underline cterm=bold,underline
     hi VertSplit guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Visual guifg=#808080 guibg=NONE gui=reverse cterm=reverse
+    hi Visual guifg=#777777 guibg=NONE gui=reverse cterm=reverse
     hi VisualNOS guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi WarningMsg guifg=NONE guibg=NONE gui=standout ctermfg=NONE ctermbg=NONE cterm=standout
     hi WildMenu guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
@@ -483,6 +486,7 @@ function! Colors() abort
 
     " gui light override
     if &background ==# 'light'
+        let g:terminal_ansi_colors = ['#eeeeee', '#af0011', '#177700', '#af7700', '#005faf', '#871087', '#009999', '#3a3a3a', '#999999', '#d70011', '#30af00', '#d79700', '#0087d7', '#af10af', '#00bfbf', '#121212']
         hi Comment guifg=#af7700 guibg=NONE gui=NONE cterm=NONE
         hi String guifg=#177700 guibg=NONE gui=NONE cterm=NONE
         hi Function guifg=#871087 guibg=NONE gui=NONE cterm=NONE
@@ -492,12 +496,21 @@ function! Colors() abort
         hi Added guifg=#177700 guibg=NONE gui=NONE cterm=NONE
         hi Changed guifg=#009999 guibg=NONE gui=NONE cterm=NONE
         hi Removed guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
+        hi ColorColumn guifg=NONE guibg=#999999 gui=NONE cterm=NONE
         hi DiffAdd guifg=#177700 guibg=NONE gui=reverse cterm=reverse
         hi DiffChange guifg=#005faf guibg=NONE gui=reverse cterm=reverse
         hi DiffDelete guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
         hi DiffText guifg=#871087 guibg=NONE gui=reverse cterm=reverse
         hi Directory guifg=#005faf guibg=NONE gui=NONE cterm=NONE
+        hi FoldColumn guifg=#999999 guibg=NONE gui=reverse cterm=reverse
         hi IncSearch guifg=#af7700 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+        hi LineNr guifg=#999999 guibg=NONE gui=NONE cterm=NONE
+        hi NonText guifg=#999999 guibg=NONE gui=nocombine cterm=nocombine
+        hi Pmenu guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+        hi PmenuExtra guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+        hi PmenuKind guifg=NONE guibg=#999999 gui=bold cterm=bold
+        hi PmenuMatch guifg=NONE guibg=#999999 gui=bold cterm=bold
+        hi PmenuSbar guifg=NONE guibg=#999999 gui=NONE cterm=NONE
         hi QuickFixLine guifg=#871087 guibg=NONE gui=reverse cterm=reverse
         hi Search guifg=#009999 guibg=NONE gui=bold,reverse cterm=bold,reverse
         hi CurSearch guifg=#871087 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
@@ -505,14 +518,24 @@ function! Colors() abort
         hi SpellCap guifg=NONE guibg=NONE guisp=#005faf gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellLocal guifg=NONE guibg=NONE guisp=#871087 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi SpellRare guifg=NONE guibg=NONE guisp=#009999 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi StatusLineNC guifg=#999999 guibg=NONE gui=bold,reverse cterm=bold,reverse
+        hi TabLine guifg=NONE guibg=#999999 gui=bold cterm=bold
         hi Title guifg=#871087 guibg=NONE gui=bold,underline cterm=bold,underline
+        hi Visual guifg=#999999 guibg=NONE gui=reverse cterm=reverse
         hi diffAdded guifg=#177700 guibg=NONE gui=NONE cterm=NONE
         hi diffRemoved guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
     endif
 
+    if has('nvim')
+        for i in range(len(g:terminal_ansi_colors))
+          let g:terminal_color_{i} = g:terminal_ansi_colors[i]
+        endfor
+        unlet g:terminal_ansi_colors
+    endif
+
     " 8
     hi Normal ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NormalFloat ctermfg=NONE ctermbg=NONE cterm=reverse
+    hi NormalFloat ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Comment ctermfg=NONE ctermbg=NONE cterm=bold
     hi Constant ctermfg=NONE ctermbg=NONE cterm=NONE
     hi String ctermfg=2 ctermbg=NONE cterm=NONE
@@ -542,10 +565,10 @@ function! Colors() abort
     hi DiffText ctermfg=5 ctermbg=NONE cterm=reverse
     hi Directory ctermfg=4 ctermbg=NONE cterm=NONE
     hi ErrorMsg ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi FoldColumn ctermfg=NONE ctermbg=NONE cterm=reverse
+    hi FoldColumn ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Folded ctermfg=NONE ctermbg=NONE cterm=NONE
     hi IncSearch ctermfg=3 ctermbg=NONE cterm=bold,reverse,underline
-    hi LineNr ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi LineNr ctermfg=3 ctermbg=NONE cterm=NONE
     hi MatchParen ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -553,10 +576,12 @@ function! Colors() abort
     hi Pmenu ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuExtra ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuKind ctermfg=NONE ctermbg=NONE cterm=bold,reverse
+    hi PmenuMatch ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi PmenuSbar ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi PmenuSel ctermfg=NONE ctermbg=NONE cterm=bold,underline
-    hi PmenuExtraSel ctermfg=NONE ctermbg=NONE cterm=bold
-    hi PmenuKindSel ctermfg=NONE ctermbg=NONE cterm=bold
+    hi PmenuSel ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    hi PmenuExtraSel ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    hi PmenuKindSel ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    hi PmenuMatchSel ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
     hi PmenuThumb ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Question ctermfg=NONE ctermbg=NONE cterm=bold
     hi QuickFixLine ctermfg=5 ctermbg=NONE cterm=reverse
@@ -598,9 +623,11 @@ function! Colors() abort
         hi FoldColumn ctermfg=8 ctermbg=NONE cterm=reverse
         hi LineNr ctermfg=8 ctermbg=NONE cterm=NONE
         hi NonText ctermfg=8 ctermbg=NONE cterm=nocombine
-        hi PmenuSel ctermfg=8 ctermbg=NONE cterm=bold,reverse,underline
-        hi PmenuExtraSel ctermfg=8 ctermbg=NONE cterm=bold,reverse
-        hi PmenuKindSel ctermfg=8 ctermbg=NONE cterm=bold,reverse
+        hi Pmenu ctermfg=NONE ctermbg=8 cterm=NONE
+        hi PmenuExtra ctermfg=NONE ctermbg=8 cterm=NONE
+        hi PmenuKind ctermfg=NONE ctermbg=8 cterm=bold
+        hi PmenuMatch ctermfg=NONE ctermbg=8 cterm=bold
+        hi PmenuSbar ctermfg=NONE ctermbg=8 cterm=NONE
         hi StatusLineNC ctermfg=8 ctermbg=NONE cterm=bold,reverse
         hi TabLine ctermfg=NONE ctermbg=8 cterm=bold
         hi Visual ctermfg=8 ctermbg=NONE cterm=reverse
