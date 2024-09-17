@@ -40,7 +40,7 @@ command! -nargs=1 Map      exe 'nmap' <q-args>     | exe 'xmap' <q-args>
 if has('vim_starting')
 set encoding=utf-8
 
-set mouse=nvi
+set mouse=nvir
 set number
 set ruler showcmd
 set foldcolumn=1 foldnestmax=9 foldlevel=99
@@ -81,6 +81,7 @@ Noremap <Space><Space> <C-d>
 noremap! <C-Space> <C-k>
 
 set wildmenu wildmode=longest:full,full
+if !has('nvim') && has('patch-8.2.4325') | set wildoptions=pum,tagfile | endif
 " expand() expands wildcard with shell, and then filters with wildignore converted with glob2regpat().
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo', '*.vo[sk]', '*.glob', '*.aux']
 let s:wildignore_dirs = ['.git', '__pycache__', 'target'] " '*/dir/*' is too excessive.
@@ -116,6 +117,7 @@ if !isdirectory(&undodir) | call mkdir(&undodir, 'p') | endif
 set autoread
 set splitright splitbelow
 if (has('patch-8.1.2315') || has('nvim-0.5')) | set switchbuf+=uselast | endif
+if (has('patch-9.1.0572') || has('nvim-0.11')) | set tabclose+=uselast | endif
 if has('nvim-0.8') | set jumpoptions+=view | endif
 set hidden
 set lazyredraw
@@ -1155,6 +1157,7 @@ function! PSWordMotion(motion, cnt, pre, post) abort
     if !empty(a:post) | exe 'normal!' a:post | endif
 endfunction
 
+Mnoremap <expr> 0 index([col('.') - 1, -1], match(getline('.'), '\S')) >= 0 ? '0' : '^'
 Mnoremap <M-0> ^w
 
 " sneak {{{
@@ -1259,7 +1262,7 @@ function! ScanRubout(cmap, scanner) abort
         return "\<C-w>"
     elseif a:cmap
         return repeat("\<BS>", from - to)
-    elseif line[to] =~# '[^(){}[\]<>''"`$]'
+    elseif line[to] =~# '[^(){}[\]<>''"`$|]'
         return BSWithoutSTS(from - to)
     else
         return BSWithoutSTS(from - (to + 1)) . "\<C-R>=MuPairsBS()\<CR>"
@@ -1274,7 +1277,7 @@ function! PrevBoundary(pat, line, from) abort
         let to = SkipPatBackward(a:line, to, '\s')
     elseif c =~# a:pat " to the left end of the current token/subword
         let to = SkipPatBackward(a:line, to, a:pat)
-    elseif c =~# '[^(){}[\]<>''"`$]'
+    elseif c =~# '[^(){}[\]<>''"`$|]'
         let to = SkipCharBackward(a:line, to, c)
     endif
     return to
@@ -1291,7 +1294,7 @@ function! NextTokenBoundary(line, from) abort
         let to = SkipPatForward(a:line, to, '\s')
     elseif c =~# '\k' " to the right end of the current token
         let to = SkipPatForward(a:line, to, '\k')
-    elseif c =~# '[^(){}[\]<>''"`$]'
+    elseif c =~# '[^(){}[\]<>''"`$|]'
         let to = SkipCharForward(a:line, to, c)
     endif
     return to
@@ -1305,7 +1308,7 @@ function! PrevTokenLeftBoundary(line, from) abort
     let c = a:line[to]
     if c =~# '\k' " to the left end of the word
         let to = SkipPatBackward(a:line, to, '\k')
-    elseif c =~# '[^(){}[\]<>''"`$]'
+    elseif c =~# '[^(){}[\]<>''"`$|]'
         let to = SkipCharBackward(a:line, to, c)
     endif
     return to
@@ -1609,7 +1612,7 @@ else
     " NOTE: If 'hidden' is set and arg is provided, job finished + window closed doesn't wipe the buffer, in contrary to the doc:
     " > When the job has finished and no changes were made to the buffer: closing the
     " > window will wipe out the buffer.
-    command! -nargs=? -complete=shellcmd T exe <q-mods> "terminal" <q-args>
+    command! -nargs=? -complete=shellcmd T exe <q-mods> "terminal ++shell" <q-args>
 endif
 
 augroup terminal-custom | au!
@@ -1808,7 +1811,7 @@ let g:netrw_dirhistmax = 0
 nnoremap <silent><leader>- :<C-u>call <SID>explore_bufdir('Explore')<CR>
 " NOTE: Hexplore use `wincmd s`, which will copy setlocal-ed window-local options
 nnoremap <silent><C-w>es   :<C-u>call <SID>explore_bufdir('Hexplore')<CR>
-nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore!')<CR>
+nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore')<CR>
 nnoremap <silent><C-w>et   :<C-u>call <SID>explore_bufdir('Texplore')<CR>
 nnoremap <leader>cd :<C-u>cd <Plug>BufDir/
 nnoremap <leader>e  :<C-u>e! <Plug>BufDir/
@@ -1821,6 +1824,7 @@ function! s:explore_bufdir(cmd) abort
     let name = expand('%:t')
     " <q-args>, -bar, -complete=dir
     exe a:cmd escape(BufDir(), '|#%')
+    if &diff | diffoff | endif " netrw split inherits diff
     call s:vinegar_seek(name)
 endfunction
 
