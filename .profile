@@ -8,6 +8,9 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+# NOTE: Logout/login in ubuntu desktop does not clear the session and the env vars are inheritted to the later sessions.
+# https://www.reddit.com/r/debian/comments/z1b0ti/gdm_andor_systemd_persists_the_user_environment/
+
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"

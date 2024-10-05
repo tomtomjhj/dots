@@ -175,15 +175,17 @@ npm install
     3. put this
        ```ini
        [:UUID-CREATED-IN-1]
+       audible-bell=false
        background-color='rgb(244,244,244)'
        background-transparency-percent=46
        cursor-blink-mode='off'
-       custom-command="sh -c 'BACKGROUND=light bash'"
+       default-size-columns=100
+       default-size-rows=30
+       exit-action='close'
        font='Iosevka Custom 7.5'
        foreground-color='rgb(18,18,18)'
-       palette=['rgb(255,255,255)', 'rgb(175,0,17)', 'rgb(23,119,0)', 'rgb(175,119,0)', 'rgb(0,95,175)', 'rgb(135,16,135)', 'rgb(0,153,153)', 'rgb(58,58,58)', 'rgb(158,158,158)', 'rgb(215,0,17)', 'rgb(48,175,0)', 'rgb(215,151,0)', 'rgb(0,135,215)', 'rgb(175,16,175)', 'rgb(0,191,191)', 'rgb(0,0,0)']
+       palette=['rgb(255,255,255)', 'rgb(165,9,45)', 'rgb(55,110,0)', 'rgb(148,100,1)', 'rgb(13,83,189)', 'rgb(138,41,158)', 'rgb(4,126,131)', 'rgb(58,58,58)', 'rgb(158,158,158)', 'rgb(230,40,72)', 'rgb(81,156,3)', 'rgb(201,138,14)', 'rgb(42,123,255)', 'rgb(191,70,217)', 'rgb(5,173,180)', 'rgb(0,0,0)']
        scrollbar-policy='never'
-       use-custom-command=true
        use-system-font=false
        use-theme-colors=false
        use-theme-transparency=false
@@ -191,19 +193,22 @@ npm install
        visible-name='quite-light'
 
        [:UUID-CREATED-IN-1]
+       audible-bell=false
        background-color='rgb(8,8,8)'
        background-transparency-percent=10
        cursor-blink-mode='off'
-       custom-command='tmux'
+       cursor-shape='block'
+       default-size-columns=100
+       default-size-rows=30
        font='Iosevka Custom 7.5'
        foreground-color='rgb(238,238,238)'
-       palette=['rgb(0,0,0)', 'rgb(215,0,95)', 'rgb(34,191,0)', 'rgb(215,150,0)', 'rgb(0,128,221)', 'rgb(215,119,215)', 'rgb(0,204,204)', 'rgb(208,208,208)', 'rgb(112,112,112)', 'rgb(255,34,102)', 'rgb(85,255,0)', 'rgb(255,175,0)', 'rgb(95,175,255)', 'rgb(255,135,255)', 'rgb(0,238,255)', 'rgb(255,255,255)']
+       palette=['rgb(0,0,0)', 'rgb(255,81,99)', 'rgb(104,198,1)', 'rgb(234,161,4)', 'rgb(86,150,255)', 'rgb(229,115,255)', 'rgb(10,204,213)', 'rgb(208,208,208)', 'rgb(112,112,112)', 'rgb(255,125,131)', 'rgb(116,220,3)', 'rgb(254,180,49)', 'rgb(120,171,255)', 'rgb(236,152,255)', 'rgb(1,226,235)', 'rgb(255,255,255)']
        scrollbar-policy='never'
        use-custom-command=false
        use-system-font=false
        use-theme-colors=false
        use-theme-transparency=false
-       use-transparent-background=true
+       use-transparent-background=false
        visible-name='quite-dark'
        ```
     4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
@@ -255,6 +260,14 @@ note
 * pandoc converts fenced code block without language to indented code block, which is ugly for code block under list.
   No option to disable this. What's the difference from --markdown-headings, --reference-links?
   https://github.com/jgm/pandoc/issues/2120
+  https://stackoverflow.com/questions/66945893/use-fenced-code-blocks-in-pandoc-markdown-output
+  ```lua
+  -- pandoc .. -L filter.lua
+  function CodeBlock (cb)
+    if cb.classes[1] or cb.attributes[1] then return nil end
+    return pandoc.RawBlock('markdown', ('```\n%s\n```\n'):format(cb.text))
+  end
+  ```
 
 ## wayland stuff
 * (fixed in 21.10) screen share https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
@@ -409,6 +422,8 @@ Gave up and upgraded to 23.04.
   apparmor같은 거 update 될때마다 해줘야 함.
   <https://help.ubuntu.com/community/AppArmor>.
   TODO: proper fix
+    * web spotify도 안됨.
+      <https://askubuntu.com/questions/1418203/netflix-on-firefox-the-widevinecdm-plugin-has-crashed>
 * nautilus가 간혹 매우 느리게 뜸. 이 시점에는 여러번 실행해도 여러 창이 뜨지 않음.
   `journalctl -b0 -p3`
   ```
@@ -589,3 +604,4 @@ Gave up and upgraded to 23.04.
   `git rebase --rebase-merges origin/master` + rerere doesn't seem to carry over the additional changes.
   See REBASING MERGES?
   Had to merge the merge commit.
+* `git fetch --depth 1 origin tag v1.1`
