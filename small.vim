@@ -410,41 +410,41 @@ function! Colors() abort
     hi! link markdownCode String
 
     " gui dark
-    let g:terminal_ansi_colors = ['#080808', '#d7005f', '#22bf00', '#d79600', '#0080dd', '#d777d7', '#00cccc', '#d0d0d0', '#777777', '#ff2266', '#55ff00', '#ffaf00', '#5fafff', '#ff87ff', '#00eeff', '#eeeeee']
-    hi Normal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NormalFloat guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Comment guifg=#d79600 guibg=NONE gui=NONE cterm=NONE
+    let g:terminal_ansi_colors = ['#080808', '#ff5163', '#68c601', '#eaa104', '#5696ff', '#e573ff', '#0accd5', '#d0d0d0', '#777777', '#ff7477', '#78db2f', '#ffb32f', '#67abff', '#ff83ff', '#38e1e2', '#eeeeee']
+    hi Normal guifg=#eeeeee guibg=#080808 gui=NONE cterm=NONE
+    hi NormalFloat guifg=NONE guibg=#333333 gui=NONE cterm=NONE
+    hi Comment guifg=#eaa104 guibg=NONE gui=NONE cterm=NONE
     hi Constant guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi String guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
+    hi String guifg=#68c601 guibg=NONE gui=NONE cterm=NONE
     hi Identifier guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Function guifg=#d777d7 guibg=NONE gui=NONE cterm=NONE
-    hi Statement guifg=#0080dd guibg=NONE gui=NONE cterm=NONE
-    hi PreProc guifg=#00cccc guibg=NONE gui=NONE cterm=NONE
+    hi Function guifg=#e573ff guibg=NONE gui=NONE cterm=NONE
+    hi Statement guifg=#5696ff guibg=NONE gui=NONE cterm=NONE
+    hi PreProc guifg=#0accd5 guibg=NONE gui=NONE cterm=NONE
     hi Type guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Special guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi Delimiter guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Underlined guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
     hi Ignore guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Error guifg=#d7005f guibg=NONE gui=bold,reverse cterm=bold,reverse
+    hi Error guifg=#ff5163 guibg=NONE gui=bold,reverse cterm=bold,reverse
     hi Todo guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi Added guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
-    hi Changed guifg=#00cccc guibg=NONE gui=NONE cterm=NONE
-    hi Removed guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
+    hi Added guifg=#68c601 guibg=NONE gui=NONE cterm=NONE
+    hi Changed guifg=#0accd5 guibg=NONE gui=NONE cterm=NONE
+    hi Removed guifg=#ff5163 guibg=NONE gui=NONE cterm=NONE
     hi ColorColumn guifg=NONE guibg=#777777 gui=NONE cterm=NONE
     hi Conceal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Cursor guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi CursorColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi CursorLine guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
     hi CursorLineNr guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi DiffAdd guifg=#22bf00 guibg=NONE gui=reverse cterm=reverse
-    hi DiffChange guifg=#0080dd guibg=NONE gui=reverse cterm=reverse
-    hi DiffDelete guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
-    hi DiffText guifg=#d777d7 guibg=NONE gui=reverse cterm=reverse
-    hi Directory guifg=#0080dd guibg=NONE gui=NONE cterm=NONE
+    hi DiffAdd guifg=#68c601 guibg=NONE gui=reverse cterm=reverse
+    hi DiffChange guifg=#5696ff guibg=NONE gui=reverse cterm=reverse
+    hi DiffDelete guifg=#ff5163 guibg=NONE gui=NONE cterm=NONE
+    hi DiffText guifg=#e573ff guibg=NONE gui=reverse cterm=reverse
+    hi Directory guifg=#5696ff guibg=NONE gui=NONE cterm=NONE
     hi ErrorMsg guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi FoldColumn guifg=#777777 guibg=NONE gui=reverse cterm=reverse
     hi Folded guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi IncSearch guifg=#d79600 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+    hi IncSearch guifg=#eaa104 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
     hi LineNr guifg=#777777 guibg=NONE gui=NONE cterm=NONE
     hi MatchParen guifg=NONE guibg=NONE gui=bold,underline ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
@@ -461,20 +461,20 @@ function! Colors() abort
     hi PmenuMatchSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
     hi PmenuThumb guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Question guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi QuickFixLine guifg=#d777d7 guibg=NONE gui=reverse cterm=reverse
-    hi Search guifg=#00cccc guibg=NONE gui=bold,reverse cterm=bold,reverse
-    hi CurSearch guifg=#d777d7 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+    hi QuickFixLine guifg=#e573ff guibg=NONE gui=reverse cterm=reverse
+    hi Search guifg=#0accd5 guibg=NONE gui=bold,reverse cterm=bold,reverse
+    hi CurSearch guifg=#e573ff guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
     hi SignColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi SpellBad guifg=NONE guibg=NONE guisp=#d7005f gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-    hi SpellCap guifg=NONE guibg=NONE guisp=#0080dd gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-    hi SpellLocal guifg=NONE guibg=NONE guisp=#d777d7 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-    hi SpellRare guifg=NONE guibg=NONE guisp=#00cccc gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellBad guifg=NONE guibg=NONE guisp=#ff5163 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellCap guifg=NONE guibg=NONE guisp=#5696ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellLocal guifg=NONE guibg=NONE guisp=#e573ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellRare guifg=NONE guibg=NONE guisp=#0accd5 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi StatusLine guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi StatusLineNC guifg=#777777 guibg=NONE gui=bold,reverse cterm=bold,reverse
     hi TabLine guifg=NONE guibg=#777777 gui=bold cterm=bold
     hi TabLineFill guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi TabLineSel guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi Title guifg=#d777d7 guibg=NONE gui=bold,underline cterm=bold,underline
+    hi Title guifg=#e573ff guibg=NONE gui=bold,underline cterm=bold,underline
     hi VertSplit guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Visual guifg=#777777 guibg=NONE gui=reverse cterm=reverse
     hi VisualNOS guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -483,29 +483,31 @@ function! Colors() abort
     hi CursorIM guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi diffAdded guifg=#22bf00 guibg=NONE gui=NONE cterm=NONE
-    hi diffRemoved guifg=#d7005f guibg=NONE gui=NONE cterm=NONE
+    hi diffAdded guifg=#68c601 guibg=NONE gui=NONE cterm=NONE
+    hi diffRemoved guifg=#ff5163 guibg=NONE gui=NONE cterm=NONE
 
     " gui light override
     if &background ==# 'light'
-        let g:terminal_ansi_colors = ['#eeeeee', '#af0011', '#177700', '#af7700', '#005faf', '#871087', '#009999', '#3a3a3a', '#999999', '#d70011', '#30af00', '#d79700', '#0087d7', '#af10af', '#00bfbf', '#121212']
-        hi Comment guifg=#af7700 guibg=NONE gui=NONE cterm=NONE
-        hi String guifg=#177700 guibg=NONE gui=NONE cterm=NONE
-        hi Function guifg=#871087 guibg=NONE gui=NONE cterm=NONE
-        hi Statement guifg=#005faf guibg=NONE gui=NONE cterm=NONE
-        hi PreProc guifg=#009999 guibg=NONE gui=NONE cterm=NONE
-        hi Error guifg=#af0011 guibg=NONE gui=bold,reverse cterm=bold,reverse
-        hi Added guifg=#177700 guibg=NONE gui=NONE cterm=NONE
-        hi Changed guifg=#009999 guibg=NONE gui=NONE cterm=NONE
-        hi Removed guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
+        let g:terminal_ansi_colors = ['#eeeeee', '#a5092d', '#376e00', '#946401', '#0d53bd', '#8a299e', '#047e83', '#3a3a3a', '#999999', '#e62848', '#519c03', '#c98a0e', '#2a7bff', '#bf46d9', '#05adb4', '#121212']
+        hi Normal guifg=#121212 guibg=#eeeeee gui=NONE cterm=NONE
+        hi NormalFloat guifg=NONE guibg=#c6c6c6 gui=NONE cterm=NONE
+        hi Comment guifg=#946401 guibg=NONE gui=NONE cterm=NONE
+        hi String guifg=#376e00 guibg=NONE gui=NONE cterm=NONE
+        hi Function guifg=#8a299e guibg=NONE gui=NONE cterm=NONE
+        hi Statement guifg=#0d53bd guibg=NONE gui=NONE cterm=NONE
+        hi PreProc guifg=#047e83 guibg=NONE gui=NONE cterm=NONE
+        hi Error guifg=#a5092d guibg=NONE gui=bold,reverse cterm=bold,reverse
+        hi Added guifg=#376e00 guibg=NONE gui=NONE cterm=NONE
+        hi Changed guifg=#047e83 guibg=NONE gui=NONE cterm=NONE
+        hi Removed guifg=#a5092d guibg=NONE gui=NONE cterm=NONE
         hi ColorColumn guifg=NONE guibg=#999999 gui=NONE cterm=NONE
-        hi DiffAdd guifg=#177700 guibg=NONE gui=reverse cterm=reverse
-        hi DiffChange guifg=#005faf guibg=NONE gui=reverse cterm=reverse
-        hi DiffDelete guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
-        hi DiffText guifg=#871087 guibg=NONE gui=reverse cterm=reverse
-        hi Directory guifg=#005faf guibg=NONE gui=NONE cterm=NONE
+        hi DiffAdd guifg=#376e00 guibg=NONE gui=reverse cterm=reverse
+        hi DiffChange guifg=#0d53bd guibg=NONE gui=reverse cterm=reverse
+        hi DiffDelete guifg=#a5092d guibg=NONE gui=NONE cterm=NONE
+        hi DiffText guifg=#8a299e guibg=NONE gui=reverse cterm=reverse
+        hi Directory guifg=#0d53bd guibg=NONE gui=NONE cterm=NONE
         hi FoldColumn guifg=#999999 guibg=NONE gui=reverse cterm=reverse
-        hi IncSearch guifg=#af7700 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+        hi IncSearch guifg=#946401 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
         hi LineNr guifg=#999999 guibg=NONE gui=NONE cterm=NONE
         hi NonText guifg=#999999 guibg=NONE gui=nocombine cterm=nocombine
         hi Pmenu guifg=NONE guibg=#999999 gui=NONE cterm=NONE
@@ -513,19 +515,19 @@ function! Colors() abort
         hi PmenuKind guifg=NONE guibg=#999999 gui=bold cterm=bold
         hi PmenuMatch guifg=NONE guibg=#999999 gui=bold cterm=bold
         hi PmenuSbar guifg=NONE guibg=#999999 gui=NONE cterm=NONE
-        hi QuickFixLine guifg=#871087 guibg=NONE gui=reverse cterm=reverse
-        hi Search guifg=#009999 guibg=NONE gui=bold,reverse cterm=bold,reverse
-        hi CurSearch guifg=#871087 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
-        hi SpellBad guifg=NONE guibg=NONE guisp=#af0011 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi SpellCap guifg=NONE guibg=NONE guisp=#005faf gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi SpellLocal guifg=NONE guibg=NONE guisp=#871087 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi SpellRare guifg=NONE guibg=NONE guisp=#009999 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi QuickFixLine guifg=#8a299e guibg=NONE gui=reverse cterm=reverse
+        hi Search guifg=#047e83 guibg=NONE gui=bold,reverse cterm=bold,reverse
+        hi CurSearch guifg=#8a299e guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+        hi SpellBad guifg=NONE guibg=NONE guisp=#a5092d gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellCap guifg=NONE guibg=NONE guisp=#0d53bd gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellLocal guifg=NONE guibg=NONE guisp=#8a299e gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellRare guifg=NONE guibg=NONE guisp=#047e83 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi StatusLineNC guifg=#999999 guibg=NONE gui=bold,reverse cterm=bold,reverse
         hi TabLine guifg=NONE guibg=#999999 gui=bold cterm=bold
-        hi Title guifg=#871087 guibg=NONE gui=bold,underline cterm=bold,underline
+        hi Title guifg=#8a299e guibg=NONE gui=bold,underline cterm=bold,underline
         hi Visual guifg=#999999 guibg=NONE gui=reverse cterm=reverse
-        hi diffAdded guifg=#177700 guibg=NONE gui=NONE cterm=NONE
-        hi diffRemoved guifg=#af0011 guibg=NONE gui=NONE cterm=NONE
+        hi diffAdded guifg=#376e00 guibg=NONE gui=NONE cterm=NONE
+        hi diffRemoved guifg=#a5092d guibg=NONE gui=NONE cterm=NONE
     endif
 
     if has('nvim')
@@ -1466,100 +1468,77 @@ inoremap <expr> <BS> MuPairsBS()
 inoremap <expr> " MuPairsDumb('"')
 inoremap <expr> ' MuPairsDumb("'")
 inoremap <expr> ` MuPairsDumb('`')
+inoremap <C-g>(    (
+inoremap <C-g>)    )
+inoremap <C-g>[    [
+inoremap <C-g>]    ]
+inoremap <C-g>{    {
+inoremap <C-g>}    }
+inoremap <C-g><BS> <BS>
+inoremap <C-g>"    "
+inoremap <C-g>'    '
+inoremap <C-g>`    `
 
-" NOTE: If the cursor is on the start of the line which is also start of a
-" syntax region R (comment or string), the region type is detected as R, while
-" the actual region type of the to-be-inserted opener might not be R. So the
-" opener may match a closer in a different region, which prevents inserting a
-" closer. This is not really an issue because the closer can't be inserted
-" anyway since the start of R is usually delimited by non-keyword char, which
-" prevents inserting the closer.
 function! MuPairsOpen(open, close) abort
-    if MuPairsBalance(a:open, a:close, MuPairsRegionType(line('.'), s:esccol())) > 0
-        return a:open
-    elseif s:curchar() =~# '\k'
+    if s:prevcurchars()[1] =~# '\k'
         return a:open
     endif
     return a:open . a:close . "\<C-g>U\<Left>"
 endfunction
 function! MuPairsClose(open, close) abort
-    if s:curchar() !=# a:close
-        return a:close
-    elseif MuPairsBalance(a:open, a:close, MuPairsRegionType(line('.'), s:esccol())) >= 0
+    if s:prevcurchars()[1] ==# a:close
         return "\<C-g>U\<Right>"
     endif
     return a:close
 endfunction
 function! MuPairsBS() abort
-    let cur = s:curchar()
-    if empty(cur) | return "\<BS>" | endif
-    let prev = s:prevchar()
-    if empty(prev) | return "\<BS>" | endif
-    if prev . cur =~# '\%(""\|''''\|``\)'
+    let [prev, cur] = s:prevcurchars()
+    if empty(prev) || empty(cur) | return "\<BS>" | endif
+    let prevcur = prev . cur
+    if index(['()', '[]', '{}', '""', "''", '``', '<>', '$$'], prevcur) >= 0
         return "\<Del>\<BS>"
-    elseif prev . cur !~# '\V\%(()\|[]\|{}\)'
-        return "\<BS>"
-    elseif MuPairsBalance(prev, cur, MuPairsRegionType(line('.'), s:esccol())) < 0
-        return "\<BS>"
     endif
-    return "\<Del>\<BS>"
+    return "\<BS>"
 endfunction
 function! MuPairsCR() abort
-    let cur = s:curchar()
-    if empty(cur) | return "\<CR>" | endif
-    let prev = s:prevchar()
-    if empty(prev) | return "\<CR>" | endif
-    if prev . cur !~# '\V\%(()\|[]\|{}\)'
-        return "\<CR>"
+    let [prev, cur] = s:prevcurchars()
+    if empty(prev) || empty(cur) | return "\<CR>" | endif
+    if index(['()', '[]', '{}', '<>'], prev . cur) >= 0
+        return "\<CR>\<C-c>O" " NOTE: using i_CTRL-C
     endif
-    return "\<CR>\<C-c>O"
+    return "\<CR>"
 endfunction
-function! MuPairsBalance(open, close, rtype) abort
-    let openpat = '\V' . a:open
-    let closepat = '\V' . a:close
-    let skip = 'MuPairsRegionType(line("."), col(".")) !=# ' . '"'.a:rtype.'"'
-    return searchpair(openpat, '', closepat, 'cnrm', skip, 0, 16)
-       \ - searchpair(openpat, '', closepat, 'bnrm', skip, 0, 16)
+" NOTE: For html-like languages, use MuPairsOpen
+function! MuPairsAngleOpen() abort
+    let [prev, cur] = s:prevcurchars()
+    if prev =~# '[[:space:]=<]' || cur =~# '\k'
+        return '<'
+    endif
+    return "<>\<C-g>U\<Left>"
+endfunction
+function! MuPairsAngleClose() abort
+    let [prev, cur] = s:prevcurchars()
+    if cur !=# '>' || prev =~# '\s'
+        return '>'
+    endif
+    return "\<C-g>U\<Right>"
 endfunction
 function! MuPairsDumb(char) abort
-    let cur = s:curchar()
+    let [prev, cur] = s:prevcurchars()
     if cur ==# a:char
         return "\<C-g>U\<Right>"
-    elseif cur =~# '\k' || s:prevchar() =~# '\%(\k\|'.a:char.'\)'
+    elseif cur =~# '\k\|[[({]' " might be opening
+        return a:char
+    elseif prev =~# '\S\&[^({[]' " might be closing or 's
         return a:char
     endif
     return a:char . a:char . "\<C-g>U\<Left>"
 endfunction
-" The coloumn at which the cursor will be placed when exiting insert mode
-" using <Esc> or <C-o>. Wrong for multibyte, but ok because synID works
-" correctly for any byte index.
-function! s:esccol() abort
-    return max([col('.') - 1, 1])
-endfunction
-" Can be fooled by groups contained in comment/string like vimTodo, escape,
-" ..., but synstack is too slow.
-function! MuPairsRegionType(l, c) abort
-    let name = synIDattr(synID(a:l, a:c, 0), 'name')
-    if name =~? 'comment' | return 'c' | endif
-    if name =~? 'string' | return 's' | endif
-    return 'n'
-endfunction
-if exists('*charcol') " 8.2.2324
-    function! s:prevchar() abort
-        let c = charcol('.')
-        if c == 1 | return '' | endif
-        let l = getline('.')
-        return matchstr(l, '.', byteidx(l, c - 1 - 1))
-    endfunction
-else
-    " NOTE: Returns empty string if prev char is multibyte. This actually
-    " isn't that problematic for mupairs since parens are usually 1 byte.
-    function! s:prevchar() abort
-        return matchstr(getline('.'), '\%' . (col('.') - 1) . 'c.')
-    endfunction
-endif
-function! s:curchar() abort
-    return matchstr(getline('.'), '\%' . col('.') . 'c.')
+function! s:prevcurchars() abort
+    let c = s:charcol() - 1
+    if c == 0 | return ['', strcharpart(getline('.'), 0, 1)] | endif
+    let prevcur = strcharpart(getline('.'), c - 1, 2)
+    return [strcharpart(prevcur, 0, 1), strcharpart(prevcur, 1, 1)]
 endfunction
 " }}}
 
@@ -1579,7 +1558,17 @@ endif
 
 if has('nvim')
     " NOTE: When [Process exited $EXIT_CODE] in terminal mode, pressing any key wipes the terminal buffer.
-    command! -nargs=? -complete=shellcmd T <mods> split | exe "terminal" <q-args> | if empty(<q-args>) | startinsert | endif
+    command! -nargs=? -complete=customlist,s:shellcomplete T call Terminal(<q-mods>, expandcmd(<q-args>))
+    function! Terminal(mods, args) abort
+        exe a:mods 'new'
+        setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no
+        if empty(a:args)
+            call termopen(ShellWords(&shell))
+            startinsert
+        else " a:args can be string or list
+            call termopen(a:args)
+        endif
+    endfunction
     " see also: https://github.com/VioletJewel/vimterm.nvim
     tnoremap <expr> <C-w> &filetype !=# 'fzf' ? TermWinKey() : "\<C-w>"
     tnoremap <expr> <M-w> TermWinKey()
@@ -1612,16 +1601,14 @@ else
     " NOTE: If 'hidden' is set and arg is provided, job finished + window closed doesn't wipe the buffer, in contrary to the doc:
     " > When the job has finished and no changes were made to the buffer: closing the
     " > window will wipe out the buffer.
-    command! -nargs=? -complete=shellcmd T exe <q-mods> "terminal ++shell" <q-args>
+    command! -nargs=? -complete=customlist,s:shellcomplete T exe <q-mods> "terminal ++shell" <q-args>
 endif
-
-augroup terminal-custom | au!
-    if has('nvim')
-        au TermOpen,WinEnter *           if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
-    elseif exists('##TerminalWinOpen') " 8.1.2219
-        au TerminalWinOpen,BufWinEnter * if &buftype is# 'terminal' | setlocal nonumber norelativenumber foldcolumn=0 signcolumn=no | endif
-    endif
-augroup END
+" Unlike :!/:term completion, -complete=shellcmd doesn't complete files after the first word is given.
+" So, use :! completion by replacing the command with !.
+" :! doesn't ignore leading shell variable assignments, so do it myself. For now it doesn't handle quoted values.
+function! s:shellcomplete(A, L, P) abort
+    return getcompletion(substitute(a:L[:(a:P-1)], '\<\u\a*[![:space:]]\s*\(\w\+=\S*\s\+\)*', '!', ''), 'cmdline')
+endfunction
 " }}}
 
 " window layout {{{
@@ -1938,6 +1925,17 @@ else
         return s:strcharlen(strpart(a:string, 0, a:idx))
     endfunction
 endif
+if exists('*charcol') " 8.2.2324
+    function! s:charcol() abort
+        return charcol('.')
+    endfunction
+else
+    function! s:charcol() abort
+        let c = col('.')
+        if c == 1 | return 1 | endif
+        return strchars(getline('.')[0 : c - 1 - 1], 1) + 1
+    endfunction
+endif
 if exists('*strcharlen') " 8.2.2606
     function! s:strcharlen(string) abort
         return strcharlen(a:string)
@@ -1958,6 +1956,23 @@ function! s:git_root(file_or_dir) abort
 endfunction
 function! s:cabbrev(lhs, rhs) abort
     return (getcmdtype() == ':' && getcmdline() ==# a:lhs) ? a:rhs : a:lhs
+endfunction
+" Taken from s:GitCmd() in autoload/fugitive.vim
+function! ShellWords(string) abort
+  let dquote = '"\%([^"]\|""\|\\"\)*"\|'
+  let fnameescape = has('win32') ? " \t\n*?`%#'\"|!<" : " \t\n*?[{`$\\%#'\"|!<"
+  let string = a:string
+  let list = []
+  while string =~# '\S'
+    let arg = matchstr(string, '^\s*\%(' . dquote . '''[^'']*''\|\\.\|[^' . "\t" . ' |]\)\+')
+    let string = strpart(string, len(arg))
+    let arg = substitute(arg, '^\s\+', '', '')
+    let arg = substitute(arg,
+          \ '\(' . dquote . '''\%(''''\|[^'']\)*''\|\\[' . fnameescape . ']\|^\\[>+-]\)',
+          \ '\=submatch(0)[0] ==# "\\" ? submatch(0)[1] : submatch(0)[1:-2]', 'g')
+    call add(list, arg)
+  endwhile
+  return list
 endfunction
 " }}}
 
@@ -2007,8 +2022,8 @@ function! Bang(cmd, mods) abort
     call TempBuf(a:mods, ':!' . a:cmd, systemlist(a:cmd))
 endfunction
 command! -nargs=* -complete=command Execute call Execute(<q-args>, '<mods>')
-command! -nargs=* -range=% -complete=shellcmd WC <line1>,<line2>call WriteC(exists('*expandcmd') ? expandcmd(<q-args>) : <q-args>, '<mods>') " 8.1.1510
-command! -nargs=* -complete=shellcmd Bang call Bang(exists('*expandcmd') ? expandcmd(<q-args>) : <q-args>, '<mods>')
+command! -nargs=* -range=% -complete=customlist,s:shellcomplete WC <line1>,<line2>call WriteC(exists('*expandcmd') ? expandcmd(<q-args>) : <q-args>, '<mods>') " 8.1.1510
+command! -nargs=* -complete=customlist,s:shellcomplete Bang call Bang(exists('*expandcmd') ? expandcmd(<q-args>) : <q-args>, '<mods>')
 
 command! -range=% TrimWhitespace
             \ let _view = winsaveview()
@@ -2029,12 +2044,6 @@ command! -range=% Unpdf
             \|keeppatterns keepjumps <line1>,<line2>substitute/\w\zs-\n//ge
             \|call winrestview(_view)
             \|unlet _view
-
-" Doesn't work with hard wrapped list.
-command! -range=% ZulipMarkdown
-            \ keeppatterns keepjumps <line1>,<line2>substitute/^    \ze[-+*]\s/  /e
-            \|keeppatterns keepjumps <line1>,<line2>substitute/^        \ze[-+*]\s/    /e
-            \|keeppatterns keepjumps <line1>,<line2>substitute/^            \ze[-+*]\s/      /e
 
 " --wrap=auto|none|preserve
 command! -range=% -nargs=? Md
