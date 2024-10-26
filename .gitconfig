@@ -1,3 +1,5 @@
+# vim:set noet sw=8 ts=8 cms=#\ %s:
+
 [alias]
 	unstage = reset HEAD --
 	cm = commit
@@ -80,5 +82,3 @@
 	light = false
 [delta "light"]
 	light = true
-
-# vim:set noet sw=8 ts=8 cms=#\ %s:

@@ -170,48 +170,48 @@ npm install
   cd ~/.config/gtk-3.0 && ln -s ~/dots/.config/gtk-3.0/gtk.css
   ```
 * [gnome terminal theme](https://unix.stackexchange.com/questions/448811/how-to-export-a-gnome-terminal-profile)
-    1. make a profile
-    2. dump `dconf dump /org/gnome/terminal/legacy/profiles:/ > gnome-terminal-profiles.dconf`
-    3. put this
-       ```ini
-       [:UUID-CREATED-IN-1]
-       audible-bell=false
-       background-color='rgb(244,244,244)'
-       background-transparency-percent=46
-       cursor-blink-mode='off'
-       default-size-columns=100
-       default-size-rows=30
-       exit-action='close'
-       font='Iosevka Custom 7.5'
-       foreground-color='rgb(18,18,18)'
-       palette=['rgb(255,255,255)', 'rgb(165,9,45)', 'rgb(55,110,0)', 'rgb(148,100,1)', 'rgb(13,83,189)', 'rgb(138,41,158)', 'rgb(4,126,131)', 'rgb(58,58,58)', 'rgb(158,158,158)', 'rgb(230,40,72)', 'rgb(81,156,3)', 'rgb(201,138,14)', 'rgb(42,123,255)', 'rgb(191,70,217)', 'rgb(5,173,180)', 'rgb(0,0,0)']
-       scrollbar-policy='never'
-       use-system-font=false
-       use-theme-colors=false
-       use-theme-transparency=false
-       use-transparent-background=false
-       visible-name='quite-light'
+    1.  make a profile
+    2.  dump `dconf dump /org/gnome/terminal/legacy/profiles:/ > gnome-terminal-profiles.dconf`
+    3.  put this
+        ```ini
+        [:UUID-CREATED-IN-1]
+        audible-bell=false
+        background-color='rgb(244,244,244)'
+        background-transparency-percent=46
+        cursor-blink-mode='off'
+        default-size-columns=100
+        default-size-rows=30
+        exit-action='close'
+        font='Iosevka Custom 7.5'
+        foreground-color='rgb(18,18,18)'
+        palette=['rgb(255,255,255)', 'rgb(165,40,54)', 'rgb(32,116,0)', 'rgb(141,99,0)', 'rgb(31,88,182)', 'rgb(131,55,148)', 'rgb(1,123,128)', 'rgb(58,58,58)', 'rgb(158,158,158)', 'rgb(213,86,93)', 'rgb(77,159,58)', 'rgb(193,138,4)', 'rgb(73,131,229)', 'rgb(175,98,193)', 'rgb(5,173,180)', 'rgb(0,0,0)']
+        scrollbar-policy='never'
+        use-system-font=false
+        use-theme-colors=false
+        use-theme-transparency=false
+        use-transparent-background=false
+        visible-name='quite-light'
 
-       [:UUID-CREATED-IN-1]
-       audible-bell=false
-       background-color='rgb(8,8,8)'
-       background-transparency-percent=10
-       cursor-blink-mode='off'
-       cursor-shape='block'
-       default-size-columns=100
-       default-size-rows=30
-       font='Iosevka Custom 7.5'
-       foreground-color='rgb(238,238,238)'
-       palette=['rgb(0,0,0)', 'rgb(255,81,99)', 'rgb(104,198,1)', 'rgb(234,161,4)', 'rgb(86,150,255)', 'rgb(229,115,255)', 'rgb(10,204,213)', 'rgb(208,208,208)', 'rgb(112,112,112)', 'rgb(255,125,131)', 'rgb(116,220,3)', 'rgb(254,180,49)', 'rgb(120,171,255)', 'rgb(236,152,255)', 'rgb(1,226,235)', 'rgb(255,255,255)']
-       scrollbar-policy='never'
-       use-custom-command=false
-       use-system-font=false
-       use-theme-colors=false
-       use-theme-transparency=false
-       use-transparent-background=false
-       visible-name='quite-dark'
-       ```
-    4. `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
+        [:UUID-CREATED-IN-1]
+        audible-bell=false
+        background-color='rgb(8,8,8)'
+        background-transparency-percent=10
+        cursor-blink-mode='off'
+        cursor-shape='block'
+        default-size-columns=100
+        default-size-rows=30
+        font='Iosevka Custom 7.5'
+        foreground-color='rgb(238,238,238)'
+        palette=['rgb(0,0,0)', 'rgb(255,125,129)', 'rgb(115,198,96)', 'rgb(225,161,3)', 'rgb(109,164,255)', 'rgb(218,138,236)', 'rgb(4,197,206)', 'rgb(208,208,208)', 'rgb(112,112,112)', 'rgb(255,175,174)', 'rgb(143,228,125)', 'rgb(255,190,62)', 'rgb(157,194,255)', 'rgb(240,174,255)', 'rgb(6,230,239)', 'rgb(255,255,255)']
+        scrollbar-policy='never'
+        use-custom-command=false
+        use-system-font=false
+        use-theme-colors=false
+        use-theme-transparency=false
+        use-transparent-background=false
+        visible-name='quite-dark'
+        ```
+    4.  `dconf load /org/gnome/terminal/legacy/profiles:/ < gnome-terminal-profiles.dconf`
     * Run with profile: `gnome-terminal --profile=quite-light`
     * gnome-terminal colorscheme installer
         * <https://github.com/Mayccoll/Gogh/blob/master/apply-colors.sh#L655>
@@ -602,6 +602,8 @@ Gave up and upgraded to 23.04.
 * `git range-diff`
 * Rebasing merge commit with conflict resolution and other additional changes (that modify the part of code that didn't produce conflict marker, but conceptually is a conflict).
   `git rebase --rebase-merges origin/master` + rerere doesn't seem to carry over the additional changes.
-  See REBASING MERGES?
   Had to merge the merge commit.
+    * This kind of merge is called "evil merge".
+      Potential solution?:
+      https://git-blame.blogspot.com/2015/10/fun-with-recreating-evil-merge.html
 * `git fetch --depth 1 origin tag v1.1`

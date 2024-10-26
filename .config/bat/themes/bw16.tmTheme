@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-A minimal "colorscheme" that only uses 8 (line highlight), 7 (comment), f (fg).
+A minimal "colorscheme" that only uses 8 (line highlight), 7 (comment), f (fg), 0 (bg).
 -->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
         <!--
-        This theme is meant for users who configure their terminal with a base16
-        color theme. If you use a 256-color variant along with base16-shell, use
-        the bat theme base16-256 instead.
-
-        base16: https://github.com/chriskempson/base16
-        base16-shell: https://github.com/chriskempson/base16-shell
-
-        The colors in this theme are encoded as #RRGGBBAA where RR is an ANSI
-        palette number from 00 to 0f (the 8 colors and their bright versions),
-        and AA is the special value 00 to indicate this encoding is being used.
+        Color format: #RRGGBBAA
+        * If AA is 00, then RR is ansi color
+        * If AA is 01, the terminal's default fg/bg color is used.
         -->
         <key>author</key>
         <string>Template: Chris Kempson, Scheme: Jaehwang Jung</string>
@@ -30,6 +23,8 @@ A minimal "colorscheme" that only uses 8 (line highlight), 7 (comment), f (fg).
                 <dict>
                     <key>foreground</key>
                     <string>#0f000000</string>
+                    <key>background</key>
+                    <string>#00000000</string>
                     <key>lineHighlight</key>
                     <string>#08000000</string>
                 </dict>
