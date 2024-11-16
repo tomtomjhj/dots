@@ -373,9 +373,11 @@ function! Colors() abort
     hi! link StatusLineTerm StatusLine
     hi! link StatusLineTermNC StatusLineNC
     if has('nvim-0.8')
-        hi! link @variable.builtin @variable
+        hi! link @variable Identifier
+        hi! link @variable.builtin Identifier
+        hi! link @variable.parameter.builtin Identifier
         hi! link @constant.builtin Constant
-        hi! link @module NONE
+        hi! link @module Identifier
         hi! link @module.builtin Constant
         hi! link @type.builtin Constant
         hi! link @type.definition Type
@@ -397,59 +399,83 @@ function! Colors() abort
         hi! link @markup.raw.block NONE
         hi! link @markup.list Statement
         hi! link @tag Statement
-        hi! link @tag.attribute NONE
+        hi! link @tag.attribute Identifier
     endif
     hi! link LspCodeLens NonText
     hi! link LspCodeLensSeparator NonText
     hi! link diffAdded Added
     hi! link diffRemoved Removed
+    hi! link diffFile PreProc
+    hi! link diffOldFile Function
+    hi! link diffNewFile Function
+    hi! link diffIndexLine Ignore
+    hi! link diffSubname NONE
     hi! link coqKwd Keyword
     hi! link coqProofDelim PreProc
     hi! link helpHyperTextJump Underlined
     hi! link helpOption Underlined
     hi! link markdownCode String
+    hi! link texCmdType Statement
+    hi! link texMathZone String
+    hi! link texRefArg Underlined
+    hi! link texMathEnvArgName PreProc
+    hi! link texMathDelimZone PreProc
+    hi! link texPartArgTitle Title
+    hi! link texTitleArg Title
+    hi! link texZone NONE
 
     " gui dark
-    let g:terminal_ansi_colors = ['#080808', '#ff5163', '#68c601', '#eaa104', '#5696ff', '#e573ff', '#0accd5', '#d0d0d0', '#777777', '#ff7477', '#78db2f', '#ffb32f', '#67abff', '#ff83ff', '#38e1e2', '#eeeeee']
+    let g:terminal_ansi_colors = ['#080808', '#ff7d81', '#73c660', '#e1a103', '#6da4ff', '#da8aec', '#04c5ce', '#d0d0d0', '#777777', '#ffafae', '#8fe47d', '#ffbe3e', '#9dc2ff', '#f0aeff', '#06e6ef', '#eeeeee']
     hi Normal guifg=#eeeeee guibg=#080808 gui=NONE cterm=NONE
     hi NormalFloat guifg=NONE guibg=#333333 gui=NONE cterm=NONE
-    hi Comment guifg=#eaa104 guibg=NONE gui=NONE cterm=NONE
-    hi Constant guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi String guifg=#68c601 guibg=NONE gui=NONE cterm=NONE
-    hi Identifier guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Function guifg=#e573ff guibg=NONE gui=NONE cterm=NONE
-    hi Statement guifg=#5696ff guibg=NONE gui=NONE cterm=NONE
-    hi PreProc guifg=#0accd5 guibg=NONE gui=NONE cterm=NONE
-    hi Type guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Special guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi Delimiter guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi Comment guifg=#e1a103 guibg=NONE gui=NONE cterm=NONE
+    hi Constant guifg=#eeeeee guibg=NONE gui=NONE cterm=NONE
+    hi String guifg=#73c660 guibg=NONE gui=NONE cterm=NONE
+    hi Identifier guifg=#eeeeee guibg=NONE gui=NONE cterm=NONE
+    hi Function guifg=#da8aec guibg=NONE gui=NONE cterm=NONE
+    hi Statement guifg=#6da4ff guibg=NONE gui=NONE cterm=NONE
+    hi PreProc guifg=#04c5ce guibg=NONE gui=NONE cterm=NONE
+    hi Type guifg=#eeeeee guibg=NONE gui=NONE cterm=NONE
+    hi Special guifg=#eeeeee guibg=NONE gui=bold cterm=bold
+    hi Delimiter guifg=#eeeeee guibg=NONE gui=NONE cterm=NONE
     hi Underlined guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
-    hi Ignore guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi Error guifg=#ff5163 guibg=NONE gui=bold,reverse cterm=bold,reverse
-    hi Todo guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi Added guifg=#68c601 guibg=NONE gui=NONE cterm=NONE
-    hi Changed guifg=#0accd5 guibg=NONE gui=NONE cterm=NONE
-    hi Removed guifg=#ff5163 guibg=NONE gui=NONE cterm=NONE
+    hi Ignore guifg=#777777 guibg=NONE gui=NONE cterm=NONE
+    hi Error guifg=#ff7d81 guibg=#080808 gui=bold,reverse cterm=bold,reverse
+    hi Todo guifg=#eeeeee guibg=#080808 gui=bold,reverse cterm=bold,reverse
+    hi Added guifg=#73c660 guibg=NONE gui=NONE cterm=NONE
+    hi Changed guifg=#04c5ce guibg=NONE gui=NONE cterm=NONE
+    hi Removed guifg=#ff7d81 guibg=NONE gui=NONE cterm=NONE
     hi ColorColumn guifg=NONE guibg=#777777 gui=NONE cterm=NONE
-    hi Conceal guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi Conceal guifg=#9dc2ff guibg=NONE gui=NONE cterm=NONE
     hi Cursor guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi CursorColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi CursorLine guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
     hi CursorLineNr guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi DiffAdd guifg=#68c601 guibg=NONE gui=reverse cterm=reverse
-    hi DiffChange guifg=#5696ff guibg=NONE gui=reverse cterm=reverse
-    hi DiffDelete guifg=#ff5163 guibg=NONE gui=NONE cterm=NONE
-    hi DiffText guifg=#e573ff guibg=NONE gui=reverse cterm=reverse
-    hi Directory guifg=#5696ff guibg=NONE gui=NONE cterm=NONE
+    hi DiffAdd guifg=#73c660 guibg=NONE gui=reverse cterm=reverse
+    hi DiffChange guifg=#6da4ff guibg=NONE gui=reverse cterm=reverse
+    hi DiffDelete guifg=#ff7d81 guibg=NONE gui=NONE cterm=NONE
+    hi DiffText guifg=#da8aec guibg=NONE gui=reverse cterm=reverse
+    hi Directory guifg=#6da4ff guibg=NONE gui=NONE cterm=NONE
     hi ErrorMsg guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi FoldColumn guifg=#777777 guibg=NONE gui=reverse cterm=reverse
     hi Folded guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi IncSearch guifg=#eaa104 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+    hi IncSearch guifg=#e1a103 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
     hi LineNr guifg=#777777 guibg=NONE gui=NONE cterm=NONE
     hi MatchParen guifg=NONE guibg=NONE gui=bold,underline ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi NonText guifg=#777777 guibg=NONE gui=nocombine cterm=nocombine
+    if has('nvim')
+        hi Pmenu guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+        hi PmenuExtra guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+        hi PmenuKind guifg=NONE guibg=#777777 gui=bold cterm=bold
+        hi PmenuMatch guifg=NONE guibg=#777777 gui=bold cterm=bold
+        hi PmenuSbar guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+        hi PmenuSel guifg=#080808 guibg=#eeeeee gui=bold,underline cterm=bold,underline
+        hi PmenuExtraSel guifg=#080808 guibg=#eeeeee gui=bold,underline cterm=bold,underline
+        hi PmenuKindSel guifg=#080808 guibg=#eeeeee gui=bold,underline cterm=bold,underline
+        hi PmenuMatchSel guifg=#080808 guibg=#eeeeee gui=bold,underline cterm=bold,underline
+    else
     hi Pmenu guifg=NONE guibg=#777777 gui=NONE cterm=NONE
     hi PmenuExtra guifg=NONE guibg=#777777 gui=NONE cterm=NONE
     hi PmenuKind guifg=NONE guibg=#777777 gui=bold cterm=bold
@@ -459,22 +485,23 @@ function! Colors() abort
     hi PmenuExtraSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
     hi PmenuKindSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
     hi PmenuMatchSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+    endif
     hi PmenuThumb guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Question guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi QuickFixLine guifg=#e573ff guibg=NONE gui=reverse cterm=reverse
-    hi Search guifg=#0accd5 guibg=NONE gui=bold,reverse cterm=bold,reverse
-    hi CurSearch guifg=#e573ff guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+    hi QuickFixLine guifg=#da8aec guibg=NONE gui=reverse cterm=reverse
+    hi Search guifg=#04c5ce guibg=NONE gui=bold,reverse cterm=bold,reverse
+    hi CurSearch guifg=#da8aec guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
     hi SignColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi SpellBad guifg=NONE guibg=NONE guisp=#ff5163 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-    hi SpellCap guifg=NONE guibg=NONE guisp=#5696ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-    hi SpellLocal guifg=NONE guibg=NONE guisp=#e573ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-    hi SpellRare guifg=NONE guibg=NONE guisp=#0accd5 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellBad guifg=NONE guibg=NONE guisp=#ff7d81 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellCap guifg=NONE guibg=NONE guisp=#6da4ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellLocal guifg=NONE guibg=NONE guisp=#da8aec gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi SpellRare guifg=NONE guibg=NONE guisp=#04c5ce gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi StatusLine guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi StatusLineNC guifg=#777777 guibg=NONE gui=bold,reverse cterm=bold,reverse
-    hi TabLine guifg=NONE guibg=#777777 gui=bold cterm=bold
-    hi TabLineFill guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi TabLineSel guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi Title guifg=#e573ff guibg=NONE gui=bold,underline cterm=bold,underline
+    hi TabLine guifg=NONE guibg=#777777 gui=nocombine cterm=nocombine
+    hi TabLineFill guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
+    hi TabLineSel guifg=NONE guibg=NONE gui=bold,nocombine ctermfg=NONE ctermbg=NONE cterm=bold,nocombine
+    hi Title guifg=#da8aec guibg=NONE gui=bold,underline cterm=bold,underline
     hi VertSplit guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Visual guifg=#777777 guibg=NONE gui=reverse cterm=reverse
     hi VisualNOS guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -483,51 +510,88 @@ function! Colors() abort
     hi CursorIM guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine guifg=NONE guibg=NONE gui=reverse ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi diffAdded guifg=#68c601 guibg=NONE gui=NONE cterm=NONE
-    hi diffRemoved guifg=#ff5163 guibg=NONE gui=NONE cterm=NONE
+    hi DiagnosticError guifg=#ffafae guibg=NONE gui=NONE cterm=NONE
+    hi DiagnosticWarn guifg=#ffbe3e guibg=NONE gui=NONE cterm=NONE
+    hi DiagnosticInfo guifg=#06e6ef guibg=NONE gui=NONE cterm=NONE
+    hi DiagnosticHint guifg=#9dc2ff guibg=NONE gui=NONE cterm=NONE
+    hi DiagnosticOk guifg=#8fe47d guibg=NONE gui=NONE cterm=NONE
+    hi DiagnosticUnderlineError guifg=NONE guibg=NONE guisp=#ffafae gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineWarn guifg=NONE guibg=NONE guisp=#ffbe3e gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineInfo guifg=NONE guibg=NONE guisp=#06e6ef gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineHint guifg=NONE guibg=NONE guisp=#9dc2ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineOk guifg=NONE guibg=NONE guisp=#8fe47d gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnnecessary guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
 
     " gui light override
     if &background ==# 'light'
-        let g:terminal_ansi_colors = ['#eeeeee', '#a5092d', '#376e00', '#946401', '#0d53bd', '#8a299e', '#047e83', '#3a3a3a', '#999999', '#e62848', '#519c03', '#c98a0e', '#2a7bff', '#bf46d9', '#05adb4', '#121212']
+        let g:terminal_ansi_colors = ['#eeeeee', '#a52836', '#207400', '#8d6300', '#1f58b6', '#833794', '#017b80', '#3a3a3a', '#999999', '#d5565d', '#4d9f3a', '#c18a04', '#4983e5', '#af62c1', '#07aab1', '#121212']
         hi Normal guifg=#121212 guibg=#eeeeee gui=NONE cterm=NONE
         hi NormalFloat guifg=NONE guibg=#c6c6c6 gui=NONE cterm=NONE
-        hi Comment guifg=#946401 guibg=NONE gui=NONE cterm=NONE
-        hi String guifg=#376e00 guibg=NONE gui=NONE cterm=NONE
-        hi Function guifg=#8a299e guibg=NONE gui=NONE cterm=NONE
-        hi Statement guifg=#0d53bd guibg=NONE gui=NONE cterm=NONE
-        hi PreProc guifg=#047e83 guibg=NONE gui=NONE cterm=NONE
-        hi Error guifg=#a5092d guibg=NONE gui=bold,reverse cterm=bold,reverse
-        hi Added guifg=#376e00 guibg=NONE gui=NONE cterm=NONE
-        hi Changed guifg=#047e83 guibg=NONE gui=NONE cterm=NONE
-        hi Removed guifg=#a5092d guibg=NONE gui=NONE cterm=NONE
+        hi Comment guifg=#8d6300 guibg=NONE gui=NONE cterm=NONE
+        hi Constant guifg=#121212 guibg=NONE gui=NONE cterm=NONE
+        hi String guifg=#207400 guibg=NONE gui=NONE cterm=NONE
+        hi Identifier guifg=#121212 guibg=NONE gui=NONE cterm=NONE
+        hi Function guifg=#833794 guibg=NONE gui=NONE cterm=NONE
+        hi Statement guifg=#1f58b6 guibg=NONE gui=NONE cterm=NONE
+        hi PreProc guifg=#017b80 guibg=NONE gui=NONE cterm=NONE
+        hi Type guifg=#121212 guibg=NONE gui=NONE cterm=NONE
+        hi Special guifg=#121212 guibg=NONE gui=bold cterm=bold
+        hi Delimiter guifg=#121212 guibg=NONE gui=NONE cterm=NONE
+        hi Ignore guifg=#999999 guibg=NONE gui=NONE cterm=NONE
+        hi Error guifg=#a52836 guibg=#eeeeee gui=bold,reverse cterm=bold,reverse
+        hi Todo guifg=#121212 guibg=#eeeeee gui=bold,reverse cterm=bold,reverse
+        hi Added guifg=#207400 guibg=NONE gui=NONE cterm=NONE
+        hi Changed guifg=#017b80 guibg=NONE gui=NONE cterm=NONE
+        hi Removed guifg=#a52836 guibg=NONE gui=NONE cterm=NONE
         hi ColorColumn guifg=NONE guibg=#999999 gui=NONE cterm=NONE
-        hi DiffAdd guifg=#376e00 guibg=NONE gui=reverse cterm=reverse
-        hi DiffChange guifg=#0d53bd guibg=NONE gui=reverse cterm=reverse
-        hi DiffDelete guifg=#a5092d guibg=NONE gui=NONE cterm=NONE
-        hi DiffText guifg=#8a299e guibg=NONE gui=reverse cterm=reverse
-        hi Directory guifg=#0d53bd guibg=NONE gui=NONE cterm=NONE
+        hi Conceal guifg=#4983e5 guibg=NONE gui=NONE cterm=NONE
+        hi DiffAdd guifg=#207400 guibg=NONE gui=reverse cterm=reverse
+        hi DiffChange guifg=#1f58b6 guibg=NONE gui=reverse cterm=reverse
+        hi DiffDelete guifg=#a52836 guibg=NONE gui=NONE cterm=NONE
+        hi DiffText guifg=#833794 guibg=NONE gui=reverse cterm=reverse
+        hi Directory guifg=#1f58b6 guibg=NONE gui=NONE cterm=NONE
         hi FoldColumn guifg=#999999 guibg=NONE gui=reverse cterm=reverse
-        hi IncSearch guifg=#946401 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+        hi IncSearch guifg=#8d6300 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
         hi LineNr guifg=#999999 guibg=NONE gui=NONE cterm=NONE
         hi NonText guifg=#999999 guibg=NONE gui=nocombine cterm=nocombine
+        if has('nvim')
         hi Pmenu guifg=NONE guibg=#999999 gui=NONE cterm=NONE
         hi PmenuExtra guifg=NONE guibg=#999999 gui=NONE cterm=NONE
         hi PmenuKind guifg=NONE guibg=#999999 gui=bold cterm=bold
         hi PmenuMatch guifg=NONE guibg=#999999 gui=bold cterm=bold
         hi PmenuSbar guifg=NONE guibg=#999999 gui=NONE cterm=NONE
-        hi QuickFixLine guifg=#8a299e guibg=NONE gui=reverse cterm=reverse
-        hi Search guifg=#047e83 guibg=NONE gui=bold,reverse cterm=bold,reverse
-        hi CurSearch guifg=#8a299e guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
-        hi SpellBad guifg=NONE guibg=NONE guisp=#a5092d gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi SpellCap guifg=NONE guibg=NONE guisp=#0d53bd gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi SpellLocal guifg=NONE guibg=NONE guisp=#8a299e gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
-        hi SpellRare guifg=NONE guibg=NONE guisp=#047e83 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+            hi PmenuSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
+            hi PmenuExtraSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
+            hi PmenuKindSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
+            hi PmenuMatchSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
+        else
+            hi Pmenu guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+            hi PmenuExtra guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+            hi PmenuKind guifg=NONE guibg=#999999 gui=bold cterm=bold
+            hi PmenuMatch guifg=NONE guibg=#999999 gui=bold cterm=bold
+            hi PmenuSbar guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+        endif
+        hi QuickFixLine guifg=#833794 guibg=NONE gui=reverse cterm=reverse
+        hi Search guifg=#017b80 guibg=NONE gui=bold,reverse cterm=bold,reverse
+        hi CurSearch guifg=#833794 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
+        hi SpellBad guifg=NONE guibg=NONE guisp=#a52836 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellCap guifg=NONE guibg=NONE guisp=#1f58b6 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellLocal guifg=NONE guibg=NONE guisp=#833794 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi SpellRare guifg=NONE guibg=NONE guisp=#017b80 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi StatusLineNC guifg=#999999 guibg=NONE gui=bold,reverse cterm=bold,reverse
-        hi TabLine guifg=NONE guibg=#999999 gui=bold cterm=bold
-        hi Title guifg=#8a299e guibg=NONE gui=bold,underline cterm=bold,underline
+        hi TabLine guifg=NONE guibg=#999999 gui=nocombine cterm=nocombine
+        hi Title guifg=#833794 guibg=NONE gui=bold,underline cterm=bold,underline
         hi Visual guifg=#999999 guibg=NONE gui=reverse cterm=reverse
-        hi diffAdded guifg=#376e00 guibg=NONE gui=NONE cterm=NONE
-        hi diffRemoved guifg=#a5092d guibg=NONE gui=NONE cterm=NONE
+        hi DiagnosticError guifg=#d5565d guibg=NONE gui=NONE cterm=NONE
+        hi DiagnosticWarn guifg=#c18a04 guibg=NONE gui=NONE cterm=NONE
+        hi DiagnosticInfo guifg=#07aab1 guibg=NONE gui=NONE cterm=NONE
+        hi DiagnosticHint guifg=#4983e5 guibg=NONE gui=NONE cterm=NONE
+        hi DiagnosticOk guifg=#4d9f3a guibg=NONE gui=NONE cterm=NONE
+        hi DiagnosticUnderlineError guifg=NONE guibg=NONE guisp=#d5565d gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi DiagnosticUnderlineWarn guifg=NONE guibg=NONE guisp=#c18a04 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi DiagnosticUnderlineInfo guifg=NONE guibg=NONE guisp=#07aab1 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi DiagnosticUnderlineHint guifg=NONE guibg=NONE guisp=#4983e5 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi DiagnosticUnderlineOk guifg=NONE guibg=NONE guisp=#4d9f3a gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     endif
 
     if has('nvim')
@@ -605,9 +669,9 @@ function! Colors() abort
     endif
     hi StatusLine ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi StatusLineNC ctermfg=NONE ctermbg=NONE cterm=bold,underline
-    hi TabLine ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi TabLineFill ctermfg=NONE ctermbg=NONE cterm=reverse
-    hi TabLineSel ctermfg=NONE ctermbg=NONE cterm=bold
+    hi TabLine ctermfg=NONE ctermbg=NONE cterm=nocombine,reverse
+    hi TabLineFill ctermfg=NONE ctermbg=NONE cterm=underline
+    hi TabLineSel ctermfg=NONE ctermbg=NONE cterm=bold,nocombine
     hi Title ctermfg=5 ctermbg=NONE cterm=bold,underline
     hi VertSplit ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Visual ctermfg=3 ctermbg=NONE cterm=reverse
@@ -617,12 +681,22 @@ function! Colors() abort
     hi CursorIM ctermfg=NONE ctermbg=NONE cterm=NONE
     hi ToolbarLine ctermfg=NONE ctermbg=NONE cterm=reverse
     hi ToolbarButton ctermfg=NONE ctermbg=NONE cterm=bold,reverse
-    hi diffAdded ctermfg=2 ctermbg=NONE cterm=NONE
-    hi diffRemoved ctermfg=1 ctermbg=NONE cterm=NONE
+    hi DiagnosticError ctermfg=1 ctermbg=NONE cterm=NONE
+    hi DiagnosticWarn ctermfg=3 ctermbg=NONE cterm=NONE
+    hi DiagnosticInfo ctermfg=6 ctermbg=NONE cterm=NONE
+    hi DiagnosticHint ctermfg=4 ctermbg=NONE cterm=NONE
+    hi DiagnosticOk ctermfg=2 ctermbg=NONE cterm=NONE
+    hi DiagnosticUnderlineError ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineWarn ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineInfo ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineHint ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnderlineOk ctermfg=NONE ctermbg=NONE cterm=undercurl
+    hi DiagnosticUnnecessary ctermfg=NONE ctermbg=NONE cterm=NONE
 
     " 16 override
     if exists('&t_Co') && str2nr(&t_Co) >=16
         hi Comment ctermfg=3 ctermbg=NONE cterm=NONE
+        hi Ignore ctermfg=8 ctermbg=NONE cterm=NONE
         hi ColorColumn ctermfg=NONE ctermbg=8 cterm=NONE
         hi FoldColumn ctermfg=8 ctermbg=NONE cterm=reverse
         hi LineNr ctermfg=8 ctermbg=NONE cterm=NONE
@@ -633,7 +707,7 @@ function! Colors() abort
         hi PmenuMatch ctermfg=NONE ctermbg=8 cterm=bold
         hi PmenuSbar ctermfg=NONE ctermbg=8 cterm=NONE
         hi StatusLineNC ctermfg=8 ctermbg=NONE cterm=bold,reverse
-        hi TabLine ctermfg=NONE ctermbg=8 cterm=bold
+        hi TabLine ctermfg=NONE ctermbg=8 cterm=nocombine
         hi Visual ctermfg=8 ctermbg=NONE cterm=reverse
     endif
 endfunction
@@ -1264,7 +1338,7 @@ function! ScanRubout(cmap, scanner) abort
         return "\<C-w>"
     elseif a:cmap
         return repeat("\<BS>", from - to)
-    elseif line[to] =~# '[^(){}[\]<>''"`$|]'
+    elseif line[to] =~# '[^(){}[\]<>''"`$|/]'
         return BSWithoutSTS(from - to)
     else
         return BSWithoutSTS(from - (to + 1)) . "\<C-R>=MuPairsBS()\<CR>"
@@ -1279,7 +1353,7 @@ function! PrevBoundary(pat, line, from) abort
         let to = SkipPatBackward(a:line, to, '\s')
     elseif c =~# a:pat " to the left end of the current token/subword
         let to = SkipPatBackward(a:line, to, a:pat)
-    elseif c =~# '[^(){}[\]<>''"`$|]'
+    elseif c =~# '[^(){}[\]<>''"`$|/]'
         let to = SkipCharBackward(a:line, to, c)
     endif
     return to
@@ -1296,7 +1370,7 @@ function! NextTokenBoundary(line, from) abort
         let to = SkipPatForward(a:line, to, '\s')
     elseif c =~# '\k' " to the right end of the current token
         let to = SkipPatForward(a:line, to, '\k')
-    elseif c =~# '[^(){}[\]<>''"`$|]'
+    elseif c =~# '[^(){}[\]<>''"`$|/]'
         let to = SkipCharForward(a:line, to, c)
     endif
     return to
@@ -1310,7 +1384,7 @@ function! PrevTokenLeftBoundary(line, from) abort
     let c = a:line[to]
     if c =~# '\k' " to the left end of the word
         let to = SkipPatBackward(a:line, to, '\k')
-    elseif c =~# '[^(){}[\]<>''"`$|]'
+    elseif c =~# '[^(){}[\]<>''"`$|/]'
         let to = SkipCharBackward(a:line, to, c)
     endif
     return to
@@ -1603,9 +1677,8 @@ else
     " > window will wipe out the buffer.
     command! -nargs=? -complete=customlist,s:shellcomplete T exe <q-mods> "terminal ++shell" <q-args>
 endif
-" Unlike :!/:term completion, -complete=shellcmd doesn't complete files after the first word is given.
-" So, use :! completion by replacing the command with !.
-" :! doesn't ignore leading shell variable assignments, so do it myself. For now it doesn't handle quoted values.
+" Like -complete=shellcmdline, but try to ignore leading shell variable assignments.
+" For now it doesn't handle quoted values.
 function! s:shellcomplete(A, L, P) abort
     return getcompletion(substitute(a:L[:(a:P-1)], '\<\u\a*[![:space:]]\s*\(\w\+=\S*\s\+\)*', '!', ''), 'cmdline')
 endfunction
