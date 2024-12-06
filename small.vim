@@ -464,7 +464,7 @@ function! Colors() abort
     hi MatchParen guifg=NONE guibg=NONE gui=bold,underline ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NonText guifg=#777777 guibg=NONE gui=nocombine cterm=nocombine
+    hi NonText guifg=#777777 guibg=NONE gui=NONE cterm=NONE
     if has('nvim')
         hi Pmenu guifg=NONE guibg=#777777 gui=NONE cterm=NONE
         hi PmenuExtra guifg=NONE guibg=#777777 gui=NONE cterm=NONE
@@ -476,15 +476,15 @@ function! Colors() abort
         hi PmenuKindSel guifg=#080808 guibg=#eeeeee gui=bold,underline cterm=bold,underline
         hi PmenuMatchSel guifg=#080808 guibg=#eeeeee gui=bold,underline cterm=bold,underline
     else
-    hi Pmenu guifg=NONE guibg=#777777 gui=NONE cterm=NONE
-    hi PmenuExtra guifg=NONE guibg=#777777 gui=NONE cterm=NONE
-    hi PmenuKind guifg=NONE guibg=#777777 gui=bold cterm=bold
-    hi PmenuMatch guifg=NONE guibg=#777777 gui=bold cterm=bold
-    hi PmenuSbar guifg=NONE guibg=#777777 gui=NONE cterm=NONE
-    hi PmenuSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
-    hi PmenuExtraSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
-    hi PmenuKindSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
-    hi PmenuMatchSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+        hi Pmenu guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+        hi PmenuExtra guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+        hi PmenuKind guifg=NONE guibg=#777777 gui=bold cterm=bold
+        hi PmenuMatch guifg=NONE guibg=#777777 gui=bold cterm=bold
+        hi PmenuSbar guifg=NONE guibg=#777777 gui=NONE cterm=NONE
+        hi PmenuSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+        hi PmenuExtraSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+        hi PmenuKindSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
+        hi PmenuMatchSel guifg=NONE guibg=NONE gui=bold,reverse,underline ctermfg=NONE ctermbg=NONE cterm=bold,reverse,underline
     endif
     hi PmenuThumb guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Question guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
@@ -553,13 +553,13 @@ function! Colors() abort
         hi FoldColumn guifg=#999999 guibg=NONE gui=reverse cterm=reverse
         hi IncSearch guifg=#8d6300 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
         hi LineNr guifg=#999999 guibg=NONE gui=NONE cterm=NONE
-        hi NonText guifg=#999999 guibg=NONE gui=nocombine cterm=nocombine
+        hi NonText guifg=#999999 guibg=NONE gui=NONE cterm=NONE
         if has('nvim')
-        hi Pmenu guifg=NONE guibg=#999999 gui=NONE cterm=NONE
-        hi PmenuExtra guifg=NONE guibg=#999999 gui=NONE cterm=NONE
-        hi PmenuKind guifg=NONE guibg=#999999 gui=bold cterm=bold
-        hi PmenuMatch guifg=NONE guibg=#999999 gui=bold cterm=bold
-        hi PmenuSbar guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+            hi Pmenu guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+            hi PmenuExtra guifg=NONE guibg=#999999 gui=NONE cterm=NONE
+            hi PmenuKind guifg=NONE guibg=#999999 gui=bold cterm=bold
+            hi PmenuMatch guifg=NONE guibg=#999999 gui=bold cterm=bold
+            hi PmenuSbar guifg=NONE guibg=#999999 gui=NONE cterm=NONE
             hi PmenuSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
             hi PmenuExtraSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
             hi PmenuKindSel guifg=#eeeeee guibg=#121212 gui=bold,underline cterm=bold,underline
@@ -640,7 +640,7 @@ function! Colors() abort
     hi MatchParen ctermfg=NONE ctermbg=NONE cterm=bold,underline
     hi ModeMsg ctermfg=NONE ctermbg=NONE cterm=bold
     hi MoreMsg ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi NonText ctermfg=3 ctermbg=NONE cterm=nocombine
+    hi NonText ctermfg=3 ctermbg=NONE cterm=NONE
     hi Pmenu ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuExtra ctermfg=NONE ctermbg=NONE cterm=reverse
     hi PmenuKind ctermfg=NONE ctermbg=NONE cterm=bold,reverse
@@ -700,7 +700,7 @@ function! Colors() abort
         hi ColorColumn ctermfg=NONE ctermbg=8 cterm=NONE
         hi FoldColumn ctermfg=8 ctermbg=NONE cterm=reverse
         hi LineNr ctermfg=8 ctermbg=NONE cterm=NONE
-        hi NonText ctermfg=8 ctermbg=NONE cterm=nocombine
+        hi NonText ctermfg=8 ctermbg=NONE cterm=NONE
         hi Pmenu ctermfg=NONE ctermbg=8 cterm=NONE
         hi PmenuExtra ctermfg=NONE ctermbg=8 cterm=NONE
         hi PmenuKind ctermfg=NONE ctermbg=8 cterm=bold
