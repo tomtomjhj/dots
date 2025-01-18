@@ -31,6 +31,9 @@
 	# https://lore.kernel.org/git/pull.1483.git.1676928805555.gitgitgadget@gmail.com/
 	fa = fetch --all -j4
 	cp = cherry-pick
+	# https://news.ycombinator.com/item?id=34489301
+	pr = !sh -c 'git fetch $1 pull/$2/head:pr-$1-$2' -
+	mr = !sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2' -
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jaehwang Jung
