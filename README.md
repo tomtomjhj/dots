@@ -299,6 +299,30 @@ EOF
 update-desktop-database ~/.local/share/applications
 ```
 
+## dell
+dell command-configure
+* download <https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=fr3fy&oscode=ub16g&productcode=xps-13-9360-laptop>
+* documentation <https://www.dell.com/support/manuals/en-us/command-configure/dcc_4.8_ug/introduction-to-dell-command-configure-4.8?guid=guid-e3b5faa3-e499-4c5e-b410-3894503bb88d&lang=en-us> (no CLI documentation)
+
+battery charge
+```
+sudo /opt/dell/dcc/cctk --PrimaryBattChargeCfg=Custom:65-80
+sudo /opt/dell/dcc/cctk --PrimaryBattChargeCfg=Custom:90-95
+```
+
+This package broke Welcome_KAIST.
+journalctl:
+```
+OpenSSL: EVP_DigestInit_ex failed: error:12800067:DSO support routines::could not load the shared library
+EAP-MSCHAPV2: Failed to derive response
+```
+`ldd $(which openssl)` showed that some shared lib missing from openssl stuff included in command-configure package.
+Maybe the package is intended for ubuntu 16.04?
+<https://unix.stackexchange.com/questions/717390/problems-with-openssl>
+<!--
+nmcli d wifi connect Welcome_KAIST
+-->
+
 ## etc
 * `aptitude upgrade --full-resolver` good for resolving broken package issues
 * purge after only remove `sudo apt-get purge $(dpkg -l | grep '^rc' | awk '{print $2}')`.
@@ -591,6 +615,7 @@ Gave up and upgraded to 23.04.
     * range `<rev>`: commits reachable from `<rev>` (i.e. ancestors)
     * range `^<rev>`: commits not reachable from `<rev>` (i.e. ancestors)
     * range `^main feature` (= `main..feature`):
+    * `...`: symmetric diff
 * <https://stackoverflow.com/questions/39665570/why-can-two-git-worktrees-not-check-out-the-same-branch>
 * `git push -u origin my_ref:remote_branch`
 * `git-rebase(1)` REBASING MERGES
