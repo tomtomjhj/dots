@@ -128,9 +128,9 @@ set exrc secure
 if has('nvim-0.3.2') || has("patch-8.1.0360")
     set diffopt+=algorithm:histogram,indent-heuristic
 endif
-if has('nvim-0.9')
+if has('nvim-0.9') || has('patch-9.1.1072')
     " NOTE: this makes `dp` finer-grained than needed
-    set diffopt+=linematch:60
+    set diffopt-=linematch:40 diffopt+=linematch:60
 endif
 endif
 
@@ -1308,6 +1308,9 @@ cnoremap <M-*> <C-a>
 
 inoremap <expr> <C-u> match(getline('.'), '\S') >= 0 ? '<C-g>u<C-u>' : '<C-u>'
 
+" Make <C-f> work when using autoindent only. the last case doesn't maintain cursor position.
+inoremap <expr> <C-f> (!empty(&indentexpr) \|\| &cindent) ? '<C-f>' : getline('.') !~# '\S' ? repeat(' ', indent(prevnonblank(line('.'))) - indent(line('.'))) : "\<C-\>\<C-o>=="
+
 inoremap         <expr> <C-j>  ScanJump(0, 'NextTokenBoundary', "\<Right>")
 cnoremap         <expr> <C-j>  ScanJump(1, 'NextTokenBoundary', "")
 inoremap         <expr> <C-k>  ScanJump(0, g:PrevTokenBoundary, "\<Left>")
@@ -1648,7 +1651,7 @@ if has('nvim')
     tnoremap <expr> <M-w> TermWinKey()
     function! TermWinKey() abort
         let count = ''
-        let ch = getcharstr()
+        let ch = keytrans(getcharstr())
         if ch !=# '0'
             while ch =~# '\d'
                 let count .= ch
@@ -1660,7 +1663,7 @@ if has('nvim')
             return repeat("\<C-w>", count ? count : 1)
         elseif ch ==# "\<C-\>"
             return repeat("\<C-\>", count ? count : 1)
-        elseif ch ==# 'N' || ch ==# "\<C-n>"
+        elseif ch ==# 'N' || ch ==# '<C-N>'
             return "\<C-\>\<C-n>" " bug: sometimes stl is not redrawn?? also happens when actually typed
         elseif ch ==# '"'
             return "\<C-\>\<C-o>" . (count ? count : '') . '"' . getcharstr() . 'p'
@@ -1957,6 +1960,12 @@ function! IndentObj(skipblank, header, footer) abort
         let start -= 1
     endwhile
     let start = a:header ? prevnonblank(start - 1) : nextnonblank(start)
+    " def f(a1,
+    "       a2):
+    "     body
+    while start < line && indent(start) > level
+        let start += 1
+    endwhile
     while end < line('$') && !(getline(end + 1) =~ '\S' ? indent(end + 1) < level : !a:skipblank)
         let end += 1
     endwhile
