@@ -139,8 +139,8 @@ augroup BasicSetup | au!
     " TODO: this addes jump? manually running is ok. maybe autocmd problem?
     au BufRead * if empty(&buftype) && &filetype !~# '^git' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
-    if has('nvim-0.5')
-        au TextYankPost * silent! lua vim.highlight.on_yank()
+    if has('nvim-0.11')
+        au TextYankPost * silent! lua vim.hl.on_yank()
     endif
 augroup END
 " }}}
@@ -521,6 +521,14 @@ function! Colors() abort
     hi DiagnosticUnderlineHint guifg=NONE guibg=NONE guisp=#9dc2ff gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi DiagnosticUnderlineOk guifg=NONE guibg=NONE guisp=#8fe47d gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi DiagnosticUnnecessary guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi csvCol1 guifg=#73c660 guibg=NONE gui=NONE cterm=NONE
+    hi csvCol2 guifg=#da8aec guibg=NONE gui=NONE cterm=NONE
+    hi csvCol3 guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi csvCol4 guifg=#6da4ff guibg=NONE gui=NONE cterm=NONE
+    hi csvCol5 guifg=#e1a103 guibg=NONE gui=NONE cterm=NONE
+    hi csvCol6 guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi csvCol7 guifg=#ff7d81 guibg=NONE gui=NONE cterm=NONE
+    hi csvCol8 guifg=#04c5ce guibg=NONE gui=NONE cterm=NONE
 
     " gui light override
     if &background ==# 'light'
@@ -592,6 +600,14 @@ function! Colors() abort
         hi DiagnosticUnderlineInfo guifg=NONE guibg=NONE guisp=#07aab1 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi DiagnosticUnderlineHint guifg=NONE guibg=NONE guisp=#4983e5 gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
         hi DiagnosticUnderlineOk guifg=NONE guibg=NONE guisp=#4d9f3a gui=undercurl ctermfg=NONE ctermbg=NONE cterm=undercurl
+        hi csvCol1 guifg=#207400 guibg=NONE gui=NONE cterm=NONE
+        hi csvCol2 guifg=#833794 guibg=NONE gui=NONE cterm=NONE
+        hi csvCol3 guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+        hi csvCol4 guifg=#1f58b6 guibg=NONE gui=NONE cterm=NONE
+        hi csvCol5 guifg=#8d6300 guibg=NONE gui=NONE cterm=NONE
+        hi csvCol6 guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+        hi csvCol7 guifg=#a52836 guibg=NONE gui=NONE cterm=NONE
+        hi csvCol8 guifg=#017b80 guibg=NONE gui=NONE cterm=NONE
     endif
 
     if has('nvim')
@@ -692,12 +708,21 @@ function! Colors() abort
     hi DiagnosticUnderlineHint ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi DiagnosticUnderlineOk ctermfg=NONE ctermbg=NONE cterm=undercurl
     hi DiagnosticUnnecessary ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi csvCol1 ctermfg=2 ctermbg=NONE cterm=NONE
+    hi csvCol2 ctermfg=5 ctermbg=NONE cterm=NONE
+    hi csvCol3 ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi csvCol4 ctermfg=4 ctermbg=NONE cterm=NONE
+    hi csvCol5 ctermfg=3 ctermbg=NONE cterm=NONE
+    hi csvCol6 ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi csvCol7 ctermfg=1 ctermbg=NONE cterm=NONE
+    hi csvCol8 ctermfg=6 ctermbg=NONE cterm=NONE
 
     " 16 override
     if exists('&t_Co') && str2nr(&t_Co) >=16
         hi Comment ctermfg=3 ctermbg=NONE cterm=NONE
         hi Ignore ctermfg=8 ctermbg=NONE cterm=NONE
         hi ColorColumn ctermfg=NONE ctermbg=8 cterm=NONE
+        hi Conceal ctermfg=12 ctermbg=NONE cterm=NONE
         hi FoldColumn ctermfg=8 ctermbg=NONE cterm=reverse
         hi LineNr ctermfg=8 ctermbg=NONE cterm=NONE
         hi NonText ctermfg=8 ctermbg=NONE cterm=NONE
@@ -709,6 +734,12 @@ function! Colors() abort
         hi StatusLineNC ctermfg=8 ctermbg=NONE cterm=bold,reverse
         hi TabLine ctermfg=NONE ctermbg=8 cterm=nocombine
         hi Visual ctermfg=8 ctermbg=NONE cterm=reverse
+        hi DiagnosticError ctermfg=9 ctermbg=NONE cterm=NONE
+        hi DiagnosticWarn ctermfg=11 ctermbg=NONE cterm=NONE
+        hi DiagnosticInfo ctermfg=14 ctermbg=NONE cterm=NONE
+        hi DiagnosticHint ctermfg=12 ctermbg=NONE cterm=NONE
+        hi DiagnosticOk ctermfg=10 ctermbg=NONE cterm=NONE
+        hi FlashBackdrop ctermfg=8 ctermbg=NONE cterm=NONE
     endif
 endfunction
 
@@ -1874,7 +1905,11 @@ let g:netrw_dirhistmax = 0
 nnoremap <silent><leader>- :<C-u>call <SID>explore_bufdir('Explore')<CR>
 " NOTE: Hexplore use `wincmd s`, which will copy setlocal-ed window-local options
 nnoremap <silent><C-w>es   :<C-u>call <SID>explore_bufdir('Hexplore')<CR>
+if has('patch-9.1.0654') || has('nvim-0.11')
 nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore')<CR>
+else
+nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore!')<CR>
+endif
 nnoremap <silent><C-w>et   :<C-u>call <SID>explore_bufdir('Texplore')<CR>
 nnoremap <leader>cd :<C-u>cd <Plug>BufDir/
 nnoremap <leader>e  :<C-u>e! <Plug>BufDir/
@@ -1882,6 +1917,17 @@ nnoremap <leader>te :<C-u>tabedit <Plug>BufDir/
 function! s:netrw() abort
     silent! nunmap <buffer> <C-L>
     nmap <buffer> <leader><C-L> <Plug>NetrwRefresh
+    let netrw_v = maparg('v')
+    if !empty(netrw_v)
+        silent! nunmap <buffer> v
+        exe 'nnoremap <buffer><silent> gO ' . netrw_v
+    endif
+    " NOTE: this closes the netrw window
+    let netrw_t = maparg('t')
+    if !empty(netrw_t)
+        silent! nunmap <buffer> t
+        exe 'nnoremap <buffer><silent> O ' . netrw_t
+    endif
 endfunction
 function! s:explore_bufdir(cmd) abort
     let name = expand('%:t')
