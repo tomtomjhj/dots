@@ -525,6 +525,10 @@ Gave up and upgraded to 23.04.
 * sync-ing directories
     * https://stackoverflow.com/questions/3672480/cp-command-should-ignore-some-files
     * https://unix.stackexchange.com/questions/203846/how-to-sync-two-folders-with-command-line-tools (trailing slash)
+* tmux "server existed unexpectedly" <https://github.com/tmux/tmux/issues/2376>
+  ```
+  ssh server "rm /tmp/tmux* -rf"
+  ```
 
 
 ## firefox

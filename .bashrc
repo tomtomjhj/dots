@@ -202,6 +202,9 @@ fi
 export PS1="\[\033[01;32m\]\u\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
 export PROMPT_DIRTRIM=3
 
+# shell prompt navigation (osc 133)
+PROMPT_COMMAND='printf "\033]133;A\007"'";$PROMPT_COMMAND"
+
 export LC_ALL=C.UTF-8
 
 export LESS='Ri'
@@ -255,9 +258,14 @@ detect_bg() {
     if [ -z "$TMUX"  ]; then
         printf "\033]11;?\007" >&2
     else
-        # NOTE: requires allow-passthrough in tmux ≥ 3.3
-        # NOTE: passthrough not required in higher version
-        printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
+        # since some point between 3.2a (22.04) and 3.4 (24.04),
+        # tmux started support background query natively AND broke the query wrapped in passthrough :/
+        local version=$(tmux -V 2>/dev/null | grep -o '[0-9]\+\.[0-9a-z]\+')
+        if [ "$version" != "3.4" ] && [ "$(printf "3.4\n$version" | sort -V | tail -n1)" = "$version" ]; then
+            printf "\033]11;?\007" >&2
+        else
+            printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
+        fi
     fi
     local answer=
     local n=0
