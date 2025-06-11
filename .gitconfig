@@ -48,6 +48,8 @@
 	algorithm = histogram
 	indentHeuristic = true
 	colorMoved = default
+	colorMovedWs = allow-indentation-change
+	submodule = log
 [credential]
 	helper = store
 [merge]

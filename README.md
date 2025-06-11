@@ -457,6 +457,13 @@ Gave up and upgraded to 23.04.
   <https://www.reddit.com/r/gnome/comments/nu4bvr/comment/h0xsag4/>
   `rm -rf ~/.cache/{tracker3,tracker}`. fixed. ubuntu downgrade문제일듯.
 
+# Windows
+
+## WSL
+* sshfs: `sshfs -o allow_other,default_permissions`
+ <https://github.com/microsoft/WSL/issues/8498>
+* `XDG_RUNTIME_DIR`
+  <https://github.com/ibhagwan/fzf-lua/issues/1243#issuecomment-2554289014>
 
 # note, tips
 * https://github.com/cyrus-and/gdb-dashboard
@@ -557,6 +564,7 @@ Gave up and upgraded to 23.04.
     * see also: https://www.reddit.com/r/firefox/comments/t9hk42/comment/hzu6uq1/?utm_source=share&utm_medium=web2x&context=3
 * `accessibility.typeaheadfind.prefillwithselection = false` to disable "ctrl-f prefill with clipboard"
 * `browser.fullscreen.autohide = false` to show tabs in fullscreen mode
+* `browser.urlbar.resultMenu.keyboardAccessible = false` to tab through search result without selecting three dot menu
 
 
 ## shell, bash, shell script
@@ -635,4 +643,19 @@ Gave up and upgraded to 23.04.
     * This kind of merge is called "evil merge".
       Potential solution?:
       https://git-blame.blogspot.com/2015/10/fun-with-recreating-evil-merge.html
-* `git fetch --depth 1 origin tag v1.1`
+* shallow
+    * shallow clone to branch
+      ```
+      git clone URL --depth 1 -b BRANCH
+      ```
+      Note that it works only for branches.
+    * shallow fetch
+      ```
+      git fetch --depth 1 origin tag v1.1
+      ```
+      "tag" here is a keyword to indicate that the following is tag (see `<refspec>`).
+    * shallow submodule
+      ```
+      git submodule update --init --recursive --depth=1
+      ```
+      Not perfect, but good enough.

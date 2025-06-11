@@ -132,6 +132,9 @@ if has('nvim-0.9') || has('patch-9.1.1072')
     " NOTE: this makes `dp` finer-grained than needed
     set diffopt-=linematch:40 diffopt+=linematch:60
 endif
+if has('nvim-0.12') || has('patch-9.1.1252')
+    set diffopt-=inline:simple diffopt+=inline:char
+endif
 endif
 
 augroup BasicSetup | au!
@@ -1086,6 +1089,10 @@ endfunction
 " Python {{{
 let g:pyindent_continue = '&shiftwidth'
 let g:pyindent_open_paren = '&shiftwidth'
+let python_no_builtin_highlight = 1
+let python_no_doctest_code_highlight = 1
+let python_no_doctest_highlight = 1
+let python_no_exception_highlight = 1
 function! s:python() abort
     setlocal foldmethod=indent foldnestmax=2 foldignore=
     setlocal formatoptions+=ro
