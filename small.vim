@@ -1906,7 +1906,7 @@ endfunction
 nnoremap <silent> gx :<C-u>call GXBrowse(CursorURL())<cr>
 
 let g:netrw_home = simplify(&undodir . '..')
-let g:netrw_fastbrowse = 0
+" let g:netrw_fastbrowse = 0 " TODO: with this, opening buffer in netrw bwipeouts modified no name buffer in different tab
 let g:netrw_clipboard = 0
 let g:netrw_dirhistmax = 0
 nnoremap <silent><leader>- :<C-u>call <SID>explore_bufdir('Explore')<CR>

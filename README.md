@@ -598,6 +598,21 @@ Gave up and upgraded to 23.04.
       ```
       mapfile -t lines < <(command)
       ```
+* This can be very confusing.
+  > Bash uses a hash table to remember the full pathnames of executable files.
+  > A full search of the directories in PATH is performed only if the command is not found in the hash table.
+
+  Use `hash -r` to refresh.
+* bash lazy-loading completion
+  ```bash
+  _load_kubectl_completion() {
+      complete -r kubectl
+      unset -f _load_kubectl_completion
+      source <(kubectl completion bash)
+      return 124
+  }
+  complete -F _load_kubectl_completion kubectl
+  ```
 
 ## Git
 * Merging working tree and stash: `git add`, then stash pop. <https://stackoverflow.com/a/16613814>.
@@ -649,13 +664,26 @@ Gave up and upgraded to 23.04.
       git clone URL --depth 1 -b BRANCH
       ```
       Note that it works only for branches.
-    * shallow fetch
+    * shallow fetch tag
       ```
       git fetch --depth 1 origin tag v1.1
       ```
       "tag" here is a keyword to indicate that the following is tag (see `<refspec>`).
+    * shallow fetch new branch
+      ```
+      git remote set-branches --add origin <branch-name>
+      git fetch --depth 1 origin <branch-name>
+      ```
+      all branches
+      ```
+      git remote set-branches origin '*'
+      ```
     * shallow submodule
       ```
       git submodule update --init --recursive --depth=1
       ```
       Not perfect, but good enough.
+    * deepening
+      ```
+      git fetch --deepen=N
+      ```
