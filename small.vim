@@ -292,6 +292,8 @@ function! STLTitle(...) abort
         return fnamemodify(bname, ':t')
     elseif bt is# 'terminal'
         return has('nvim') ? '!' . matchstr(bname, 'term://.\{-}//\d\+:\zs.*') : bname
+    elseif ft is# 'netrw'
+        return pathshorten(fnamemodify(b:netrw_curdir, ":~")) . '/'
     elseif bname =~# '^fugitive://'
         let [obj, gitdir] = FugitiveParse(bname)
         let matches = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
@@ -303,7 +305,7 @@ function! STLTitle(...) abort
     elseif bname =~# '^temp://'
         return matchstr(bname, '^temp://\zs.*')
     elseif empty(bname)
-        return empty(bt) ? '[No Name]' : bt is# 'nofile' ? '[Scratch]' : '?'
+        return empty(bt) ? '[No Name #' . b . ']' : bt is# 'nofile' ? '[Scratch #' . b . ']' : '[? #' . b . ']'
     elseif isdirectory(bname) " NOTE: https://github.com/vim/vim/issues/9099
         return pathshorten(fnamemodify(simplify(bname), ":~")) . '/'
     else
@@ -761,7 +763,17 @@ augroup Languages | au!
     au FileType python call s:python()
     au FileType vim setlocal formatoptions-=c
     au FileType xml setlocal formatoptions-=r formatoptions-=o " very broken: <!--<CR> → <!--\n--> █
+    au FileType markdown call s:treesitter()
 augroup END
+
+let g:_ts_force_sync_parsing = v:true
+function! s:treesitter() abort
+    if !has('nvim') | return | endif
+    lua vim.treesitter.start()
+    if &l:foldmethod !=# 'diff'
+        setlocal foldmethod=expr foldexpr=v:lua.vim.treesitter.foldexpr()
+    endif
+endfunction
 
 " c, cpp {{{
 let c_no_comment_fold = 1
@@ -795,6 +807,7 @@ function! s:markdown() abort
       exe b:undo_ftplugin
       unlet! b:undo_ftplugin b:did_ftplugin
     endif
+    if !has('nvim')
     " tpope-vim-markdown/syntax/markdown.vim {{{
     if !exists('main_syntax')
       let main_syntax = 'markdown'
@@ -981,6 +994,7 @@ function! s:markdown() abort
     syn keyword mkdTodo TODO containedin=ALL
     hi def link mkdTodo Todo
     " }}}
+    endif
     " tpope-vim-markdown/ftplugin/markdown.vim {{{
     runtime! ftplugin/html.vim ftplugin/html_*.vim ftplugin/html/*.vim
 
@@ -1070,7 +1084,7 @@ function! s:markdown() abort
       return hash_indent.' '.title.' '.linecount
     endfunction
 
-    if has("folding") && get(g:, "markdown_folding", 0)
+    if has("folding") && get(g:, "markdown_folding", 0) && !has('nvim')
       setlocal foldexpr=MarkdownFold()
       setlocal foldmethod=expr
       setlocal foldtext=MarkdownFoldText()
@@ -1957,6 +1971,8 @@ function! BufDir(...) abort
         return fnamemodify(FugitiveGitDir(b), ':h')
     elseif bname =~# '^fugitive://'
         return fnamemodify(FugitiveReal(bname), ':h')
+    elseif ft is# 'netrw'
+        return b:netrw_curdir
     else
         " NOTE: If `isdirectory(bname)`, `:p` appends a path separator. This is removed by `:h`.
         return fnamemodify(bname, ':p:h')
