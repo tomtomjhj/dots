@@ -463,7 +463,7 @@ function! Colors() abort
     hi Directory guifg=#6da4ff guibg=NONE gui=NONE cterm=NONE
     hi ErrorMsg guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi FoldColumn guifg=#777777 guibg=NONE gui=reverse cterm=reverse
-    hi Folded guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi Folded guifg=NONE guibg=#222222 gui=NONE cterm=NONE
     hi IncSearch guifg=#e1a103 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
     hi LineNr guifg=#777777 guibg=NONE gui=NONE cterm=NONE
     hi MatchParen guifg=NONE guibg=NONE gui=bold,underline ctermfg=NONE ctermbg=NONE cterm=bold,underline
@@ -564,6 +564,7 @@ function! Colors() abort
         hi DiffText guifg=#833794 guibg=NONE gui=reverse cterm=reverse
         hi Directory guifg=#1f58b6 guibg=NONE gui=NONE cterm=NONE
         hi FoldColumn guifg=#999999 guibg=NONE gui=reverse cterm=reverse
+        hi Folded guifg=NONE guibg=#dadada gui=NONE cterm=NONE
         hi IncSearch guifg=#8d6300 guibg=NONE gui=bold,reverse,underline cterm=bold,reverse,underline
         hi LineNr guifg=#999999 guibg=NONE gui=NONE cterm=NONE
         hi NonText guifg=#999999 guibg=NONE gui=NONE cterm=NONE

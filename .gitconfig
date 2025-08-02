@@ -49,7 +49,7 @@
 	indentHeuristic = true
 	colorMoved = default
 	colorMovedWs = allow-indentation-change
-	submodule = log
+	# submodule = log # fugitive doesn't understand this
 [credential]
 	helper = store
 [merge]
@@ -78,7 +78,8 @@
 #   * https://github.com/dandavison/delta/issues/141
 	line-numbers = true
 	syntax-theme = bw16
-	file-decoration-style = ul ol
+	file-style = bold
+	file-decoration-style = box
 	hunk-header-decoration-style =
 	# navigate = true
 # use --features/DELTA_FEATURE to control dark/light
