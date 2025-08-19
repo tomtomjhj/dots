@@ -255,18 +255,7 @@ export FZF_DEFAULT_OPTS="--bind alt-a:select-all,alt-d:deselect-all,alt-t:toggle
 detect_bg() {
     local oldstty=$(stty -g)
     stty raw -echo min 0 time 0
-    if [ -z "$TMUX"  ]; then
-        printf "\033]11;?\007" >&2
-    else
-        # since some point between 3.2a (22.04) and 3.4 (24.04),
-        # tmux started support background query natively AND broke the query wrapped in passthrough :/
-        local version=$(tmux -V 2>/dev/null | grep -o '[0-9]\+\.[0-9a-z]\+')
-        if [ "$version" != "3.4" ] && [ "$(printf "3.4\n$version" | sort -V | tail -n1)" = "$version" ]; then
-            printf "\033]11;?\007" >&2
-        else
-            printf "\033Ptmux;\033\033]11;?\007\033\\" >&2
-        fi
-    fi
+    printf "\033]11;?\007" >&2
     local answer=
     local n=0
     # User may type something when waiting for respsonse. Ignore them.
