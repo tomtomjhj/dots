@@ -158,6 +158,7 @@ npm install
   ```
   gsettings set org.gnome.Terminal.Legacy.Settings headerbar false
   ```
+    * NOTE: since 24.04, the desktop top bar doesn't show the menu, so preferences can be accessed only via shortcut
 * gnome tab bar height
   ```
   cd ~/.config/gtk-3.0 && ln -s ~/dots/.config/gtk-3.0/gtk.css
@@ -320,6 +321,7 @@ nmcli d wifi connect Welcome_KAIST
 * `aptitude upgrade --full-resolver` good for resolving broken package issues
 * purge after only remove `sudo apt-get purge $(dpkg -l | grep '^rc' | awk '{print $2}')`.
   <https://askubuntu.com/a/687305>
+* <https://github.com/mkasberg/ghostty-ubuntu>
 
 ```sh
 cd ~/.config && ln -s ~/dots/.config/bat

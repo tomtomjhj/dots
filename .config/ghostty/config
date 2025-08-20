@@ -1,0 +1,7 @@
+font-family = "Iosevka Custom"
+font-size = 14
+
+theme = dark:quite-dark,light:quite-light
+
+cursor-style = block
+cursor-invert-fg-bg = true

@@ -1,0 +1,19 @@
+background = 080808
+foreground = eeeeee
+
+palette =  0=#080808
+palette =  1=#ff7d81
+palette =  2=#73c660
+palette =  3=#e1a103
+palette =  4=#6da4ff
+palette =  5=#da8aec
+palette =  6=#04c5ce
+palette =  7=#d0d0d0
+palette =  8=#626262
+palette =  9=#ffafae
+palette = 10=#8fe47d
+palette = 11=#ffbe3e
+palette = 12=#9dc2ff
+palette = 13=#f0aeff
+palette = 14=#06e6ef
+palette = 15=#eeeeee
