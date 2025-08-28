@@ -1,7 +1,16 @@
 font-family = "Iosevka Custom"
+font-family = "Noto Sans CJK KR"
 font-size = 14
+adjust-cell-width = -1
+# font-synthetic-style is on by default but broken https://github.com/ghostty-org/ghostty/discussions/3791
 
 theme = dark:quite-dark,light:quite-light
 
 cursor-style = block
 cursor-invert-fg-bg = true
+
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 0.25
+
+keybind = f11=toggle_fullscreen
+keybind = ctrl+enter=unbind
