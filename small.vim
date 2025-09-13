@@ -53,6 +53,7 @@ set laststatus=2
 set shiftwidth=4
 set expandtab smarttab
 set autoindent
+set cinoptions=(s,m1,j1
 set formatoptions+=jn formatoptions-=c
 set formatlistpat=\\C^\\s*[\\[({]\\\?\\([0-9]\\+\\\|[iIvVxXlLcCdDmM]\\+\\\|[a-zA-Z]\\)[\\]:.)}]\\s\\+\\\|^\\s*[-+o*]\\s\\+
 set nojoinspaces
@@ -391,7 +392,7 @@ function! Colors() abort
         hi! link @function.builtin Function
         hi! link @function.macro Macro
         hi! link @constructor Function
-        hi! link @punctuation.special Macro
+        hi! link @punctuation.special SpecialChar
         hi @markup.strong        ctermfg=NONE ctermbg=NONE cterm=bold guifg=NONE guibg=NONE gui=bold
         hi @markup.italic        ctermfg=NONE ctermbg=NONE cterm=italic guifg=NONE guibg=NONE gui=italic
         hi @markup.strikethrough ctermfg=NONE ctermbg=NONE cterm=strikethrough guifg=NONE guibg=NONE gui=strikethrough
@@ -442,6 +443,7 @@ function! Colors() abort
     hi PreProc guifg=#04c5ce guibg=NONE gui=NONE cterm=NONE
     hi Type guifg=#eeeeee guibg=NONE gui=NONE cterm=NONE
     hi Special guifg=#eeeeee guibg=NONE gui=bold cterm=bold
+    hi SpecialChar guifg=#ff7d81 guibg=NONE gui=NONE cterm=NONE
     hi Delimiter guifg=#eeeeee guibg=NONE gui=NONE cterm=NONE
     hi Underlined guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
     hi Ignore guifg=#777777 guibg=NONE gui=NONE cterm=NONE
@@ -549,6 +551,7 @@ function! Colors() abort
         hi PreProc guifg=#017b80 guibg=NONE gui=NONE cterm=NONE
         hi Type guifg=#121212 guibg=NONE gui=NONE cterm=NONE
         hi Special guifg=#121212 guibg=NONE gui=bold cterm=bold
+        hi SpecialChar guifg=#a52836 guibg=NONE gui=NONE cterm=NONE
         hi Delimiter guifg=#121212 guibg=NONE gui=NONE cterm=NONE
         hi Ignore guifg=#999999 guibg=NONE gui=NONE cterm=NONE
         hi Error guifg=#a52836 guibg=#eeeeee gui=bold,reverse cterm=bold,reverse
@@ -635,6 +638,7 @@ function! Colors() abort
     hi PreProc ctermfg=6 ctermbg=NONE cterm=NONE
     hi Type ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Special ctermfg=NONE ctermbg=NONE cterm=bold
+    hi SpecialChar ctermfg=1 ctermbg=NONE cterm=NONE
     hi Delimiter ctermfg=NONE ctermbg=NONE cterm=NONE
     hi Underlined ctermfg=NONE ctermbg=NONE cterm=underline
     hi Ignore ctermfg=NONE ctermbg=NONE cterm=NONE
@@ -1934,9 +1938,9 @@ else
 nnoremap <silent><C-w>ev   :<C-u>call <SID>explore_bufdir('Vexplore!')<CR>
 endif
 nnoremap <silent><C-w>et   :<C-u>call <SID>explore_bufdir('Texplore')<CR>
-nnoremap <leader>cd :<C-u>cd <Plug>BufDir/
-nnoremap <leader>e  :<C-u>e! <Plug>BufDir/
-nnoremap <leader>te :<C-u>tabedit <Plug>BufDir/
+nmap <leader>cd :<C-u>cd <Plug>BufDir/
+nmap <leader>e  :<C-u>e! <Plug>BufDir/
+nmap <leader>te :<C-u>tabedit <Plug>BufDir/
 function! s:netrw() abort
     silent! nunmap <buffer> <C-L>
     nmap <buffer> <leader><C-L> <Plug>NetrwRefresh
