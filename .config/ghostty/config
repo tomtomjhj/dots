@@ -7,10 +7,16 @@ adjust-cell-width = -1
 theme = dark:quite-dark,light:quite-light
 
 cursor-style = block
-cursor-invert-fg-bg = true
+cursor-color=cell-foreground
+cursor-text=cell-background
+# this makes cursor more discernible when on boundary of reverse video region
+cursor-opacity=0.93
+
+selection-foreground=cell-background
+selection-background=cell-foreground
 
 mouse-hide-while-typing = true
-mouse-scroll-multiplier = 0.25
+mouse-scroll-multiplier = 1
 
 keybind = f11=toggle_fullscreen
 keybind = ctrl+enter=unbind
