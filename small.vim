@@ -1115,6 +1115,12 @@ let python_no_exception_highlight = 1
 function! s:python() abort
     setlocal foldmethod=indent foldnestmax=2 foldignore=
     setlocal formatoptions+=ro
+
+    syn keyword pythonBoolean False True
+    hi! def link pythonBoolean Boolean
+    syn keyword pythonNone None
+    hi! def link pythonNone Constant
+    hi! def link pythonClass Type
 endfunction
 " }}}
 
