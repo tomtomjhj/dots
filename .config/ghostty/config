@@ -16,7 +16,7 @@ selection-foreground=cell-background
 selection-background=cell-foreground
 
 mouse-hide-while-typing = true
-mouse-scroll-multiplier = 1
+mouse-scroll-multiplier = precision:0.3,discrete:1
 
 keybind = f11=toggle_fullscreen
 keybind = ctrl+enter=unbind
