@@ -134,7 +134,7 @@ if has('nvim-0.9') || has('patch-9.1.1072')
     set diffopt-=linematch:40 diffopt+=linematch:60
 endif
 if has('nvim-0.12') || has('patch-9.1.1252')
-    set diffopt-=inline:simple diffopt+=inline:char
+    set diffopt-=inline:simple diffopt-=inline:char diffopt+=inline:word
 endif
 endif
 
@@ -458,10 +458,16 @@ function! Colors() abort
     hi CursorColumn guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE
     hi CursorLine guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=underline
     hi CursorLineNr guifg=NONE guibg=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold
-    hi DiffAdd guifg=#73c660 guibg=NONE gui=reverse cterm=reverse
-    hi DiffChange guifg=#6da4ff guibg=NONE gui=reverse cterm=reverse
+    if has('nvim')
+        hi DiffAdd guifg=NONE guibg=#203e1a gui=NONE cterm=NONE
+        hi DiffChange guifg=NONE guibg=#1f3559 gui=NONE cterm=NONE
+        hi DiffText guifg=NONE guibg=#45284c gui=NONE cterm=NONE
+    else
+        hi DiffAdd guifg=#73c660 guibg=NONE gui=reverse cterm=reverse
+        hi DiffChange guifg=#6da4ff guibg=NONE gui=reverse cterm=reverse
+        hi DiffText guifg=#da8aec guibg=NONE gui=reverse cterm=reverse
+    endif
     hi DiffDelete guifg=#ff7d81 guibg=NONE gui=NONE cterm=NONE
-    hi DiffText guifg=#da8aec guibg=NONE gui=reverse cterm=reverse
     hi Directory guifg=#6da4ff guibg=NONE gui=NONE cterm=NONE
     hi ErrorMsg guifg=NONE guibg=NONE gui=bold,reverse ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi FoldColumn guifg=#777777 guibg=NONE gui=reverse cterm=reverse
@@ -561,10 +567,16 @@ function! Colors() abort
         hi Removed guifg=#a52836 guibg=NONE gui=NONE cterm=NONE
         hi ColorColumn guifg=NONE guibg=#999999 gui=NONE cterm=NONE
         hi Conceal guifg=#4983e5 guibg=NONE gui=NONE cterm=NONE
-        hi DiffAdd guifg=#207400 guibg=NONE gui=reverse cterm=reverse
-        hi DiffChange guifg=#1f58b6 guibg=NONE gui=reverse cterm=reverse
+        if has('nvim')
+            hi DiffAdd guifg=NONE guibg=#acc7a6 gui=NONE cterm=NONE
+            hi DiffChange guifg=NONE guibg=#a9bfe2 gui=NONE cterm=NONE
+            hi DiffText guifg=NONE guibg=#ceb3d4 gui=NONE cterm=NONE
+        else
+            hi DiffAdd guifg=#207400 guibg=NONE gui=reverse cterm=reverse
+            hi DiffChange guifg=#1f58b6 guibg=NONE gui=reverse cterm=reverse
+            hi DiffText guifg=#833794 guibg=NONE gui=reverse cterm=reverse
+        endif
         hi DiffDelete guifg=#a52836 guibg=NONE gui=NONE cterm=NONE
-        hi DiffText guifg=#833794 guibg=NONE gui=reverse cterm=reverse
         hi Directory guifg=#1f58b6 guibg=NONE gui=NONE cterm=NONE
         hi FoldColumn guifg=#999999 guibg=NONE gui=reverse cterm=reverse
         hi Folded guifg=NONE guibg=#dadada gui=NONE cterm=NONE
@@ -655,8 +667,8 @@ function! Colors() abort
     hi CursorLineNr ctermfg=NONE ctermbg=NONE cterm=bold
     hi DiffAdd ctermfg=2 ctermbg=NONE cterm=reverse
     hi DiffChange ctermfg=4 ctermbg=NONE cterm=reverse
-    hi DiffDelete ctermfg=1 ctermbg=NONE cterm=NONE
     hi DiffText ctermfg=5 ctermbg=NONE cterm=reverse
+    hi DiffDelete ctermfg=1 ctermbg=NONE cterm=NONE
     hi Directory ctermfg=4 ctermbg=NONE cterm=NONE
     hi ErrorMsg ctermfg=NONE ctermbg=NONE cterm=bold,reverse
     hi FoldColumn ctermfg=NONE ctermbg=NONE cterm=NONE
