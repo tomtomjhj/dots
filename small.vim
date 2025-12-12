@@ -329,8 +329,7 @@ endfunction
 
 augroup Statusline | au!
     if has('unix') " too slow on windows
-        au BufReadPost,BufWritePost * silent! call UpdateGitStatus(str2nr(expand('<abuf>')))
-        au User FugitiveChanged call map(getbufinfo({'bufloaded':1}), 'UpdateGitStatus(v:val.bufnr)')
+        au BufReadPost,FileChangedShellPost,BufWritePost * silent! call UpdateGitStatus(str2nr(expand('<abuf>')))
     endif
 augroup END
 " }}}
@@ -1253,7 +1252,7 @@ function! Files(...) abort
     if a:0
         call filter(files, 'match(v:val, a:1) >= 0')
     endif
-    call setqflist([], ' ', {'lines': files, 'title': 'Files', 'efm': '%f'})
+    call setqflist([], ' ', {'lines': files, 'title': ':Files', 'efm': '%f'})
     silent doautocmd QuickFixCmdPost Files
     belowright cwindow
 endfunction
@@ -1943,7 +1942,7 @@ endfunction
 nnoremap <silent> gx :<C-u>call GXBrowse(CursorURL())<cr>
 
 let g:netrw_home = simplify(&undodir . '..')
-" let g:netrw_fastbrowse = 0 " TODO: with this, opening buffer in netrw bwipeouts modified no name buffer in different tab
+" let g:netrw_fastbrowse = 0 " before 9.1.1914, this made opening buffer in netrw bwipeout modified no name buffer in different tab
 let g:netrw_clipboard = 0
 let g:netrw_dirhistmax = 0
 let g:netrw_mousemaps = 0
