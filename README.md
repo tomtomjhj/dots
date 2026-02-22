@@ -649,6 +649,7 @@ Gave up and upgraded to 23.04.
 * what's the best practice for spliting a commit?
 * `git blame --reverse` (`fugitive_<CR>` in blob with count) may not show the commit that deletes the line when the path includes merge commits.
   <https://stackoverflow.com/a/42707940>
+    * Doesn't work well for the case where I'm looking for the commit that deleted stuff that was in version `x.y` but not in version `x+1.z`. Should do reverse blame from the common ancestor.
 * `git range-diff`
 * Rebasing merge commit with conflict resolution and other additional changes (that modify the part of code that didn't produce conflict marker, but conceptually is a conflict).
   `git rebase --rebase-merges origin/master` + rerere doesn't seem to carry over the additional changes.
@@ -685,3 +686,6 @@ Gave up and upgraded to 23.04.
       ```
       git fetch --deepen=N
       ```
+* `git push --force-with-lease` basicaly CAS
+* While rebasing, what to do if found a previous commit had botched conflict resolution?
+  No built-in to go back. Just make a temporary checkpoint branch in the current state, abort rebase, then re-rebase but --onto the parent of the botched commit (or start from scratch and rely on rerere).

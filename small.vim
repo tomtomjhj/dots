@@ -282,6 +282,10 @@ endfunction
 function! STLTitle(...) abort
     let w = a:0 ? a:1 : win_getid()
     let b = winbufnr(w)
+    let title = getbufvar(b, 'stl_title')
+    if !empty(title)
+        return title
+    endif
     let bt = getbufvar(b, '&buftype')
     let ft = getbufvar(b, '&filetype')
     let bname = bufname(b)
@@ -297,8 +301,11 @@ function! STLTitle(...) abort
         return pathshorten(fnamemodify(b:netrw_curdir, ":~")) . '/'
     elseif bname =~# '^fugitive://'
         let [obj, gitdir] = FugitiveParse(bname)
-        let matches = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
-        return pathshorten(fnamemodify(gitdir, ":~:h")) . ' ' . matches[1][:9] . matches[2]
+        let [_, repo, worktree; _] = matchlist(gitdir, '\v^(.+)/\.git%(/worktrees/(.+))?')
+        let [_, commit, file; _] = matchlist(obj, '\v(:\d?|\x+)(:\f*)?')
+        return pathshorten(fnamemodify(repo, ':~'))
+                    \ . (empty(worktree) ? ' ' : ' (' . worktree . ') ')
+                    \ . commit[:9] . file
     elseif getbufvar(b, 'fugitive_type', '') is# 'temp'
         return pathshorten(fnamemodify(bname, ":~:.")) . ' :Git ' . join(FugitiveResult(bname)['args'], ' ')
     elseif ft is# 'gl'
@@ -1994,10 +2001,12 @@ function! BufDir(...) abort
     let ft = getbufvar(b, '&filetype')
     if ft is# 'fugitive'
         return fnamemodify(FugitiveGitDir(b), ':h')
-    elseif bname =~# '^fugitive://'
+    elseif bname =~# '^fugitive://' && b:fugitive_type is# 'blob'
         return fnamemodify(FugitiveReal(bname), ':h')
     elseif ft is# 'netrw'
         return b:netrw_curdir
+    elseif bname =~# '^\w\+://'
+        return getcwd()
     else
         " NOTE: If `isdirectory(bname)`, `:p` appends a path separator. This is removed by `:h`.
         return fnamemodify(bname, ':p:h')
