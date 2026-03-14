@@ -2,6 +2,8 @@ font-family = "Iosevka Custom"
 font-family = "Noto Sans CJK KR"
 font-size = 14
 adjust-cell-width = -1
+# Since 1.3: Defaults to "light", which is too thin.
+freetype-load-flags = no-light
 # font-synthetic-style is on by default but broken https://github.com/ghostty-org/ghostty/discussions/3791
 
 theme = dark:quite-dark,light:quite-light
