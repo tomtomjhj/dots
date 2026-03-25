@@ -780,21 +780,24 @@ augroup Languages | au!
     " NOTE: It would be more correct to use Syntax autocmd for syntax customization.
     au FileType c,cpp call s:c_cpp()
     au FileType cpp call s:cpp()
-    au FileType lua setlocal shiftwidth=2
-    au FileType markdown call s:markdown()
+    au FileType lua setlocal shiftwidth=2 | call s:treesitter()
+    au FileType markdown if !has('nvim-0.11') | call s:markdown_legacy() | endif | call s:markdown() | call s:treesitter()
     au FileType pandoc setlocal filetype=markdown
     au FileType python call s:python()
     au FileType vim setlocal formatoptions-=c
     au FileType xml setlocal formatoptions-=r formatoptions-=o " very broken: <!--<CR> → <!--\n--> █
-    au FileType markdown call s:treesitter()
 augroup END
 
 let g:_ts_force_sync_parsing = v:true
 function! s:treesitter() abort
     if !has('nvim') | return | endif
-    lua vim.treesitter.start()
+    if !exists('b:ts_highlight')
+        lua vim.treesitter.start()
+        let b:undo_ftplugin = get(b:, 'undo_ftplugin', '') . "\n call v:lua.vim.treesitter.stop()"
+    endif
     if &l:foldmethod !=# 'diff'
-        setlocal foldmethod=expr foldexpr=v:lua.vim.treesitter.foldexpr()
+        setlocal foldmethod=expr foldexpr=v:lua.vim.treesitter.foldexpr() foldtext<
+        let b:undo_ftplugin = get(b:, 'undo_ftplugin', '') . "\n setlocal foldexpr< foldmethod<"
     endif
 endfunction
 
@@ -824,13 +827,12 @@ endfunction
 " markdown {{{
 let g:markdown_fenced_languages = []
 let g:markdown_folding = 1
-function! s:markdown() abort
+function! s:markdown_legacy() abort
     syn clear
     if exists("b:undo_ftplugin")
       exe b:undo_ftplugin
       unlet! b:undo_ftplugin b:did_ftplugin
     endif
-    if !has('nvim')
     " tpope-vim-markdown/syntax/markdown.vim {{{
     if !exists('main_syntax')
       let main_syntax = 'markdown'
@@ -1017,7 +1019,6 @@ function! s:markdown() abort
     syn keyword mkdTodo TODO containedin=ALL
     hi def link mkdTodo Todo
     " }}}
-    endif
     " tpope-vim-markdown/ftplugin/markdown.vim {{{
     runtime! ftplugin/html.vim ftplugin/html_*.vim ftplugin/html/*.vim
 
@@ -1107,19 +1108,19 @@ function! s:markdown() abort
       return hash_indent.' '.title.' '.linecount
     endfunction
 
-    if has("folding") && get(g:, "markdown_folding", 0) && !has('nvim')
+    if has("folding") && get(g:, "markdown_folding", 0)
       setlocal foldexpr=MarkdownFold()
       setlocal foldmethod=expr
       setlocal foldtext=MarkdownFoldText()
       let b:undo_ftplugin .= "|setl foldexpr< foldmethod< foldtext<"
     endif
     " }}}
-    " s:markdown() {{{
+endfunction
+function! s:markdown() abort
     " <> pair is too intrusive
     setlocal matchpairs-=<:>
     " Set from $VIMRUNTIME/ftplugin/html.vim
     let b:match_words = substitute(b:match_words, '<:>,', '', '')
-    " }}}
 endfunction
 " }}}
 
