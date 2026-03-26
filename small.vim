@@ -2256,10 +2256,96 @@ endif
 " }}}
 
 " comments {{{
-" https://github.com/tomtomjhj/vim-commentary/blob/1484006b8f3e4b9c3557631167a1d87c4ea90065/plugin/commentary.vim
+" https://github.com/tomtomjhj/vim-commentary/blob/c06c0cb1c94be5d242ac535bc77428c535c44cb5/plugin/commentary.vim
+if has('nvim-0.11')
+lua << EOF
+---cache for language → vim.filetype.get_option
+---@type table<string, string|false>
+local lang_cms = {}
+
+--- Get 'commentstring' at cursor
+---@return string
+function commentary_get_commentstring()
+  local buf_cs = vim.bo.commentstring
+
+  local ts_parser = vim.treesitter.get_parser(0, '', { error = false })
+  if not ts_parser then
+    return buf_cs
+  end
+
+  -- Try to get 'commentstring' associated with local tree-sitter language.
+  -- This is useful for injected languages (like markdown with code blocks).
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row, col = cursor[1] - 1, cursor[2]
+  local ref_range = { row, col, row, col + 1 }
+
+  -- Get 'commentstring' from tree-sitter captures' metadata.
+  -- Traverse backwards to prefer narrower captures.
+  local caps = vim.treesitter.get_captures_at_pos(0, row, col)
+  for i = #caps, 1, -1 do
+    local id, metadata = caps[i].id, caps[i].metadata
+    local md_cms = metadata['bo.commentstring'] or metadata[id] and metadata[id]['bo.commentstring']
+
+    if md_cms then
+      return md_cms
+    end
+  end
+
+  -- - Get 'commentstring' from the deepest LanguageTree which both contains
+  --   reference range and has valid 'commentstring' (meaning it has at least
+  --   one associated 'filetype' with valid 'commentstring').
+  --   In simple cases using `parser:language_for_range()` would be enough, but
+  --   it fails for languages without valid 'commentstring' (like 'comment').
+  local ts_cs, res_level = nil, 0
+  local buf_lang = vim.treesitter.language.get_lang(vim.bo.filetype)
+
+  ---@param lang_tree vim.treesitter.LanguageTree
+  local function traverse(lang_tree, level)
+    if not lang_tree:contains(ref_range) then
+      return
+    end
+
+    if level > res_level then
+      local lang = lang_tree:lang()
+      if lang == buf_lang and buf_cs ~= '' then
+        ts_cs = buf_cs
+        res_level = level
+      elseif lang_cms[lang] then
+        ts_cs = lang_cms[lang]
+        res_level = level
+      elseif lang_cms[lang] == nil then
+        local filetypes = vim.treesitter.language.get_filetypes(lang)
+        for _, ft in ipairs(filetypes) do
+          local cur_cs = vim.filetype.get_option(ft, 'commentstring')
+          if cur_cs ~= '' then
+            ts_cs = cur_cs
+            lang_cms[lang] = ts_cs --[[@as string]]
+            res_level = level
+            break
+          end
+        end
+        if res_level ~= level then
+          lang_cms[lang] = false
+        end
+      end
+    end
+
+    for _, child_lang_tree in pairs(lang_tree:children()) do
+      traverse(child_lang_tree, level + 1)
+    end
+  end
+  traverse(ts_parser, 1)
+
+  return ts_cs or buf_cs
+end
+EOF
+endif
+
 function! s:commentary_surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(substitute(
-        \ &commentstring, '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')), '%s', 1)
+        \ has('nvim-0.11') ? luaeval('commentary_get_commentstring()') : &commentstring,
+        \ '^$', '%s', ''), '\S\zs%s',' %s', '') ,'%s\ze\S', '%s ', '')),
+        \ '%s', 1)
 endfunction
 
 " l_go: Used for (un)commenting. Doesn't get stripped by empty comment.
@@ -2286,7 +2372,6 @@ function! s:commentary_go(...) abort
     let [lnum1, lnum2] = [line("'["), line("']")]
   endif
 
-  silent doautocmd <nomodeline> User CommentaryPre
   let [l, r] = s:commentary_surroundings()
   let l_go = l
   let uncomment = 2
@@ -2353,7 +2438,6 @@ function! s:commentary_textobject(inner) abort
 endfunction
 
 function! s:commentary_insert()
-  silent doautocmd <nomodeline> User CommentaryPre
   let [l, r] = s:commentary_surroundings()
   return l . r . repeat("\<C-G>U\<Left>", strchars(r))
 endfunction
