@@ -144,7 +144,7 @@ augroup BasicSetup | au!
     au BufRead * if empty(&buftype) && &filetype !~# '^git' && line("'\"") > 1 && line("'\"") <= line("$") | exec "norm! g`\"" | endif
     au VimEnter * exec 'tabdo windo clearjumps' | tabnext
     if has('nvim-0.11')
-        au TextYankPost * silent! lua vim.hl.on_yank()
+        au TextYankPost * if v:event.operator ==# 'y' | exe 'silent! lua vim.hl.on_yank()' | endif
     endif
 augroup END
 " }}}
@@ -779,6 +779,7 @@ augroup Languages | au!
     " NOTE: 'syntax-loading'.
     " NOTE: It would be more correct to use Syntax autocmd for syntax customization.
     au FileType c,cpp call s:c_cpp()
+    au FileType c call s:treesitter()
     au FileType cpp call s:cpp()
     au FileType lua setlocal shiftwidth=2 | call s:treesitter()
     au FileType markdown if !has('nvim-0.11') | call s:markdown_legacy() | endif | call s:markdown() | call s:treesitter()
@@ -795,9 +796,9 @@ function! s:treesitter() abort
         lua vim.treesitter.start()
         let b:undo_ftplugin = get(b:, 'undo_ftplugin', '') . "\n call v:lua.vim.treesitter.stop()"
     endif
-    if &l:foldmethod !=# 'diff'
+    if !&l:diff
         setlocal foldmethod=expr foldexpr=v:lua.vim.treesitter.foldexpr() foldtext<
-        let b:undo_ftplugin = get(b:, 'undo_ftplugin', '') . "\n setlocal foldexpr< foldmethod<"
+        let b:undo_ftplugin = get(b:, 'undo_ftplugin', '') . "\n if !&l:diff | setl foldmethod< foldexpr< | endif"
     endif
 endfunction
 
