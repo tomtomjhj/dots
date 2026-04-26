@@ -88,8 +88,11 @@ let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', 
 let s:wildignore_dirs = ['.git', '__pycache__', 'target'] " '*/dir/*' is too excessive.
 let &wildignore = join(s:wildignore_files + s:wildignore_dirs, ',')
 set complete-=i complete-=u completeopt=menuone,preview
-if exists('+completepopup') " 8.1.1951
-    set completeopt+=popup completepopup=highlight:NormalFloat,border:off
+if has('nvim-0.10') || has('patch-8.1.1880')
+    set completeopt+=popup
+    if exists('+completepopup') " 8.1.1951
+        set completepopup=highlight:NormalFloat,border:off
+    endif
 endif
 set path=.,,
 
@@ -257,7 +260,7 @@ endif
 
 " statusline & tabline {{{
 let &statusline = join([ '%( %w%q%h%)%( %{STLTitle()}%) %<',
-                       \ '%( %m%r%{get(b:,"git_status","")}%)',
+                       \ '%( %m%r%{get(b:,"stl_git","")}%)',
                        \ '%=',
                        \ ' %3p%% ',
                        \ ' %3l:%-2c '
@@ -320,25 +323,6 @@ function! STLTitle(...) abort
         return pathshorten(fnamemodify(simplify(bname), ":~:."))
     endif
 endfunction
-
-function! UpdateGitStatus(buf) abort
-    let bname = fnamemodify(bufname(a:buf), ':p')
-    if !empty(getbufvar(a:buf, '&buftype')) || !filereadable(bname) | return | endif
-    let status = ''
-    let git = 'git -C ' . shellescape(fnamemodify(bname, ':h'))
-    let rev_parse = systemlist(git . ' rev-parse --abbrev-ref HEAD')[0]
-    if !v:shell_error
-        let status = systemlist(git . ' status --porcelain ' . shellescape(bname))
-        let status = '[' . rev_parse . (empty(status) ? '' : ':' . status[0][:1]) . ']'
-    endif
-    call setbufvar(a:buf, 'git_status', status)
-endfunction
-
-augroup Statusline | au!
-    if has('unix') " too slow on windows
-        au BufReadPost,FileChangedShellPost,BufWritePost * silent! call UpdateGitStatus(str2nr(expand('<abuf>')))
-    endif
-augroup END
 " }}}
 
 " ColorScheme {{{
