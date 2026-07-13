@@ -525,6 +525,10 @@ Gave up and upgraded to 23.04.
   quality max is 100.
   change density if necessary.
   see also <https://imagemagick.org/script/command-line-options.php>
+* rotate pdf clockwise
+  ```
+  pdftk input.pdf cat 1-endwest output output.pdf
+  ```
 * how to rotate a page in pdf without losing bookmark, etc?
   pdfarranger loses them. can't fix with pdktk update_info
 * sync-ing directories
@@ -689,3 +693,4 @@ Gave up and upgraded to 23.04.
 * `git push --force-with-lease` basicaly CAS
 * While rebasing, what to do if found a previous commit had botched conflict resolution?
   No built-in to go back. Just make a temporary checkpoint branch in the current state, abort rebase, then re-rebase but --onto the parent of the botched commit (or start from scratch and rely on rerere).
+* `git status` can be slow if there are too many submodules. Try `--ignore-submodules=dirty`. If that improves, in`.git/config`, add `ignore = dirty` for the slow submodules.

@@ -35,6 +35,7 @@
 	# git [pr|mr] <repo> <num> [args...]
 	pr = "!f() { local repo=\"$1\"; local num=\"$2\"; shift 2; git fetch \"$repo\" pull/\"$num\"/head:pr-\"$repo\"-\"$num\" \"$@\"; }; f"
 	mr = "!f() { local repo=\"$1\"; local num=\"$2\"; shift 2; git fetch \"$repo\" merge-requests/\"$num\"/head:mr-\"$repo\"-\"$num\" \"$@\"; }; f"
+	pushf = push --force-with-lease
 [user]
 	email = tomtomjhj@gmail.com
 	name = Jaehwang Jung
@@ -69,6 +70,8 @@
 	fetchJobs = 0
 [pull]
 	ff = only
+[push]
+	autoSetupRemote = true
 [rerere]
 	enabled = true
 [delta]
