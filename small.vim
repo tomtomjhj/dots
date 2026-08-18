@@ -87,12 +87,18 @@ if !has('nvim') && has('patch-8.2.4325') | set wildoptions=pum,tagfile | endif
 let s:wildignore_files = ['*~', '%*', '*.o', '*.so', '*.pyc', '*.pdf', '*.v.d', '*.vo', '*.vo[sk]', '*.glob', '*.aux']
 let s:wildignore_dirs = ['.git', '__pycache__', 'target'] " '*/dir/*' is too excessive.
 let &wildignore = join(s:wildignore_files + s:wildignore_dirs, ',')
-set complete-=i complete-=u completeopt=menuone,preview
-if has('nvim-0.10') || has('patch-8.1.1880')
-    set completeopt+=popup
-    if exists('+completepopup') " 8.1.1951
-        set completepopup=highlight:NormalFloat,border:off
+if has('nvim-0.12') || has('patch-9.2.0')
+    set autocomplete
+    set complete=.^20,w^20,b^20,t^20
+    set completeopt=menuone,noselect,popup,nearest " fuzzy?
+else
+    set complete-=i complete-=u completeopt=menuone,preview
+    if has('nvim-0.10') || has('patch-8.1.1880')
+        set completeopt+=popup
     endif
+endif
+if exists('+completepopup') " 8.1.1951
+    set completepopup=highlight:NormalFloat,border:off
 endif
 set path=.,,
 
@@ -1196,17 +1202,18 @@ endif
 function! Grep(query, advanced) abort
     let opts = string(v:count)
     let options = (&grepprg =~# '^grep') ? Wildignore2exclude() : ''
-    " NOTE: shellescape('!', 1) == '\!'. This is meant for :!. Need something that only escapes cmdline-special.
-    if a:query =~# '!' && !a:advanced | echo 'Use :Grep! if query contains "!"' | return | endif
-    let query = a:advanced ? a:query : shellescape(a:query, 1)
+    let query = a:advanced ? a:query : s:grepescape(a:query)
     if opts =~ '3'
-        let query .= ' ' . shellescape(s:git_root(empty(bufname('%')) ? getcwd() : bufname('%')), 1)
+        let query .= ' ' . s:grepescape(s:git_root(empty(bufname('%')) ? getcwd() : bufname('%')))
     endif
     " NOTE: cmdline-special is expanded here.
     " NOTE: :grep is |-separated command (:h :bar), so | should be escaped
     exe 'grep!' options escape(query, '|')
     belowright cwindow
     redraw
+endfunction
+function! s:grepescape(arg) abort " :grep expands cmdline specials, but does not consume :!'s \!.
+    return substitute(shellescape(a:arg, 1), '\\!', '!', 'g')
 endfunction
 func! GrepInput(raw)
     let mode = (s:star_histnr == histnr('/')) ? s:star_mode : '/' " not accurate, because / could've been aborted
@@ -1758,6 +1765,7 @@ endfunction
 
 " window layout {{{
 command! -count Wfh setlocal winfixheight | if <count> | exe 'resize' <count> | endif
+command! -count Wfw setlocal winfixwidth | if <count> | exe 'vertical resize' <count> | endif
 nnoremap <silent> <C-w>g= :<C-u>call <SID>adjust_winfix_wins()<CR>
 
 function! s:adjust_winfix_wins() abort
@@ -1768,14 +1776,17 @@ function! s:adjust_winfix_wins() abort
     endfor
 endfunction
 
-function! s:heights() abort
+function! s:update_layout_sizes() abort
     let &pumheight = min([&window/4, 20])
     let &previewheight = max([&window/4, 12])
+    if has('patch-9.1.1284') || has('nvim-0.12')
+        let &pummaxwidth = min([&columns/2, 80])
+    endif
 endfunction
-call s:heights()
+call s:update_layout_sizes()
 
 augroup layout-custom | au!
-    au VimResized * call s:heights()
+    au VimResized * call s:update_layout_sizes()
 augroup END
 " }}}
 
@@ -1913,6 +1924,8 @@ endfunction
 " }}}
 
 " Explorers {{{
+let g:loaded_nvim_dir_plugin = 0
+
 " https://github.com/felipec/vim-sanegx/blob/e97c10401d781199ba1aecd07790d0771314f3f5/plugin/gx.vim
 function! GXBrowse(url)
     if exists('g:netrw_browsex_viewer')
@@ -2222,7 +2235,7 @@ command! -range=% Unpdf
 " --wrap=auto|none|preserve
 command! -range=% -nargs=? Md
             \ let _view = winsaveview()
-            \|exe '<line1>,<line2>!pandoc --from=commonmark_x --to=commonmark_x' <q-args>
+            \|exe '<line1>,<line2>!pandoc --from=gfm --to=gfm' <q-args>
             \|call winrestview(_view)
             \|unlet _view
 
