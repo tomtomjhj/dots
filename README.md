@@ -153,6 +153,36 @@ npm install
     * Consolas는 설치하기 귀찮으니 그냥 Source Code Pro 사용할 것
     * 수학: Cambria Math
 
+### Chrome 154 and the Fontconfig cache
+
+On Ubuntu 24.04 with Fontconfig 2.15, Chrome 154.0.8037.57 can replace
+`~/.cache/fontconfig/*cache-9` files with links to incompatible `*cache-12` files.
+New Ghostty windows can then fail with `FontconfigNoMatch`.
+Check with `fc-match 'Iosevka Custom'` and `ghostty +list-fonts --family='Iosevka Custom'`.
+The latter fails when the cache is broken.
+
+To recover, quit Chrome completely and rebuild the user font cache:
+```sh
+mv -- ~/.cache/fontconfig ~/.cache/fontconfig.broken-$(date +%Y%m%d-%H%M%S)
+fc-cache -f
+```
+
+Restart affected applications after rebuilding the cache.
+
+To use Chrome before it is fixed, launch it with a separate cache directory:
+
+```sh
+mkdir -p ~/.cache/google-chrome-xdg
+XDG_CACHE_HOME="$HOME/.cache/google-chrome-xdg" google-chrome-stable
+```
+
+Quit every Chrome process before switching to this command.
+Use this command for every Chrome launch; the desktop launcher still uses the shared cache.
+Fontconfig stores Chrome's cache under `~/.cache/google-chrome-xdg/fontconfig`.
+
+Check [the Chrome 154 crash report](https://issues.chromium.org/issues/565052667)
+and [the cache-format report](https://issues.chromium.org/issues/565132857) for updates.
+
 ## gnome
 * [make gnome terminal title bar small](https://www.reddit.com/r/gnome/comments/b3l1c9/gnometerminal_title_bar_is_huge_in_332/)
   ```
