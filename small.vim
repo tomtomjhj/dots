@@ -68,7 +68,7 @@ set cpoptions-=_
 let $LANG='en'
 set langmenu=en
 set spelllang=en,cjk
-set spellsuggest=best,13
+set spellsuggest=best,9
 
 let mapleader = "\<Space>"
 Mnoremap <Space> <Nop>

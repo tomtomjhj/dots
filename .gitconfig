@@ -30,7 +30,7 @@
 	sm = submodule
 	smu = submodule update --init --recursive
 	# https://lore.kernel.org/git/pull.1483.git.1676928805555.gitgitgadget@gmail.com/
-	fa = fetch --all -j4
+	fa = fetch --all --prune -j4
 	cp = cherry-pick
 	# git [pr|mr] <repo> <num> [args...]
 	pr = "!f() { local repo=\"$1\"; local num=\"$2\"; shift 2; git fetch \"$repo\" pull/\"$num\"/head:pr-\"$repo\"-\"$num\" \"$@\"; }; f"
@@ -43,6 +43,8 @@
 	editor = nvim
 	# default: FRX
 	pager = less -FRi
+[init]
+	defaultBranch = main
 [commit]
 	verbose = true
 [diff]
